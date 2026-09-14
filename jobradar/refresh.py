@@ -94,6 +94,12 @@ def run(
     profile = load_profile()
     preferred = {c.lower() for c in (profile.get("locations", {}).get("preferred") or [])}
     profile_skills = set(profile.get("skills_i_have") or [])
+    excluded_companies = frozenset(
+        normalize.employer_norm(c) for c in (profile.get("excluded_companies") or [])
+    )
+    excluded_terms = tuple(
+        t.lower() for t in (profile.get("excluded_description_terms") or [])
+    )
     boards = load_boards(only_source, only_token)
     if limit_boards:
         boards = boards[:limit_boards]
@@ -135,6 +141,8 @@ def run(
                     preferred=preferred, profile_skills=profile_skills,
                     employers=employers, matcher=matcher,
                     company_match_cache=company_match_cache,
+                    excluded_companies=excluded_companies,
+                    excluded_terms=excluded_terms,
                 )
             except SourceError as exc:
                 return board, records, str(exc)
@@ -177,12 +185,17 @@ def run(
 
 
 def _build(board, source, posting, title_n, match, *, preferred, profile_skills,
-           employers, matcher, company_match_cache) -> dict:
+           employers, matcher, company_match_cache, excluded_companies=frozenset(),
+           excluded_terms=()) -> dict:
     """One posting through stages 2 through 7."""
     drop_reason: str | None = None
 
+    company_raw = posting.company_name or board.company
+    if _is_excluded(normalize.employer_norm(company_raw), excluded_companies):
+        drop_reason = "excluded:company"
+
     senior = taxonomy.seniority_reject(title_n)
-    if senior:
+    if drop_reason is None and senior:
         drop_reason = f"seniority:{senior}"
 
     location = normalize.parse_locations(
@@ -213,6 +226,12 @@ def _build(board, source, posting, title_n, match, *, preferred, profile_skills,
     if drop_reason is None and not location.is_us and location.confidence == "high":
         drop_reason = "location:non-us"
 
+    if drop_reason is None and excluded_terms:
+        low = text.lower()
+        hit = next((t for t in excluded_terms if t in low), None)
+        if hit:
+            drop_reason = f"excluded:{hit.replace(' ', '-')}"
+
     verdict = taxonomy.sponsorship_text_verdict(normalize.sentences(text))
     if drop_reason is None and verdict.verdict in (
         "says_no", "requires_citizenship", "requires_clearance"
@@ -223,7 +242,7 @@ def _build(board, source, posting, title_n, match, *, preferred, profile_skills,
     if drop_reason is None and min_years is not None and min_years >= 6:
         drop_reason = f"experience:{min_years}y"
 
-    company = posting.company_name or board.company
+    company = company_raw
     stats, method, mscore = _match_company(
         company, employers, matcher, company_match_cache
     )
@@ -274,6 +293,23 @@ def _build(board, source, posting, title_n, match, *, preferred, profile_skills,
         "status": "dropped" if drop_reason else "open",
         "drop_reason": drop_reason,
     }
+
+
+def _is_excluded(company_norm: str, excluded: frozenset[str]) -> bool:
+    """Exact match, or the excluded name as a leading token run.
+
+    "FanDuel Group" normalizes to two tokens, and employer_norm deliberately
+    refuses to strip a descriptor down to a single token, so exact equality
+    misses it. Prefix matching catches the corporate variants.
+
+    This errs toward excluding, which is the right direction here and the
+    opposite of the sponsorship matcher's. A wrongly excluded employer costs
+    one missed posting the user never wanted anyway; a wrongly INCLUDED one
+    puts a role in front of them that they explicitly ruled out.
+    """
+    if company_norm in excluded:
+        return True
+    return any(company_norm.startswith(name + " ") for name in excluded)
 
 
 def _match_company(company, employers, matcher, cache):

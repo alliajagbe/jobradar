@@ -46,7 +46,10 @@ function track(key, patch) {
 
 /* ---- filter state, mirrored into the URL hash so a view is bookmarkable ---- */
 const state = {
-  q: "", minscore: 55, age: "", sponsor: new Set(), source: new Set(),
+  // Three days by default. Anything older has usually been seen by hundreds of
+  // applicants already, and the whole point of running this daily is being
+  // early. Everything older is still stored and one click away.
+  q: "", minscore: 55, age: "3", sponsor: new Set(), source: new Set(),
   remoteonly: false, trackedonly: false, showclosed: false, showdropped: false,
 };
 
@@ -64,7 +67,7 @@ function writeHash() {
   const p = new URLSearchParams();
   if (state.q) p.set("q", state.q);
   if (state.minscore !== 55) p.set("min", state.minscore);
-  if (state.age) p.set("age", state.age);
+  if (state.age !== "3") p.set("age", state.age);
   if (state.sponsor.size) p.set("sp", [...state.sponsor].join(","));
   if (state.source.size) p.set("src", [...state.source].join(","));
   for (const k of ["remoteonly", "trackedonly", "showclosed", "showdropped"])
@@ -103,9 +106,16 @@ function render() {
     const e = el("div", "empty muted");
     e.style.padding = "40px 20px";
     e.style.textAlign = "center";
-    e.textContent = CARDS.length
-      ? "Nothing matches these filters. Try lowering the minimum score."
-      : "No data yet. Run the refresh workflow to fill this in.";
+    if (!CARDS.length) {
+      e.textContent = "No data yet. Run the refresh workflow to fill this in.";
+    } else if (state.age) {
+      const wider = CARDS.filter((c) => c.status === "open" && c.score >= state.minscore).length;
+      e.textContent = "Nothing posted in the last " + state.age + " days. "
+        + (wider ? wider + " older roles are still here: widen Posted within, or Refresh for new ones."
+                 : "Try lowering the minimum score.");
+    } else {
+      e.textContent = "Nothing matches these filters. Try lowering the minimum score.";
+    }
     list.appendChild(e);
   }
 

@@ -78,6 +78,81 @@ def slug_candidates(company: str, limit: int = 5) -> list[str]:
     return out[:limit]
 
 
+# Workday career sites need three unknowns at once: the tenant, the wd{N} host
+# number, and the site segment. That is why they cannot be slug-guessed in bulk
+# the way the other four platforms can. It is also why they matter: the large
+# consulting firms, banks, retailers and insurers all live here, and those are
+# the employers filing the most analyst H-1Bs. A board list without them is a
+# board list of startups.
+# {t} lowercase tenant, {T} Capitalised, {U} UPPERCASE. All three appear in the
+# wild: NVIDIA publishes NVIDIAExternalCareerSite, Target publishes
+# targetcareers. Ordered cheapest-guess-first since probing stops at the first
+# site that returns matches.
+WD_SITES = (
+    "External", "external", "Careers", "careers",
+    "External_Career_Site", "ExternalCareerSite", "external_career_site",
+    "{U}ExternalCareerSite", "{T}ExternalCareerSite", "{t}ExternalCareerSite",
+    "{T}_Careers", "{t}_careers", "{T}Careers", "{t}careers", "{U}Careers",
+    "{T}_External", "{T}External", "{t}_external", "{U}External",
+    "{t}jobs", "{T}Jobs", "{t}_jobs", "jobs", "Jobs",
+    "CareerSite", "Career_Site", "Search", "search",
+    "GlobalCareers", "Global_Careers", "Global_Experienced_Careers",
+    "Professional", "Professional_Careers", "Experienced", "Campus",
+    "{t}CareerSite", "{T}CareerSite", "{t}_Careers_External",
+)
+
+
+def probe_workday(tenant: str, *, wd_range=range(1, 13), progress=None):
+    """Find a Workday tenant's host number and career site segment.
+
+    Two stages, because the cost is multiplicative otherwise: find the wd{N}
+    that answers at all, then try site names only against that one.
+    """
+    from .sources import http
+    from .sources.base import SourceError
+    from .sources.workday import _HEADERS
+
+    host = None
+    for n in wd_range:
+        url = f"https://{tenant}.wd{n}.myworkdayjobs.com/wday/cxs/{tenant}/x/jobs"
+        try:
+            response = http.request("POST", url, json={"limit": 1, "offset": 0,
+                                                       "appliedFacets": {},
+                                                       "searchText": ""},
+                                    headers=_HEADERS)
+        except SourceError:
+            continue
+        # A wrong SITE on the right host answers 404. A wrong HOST does not
+        # resolve at all, so a 404 here is the signal we want.
+        if response.status_code in (200, 400, 404):
+            host = n
+            break
+    if host is None:
+        return None
+
+    for template in WD_SITES:
+        site = template.format(t=tenant, T=tenant.capitalize(), U=tenant.upper())
+        url = f"https://{tenant}.wd{host}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs"
+        try:
+            response = http.request("POST", url, json={"limit": 1, "offset": 0,
+                                                       "appliedFacets": {},
+                                                       "searchText": "analyst"},
+                                    headers=_HEADERS)
+        except SourceError:
+            continue
+        if response.status_code != 200:
+            continue
+        try:
+            total = (response.json() or {}).get("total") or 0
+        except ValueError:
+            continue
+        if total:
+            if progress:
+                progress(f"  {tenant}: wd{host}/{site} ({total} matches)")
+            return {"tenant": tenant, "wd_num": host, "site": site, "total": total}
+    return None
+
+
 def load_probes() -> dict[tuple[str, str], Probe]:
     if not config.PROBES_CSV.exists():
         return {}

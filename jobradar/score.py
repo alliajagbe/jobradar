@@ -119,13 +119,19 @@ def score_job(
     if age_days is None:
         rec_points, rec_detail = 3.0, "posting date unknown"
     else:
-        for threshold, pts in ((3, 10.0), (7, 8.0), (14, 6.0), (30, 3.0)):
+        # Day-level granularity at the short end. The page defaults to a
+        # three-day window, so buckets that all resolve to 10 inside that window
+        # contribute nothing to the ordering.
+        for threshold, pts in ((0, 10.0), (1, 9.0), (2, 7.5), (3, 6.0),
+                               (7, 4.0), (14, 2.0), (30, 1.0)):
             if age_days <= threshold:
                 rec_points = pts
                 break
         else:
             rec_points = 0.0
-        rec_detail = "posted today" if age_days <= 0 else f"posted {age_days} days ago"
+        rec_detail = ("posted today" if age_days <= 0
+                      else "posted yesterday" if age_days == 1
+                      else f"posted {age_days} days ago")
     components.append(Component("Recency", rec_points, config.MAX_RECENCY, rec_detail))
 
     # Penalties

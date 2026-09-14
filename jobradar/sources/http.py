@@ -55,15 +55,28 @@ def close() -> None:
 
 
 def _host_key(url: str) -> str:
+    """Which pacing bucket a URL belongs to.
+
+    Workday is keyed by FULL hostname, not by the shared myworkdayjobs.com
+    suffix. Two tenants are two different customers' deployments behind two
+    different edges, and pacing them as one host means probing forty tenants
+    runs forty times slower than it needs to for no politeness gain. The
+    interval still applies per tenant, which is the thing that actually
+    matters.
+    """
     host = urlsplit(url).hostname or ""
     for known in config.HOST_MIN_INTERVAL:
         if known != "default" and host.endswith(known):
-            return known
+            return host if known == "myworkdayjobs.com" else known
     return host
 
 
 def _pace(host: str) -> None:
-    interval = config.HOST_MIN_INTERVAL.get(host, config.HOST_MIN_INTERVAL["default"])
+    interval = config.HOST_MIN_INTERVAL.get(host)
+    if interval is None:
+        interval = (config.HOST_MIN_INTERVAL["myworkdayjobs.com"]
+                    if host.endswith("myworkdayjobs.com")
+                    else config.HOST_MIN_INTERVAL["default"])
     with _pace_lock:
         previous = _last_request.get(host, 0.0)
         wait = previous + interval - time.monotonic()

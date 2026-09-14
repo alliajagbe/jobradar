@@ -86,3 +86,58 @@ skills_i_have:
   - Optimization
   - LLM
   - Prompt engineering
+
+# Employers to skip regardless of how well a role scores. Matched on the
+# normalized company name, so legal suffixes and punctuation do not matter.
+excluded_companies:
+  - DraftKings
+  - FanDuel
+  - Flutter Entertainment
+  - Bet365
+  - BetMGM
+  - MGM Resorts
+  - Caesars Entertainment
+  - Penn Entertainment
+  - Rush Street Interactive
+  - Entain
+  - PointsBet
+  - Betfair
+  - PokerStars
+  - Underdog Fantasy
+  - PrizePicks
+  - Sleeper
+  - Sportradar
+  - Genius Sports
+  - Light and Wonder
+  - Scientific Games
+  - Aristocrat Leisure
+  - International Game Technology
+  - Everi Holdings
+  - Boyd Gaming
+  - Churchill Downs
+  - Bally's
+  - Wynn Resorts
+  - Las Vegas Sands
+  - Golden Nugget
+  - Hard Rock Digital
+  - Kambi
+  - Betsson
+  - Superbet
+  - Stake
+  - Polymarket
+  - Kalshi
+
+# A discovered board can be a gambling company this list has never heard of, so
+# the description is checked too. These terms are specific enough that they do
+# not appear outside the industry; do not add generic words like "betting" or
+# "odds", which show up in ordinary analytics writing.
+excluded_description_terms:
+  - sportsbook
+  - igaming
+  - online casino
+  - online gambling
+  - wagering
+  - casino resort
+  - lottery operator
+  - betting platform
+  - daily fantasy sports
