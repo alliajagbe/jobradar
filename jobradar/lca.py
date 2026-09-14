@@ -42,6 +42,20 @@ from .normalize import employer_norm
 
 PERFORMANCE_PAGE = "https://www.dol.gov/agencies/eta/foreign-labor/performance"
 
+def soc_base(value: object) -> str:
+    """Reduce a DOL SOC code to its six-digit base.
+
+    DOL reports the DETAILED occupation code, so Data Scientists arrive as
+    "15-2051.00" and Business Intelligence Analysts as "15-2051.01". Comparing
+    those against a set of bare "15-2051" codes matches nothing, which is silent:
+    every employer ends up with an analyst count of zero, the "sponsors often"
+    tier never fires because it requires three analyst filings, and the whole
+    sponsorship signal quietly degrades to "has sponsored" for everyone.
+    """
+    text = str(value or "").strip()
+    return text.split(".")[0].strip().upper()
+
+
 WANTED = {
     "EMPLOYER_NAME", "CASE_STATUS", "VISA_CLASS", "SOC_CODE",
     "WORKSITE_STATE", "WAGE_RATE_OF_PAY_FROM", "DECISION_DATE",
@@ -176,8 +190,7 @@ def _fold(totals: dict[str, Agg], row, index: dict[str, int]) -> None:
     certified = status.startswith("CERTIFIED")
     if certified:
         agg.certified += 1
-        soc = str(cell("SOC_CODE") or "").strip()
-        if soc in config.ANALYST_SOC_CODES:
+        if soc_base(cell("SOC_CODE")) in config.ANALYST_SOC_CODES:
             agg.analyst_certified += 1
     elif status.startswith("DENIED"):
         agg.denied += 1

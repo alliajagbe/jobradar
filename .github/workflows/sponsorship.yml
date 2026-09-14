@@ -39,7 +39,20 @@ jobs:
           git add data docs/data
           if git diff --staged --quiet; then
             echo "No change."
-          else
-            git commit -m "Load DOL sponsorship data ($(date -u +%Y-%m-%d))"
-            git push
+            exit 0
           fi
+          git commit -m "Load DOL sponsorship data ($(date -u +%Y-%m-%d))"
+          # A push landing during this run rebases cleanly onto it. Without the
+          # retry the run's work is simply lost, which for the sponsorship job
+          # is a 250MB download and twenty minutes of parsing.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected, rebasing onto origin/main"
+            git pull --rebase --autostash origin main || exit 1
+            sleep 5
+          done
+          echo "could not push after 3 attempts"
+          exit 1
