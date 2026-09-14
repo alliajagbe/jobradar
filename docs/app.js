@@ -354,8 +354,12 @@ function wire() {
   const help = $("#help");
   $("#helpclose").addEventListener("click", () => help.close());
   document.addEventListener("keydown", (e) => {
-    if (e.target.matches("input, textarea")) {
-      if (e.key === "Escape") e.target.blur();
+    // e.target is not guaranteed to be an Element. If it is not, calling
+    // .matches on it throws and takes every keyboard shortcut down with it,
+    // silently, for the rest of the session.
+    const t = e.target;
+    if (t && typeof t.matches === "function" && t.matches("input, textarea")) {
+      if (e.key === "Escape") t.blur();
       return;
     }
     if (e.key === "j" || e.key === "ArrowDown") { e.preventDefault(); select(Math.min(selected + 1, VIEW.length - 1)); }
