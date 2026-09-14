@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-14T22:00:33Z",
- "total": 395,
+ "updated_at": "2026-09-14T22:57:36Z",
+ "total": 396,
  "open": 85,
- "dropped": 310,
+ "dropped": 311,
  "closed": 0,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
@@ -12,17 +12,17 @@
   "smartrecruiters",
   "workday"
  ],
- "has_sponsorship_data": false,
+ "has_sponsorship_data": true,
  "run": {
   "boards_ok": 45,
   "boards_failed": 0,
-  "postings_seen": 433,
-  "new": 433,
+  "postings_seen": 434,
+  "new": 1,
   "closed": 0,
   "dropped_by_reason": {
    "location": 86,
    "text": 1,
-   "seniority": 236,
+   "seniority": 237,
    "experience": 21
   },
   "errors": []
