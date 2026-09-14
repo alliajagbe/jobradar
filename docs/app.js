@@ -402,9 +402,17 @@ async function boot() {
   document.querySelectorAll("#age button").forEach((n) => n.classList.toggle("on", n.dataset.v === state.age));
 
   try {
+    // GitHub Pages serves these with cache-control: max-age=600, so a plain
+    // reload inside ten minutes shows the browser's stale copy without ever
+    // asking the server. On a page whose whole job is displaying data that a
+    // workflow just rewrote, that is a bug: the reader refreshes, sees the old
+    // counts and the "no sponsorship data" banner, and concludes the refresh
+    // did nothing. `cache: "no-cache"` forces a conditional request, so an
+    // unchanged file still costs only a 304.
+    const opts = { cache: "no-cache" };
     const [cards, meta] = await Promise.all([
-      fetch("data/jobs.json").then((r) => r.json()),
-      fetch("data/meta.json").then((r) => r.json()),
+      fetch("data/jobs.json", opts).then((r) => r.json()),
+      fetch("data/meta.json", opts).then((r) => r.json()),
     ]);
     CARDS = cards; META = meta;
   } catch {
