@@ -135,8 +135,7 @@ function cardNode(card, i) {
   const a = ageDays(card);
   if (a !== null) sub.appendChild(el("span", null, a === 0 ? "today" : a + "d ago"));
 
-  const sig = card.sponsorship.signal;
-  sub.appendChild(el("span", "chip " + sig, SPONSOR_LABELS[sig] || sig));
+  sub.appendChild(sponsorChip(card.sponsorship));
 
   const t = tracker[card.dedupe_key];
   if (t && t.status) sub.appendChild(el("span", "chip " + (t.status === "applied" ? "applied" : "state"), t.status));
@@ -150,6 +149,21 @@ function cardNode(card, i) {
   node.appendChild(main);
   node.addEventListener("click", () => select(i));
   return node;
+}
+
+function sponsorChip(sp) {
+  let text = SPONSOR_LABELS[sp.signal] || sp.signal;
+  // Depth matters more than the tier once a company clearly sponsors at all.
+  if ((sp.signal === "strong" || sp.signal === "some") && sp.analyst_certified != null) {
+    text += " · " + sp.analyst_certified + " analyst";
+  }
+  const chip = el("span", "chip " + sp.signal, text);
+  if (sp.certified != null) {
+    chip.title = sp.certified.toLocaleString() + " certified H-1B filings, "
+      + sp.analyst_certified + " in analyst occupations"
+      + (sp.match_method ? " (matched " + sp.match_method + ")" : "");
+  }
+  return chip;
 }
 
 function renderCounts() {
@@ -220,8 +234,7 @@ function renderDetail(card) {
   /* sponsorship */
   const sp = card.sponsorship;
   const spSec = section(d, "Sponsorship");
-  const chip = el("span", "chip " + sp.signal, SPONSOR_LABELS[sp.signal] || sp.signal);
-  spSec.appendChild(chip);
+  spSec.appendChild(sponsorChip(sp));
   spSec.appendChild(el("p", "note", sp.detail));
   if (sp.evidence) {
     const q = el("div", "evidence bad", "“" + sp.evidence.trim() + "”");

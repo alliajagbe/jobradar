@@ -109,3 +109,13 @@ The gate tests matter most. The single most important assertion is that
 "Applicants must be authorized to work in the United States" does **not** filter
 a posting out: someone on OPT is authorized to work. Only the longer form, the
 one adding "without sponsorship" or "now or in the future", disqualifies.
+
+### Page tests
+
+`tests/page.test.js` runs the published page in a real DOM and checks render,
+selection, tracking persistence, filters and the URL hash. It needs jsdom, which
+is not a project dependency:
+
+```bash
+npm install jsdom && node tests/page.test.js
+```

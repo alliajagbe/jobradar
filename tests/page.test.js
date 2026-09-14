@@ -1,0 +1,96 @@
+const fs = require("fs"), path = require("path");
+const { JSDOM } = require("jsdom");
+const ROOT = "/Users/alli/dev/jobCollections/jobradar/docs";
+
+const cards = JSON.parse(fs.readFileSync(path.join(ROOT, "data/jobs.json")));
+const meta  = JSON.parse(fs.readFileSync(path.join(ROOT, "data/meta.json")));
+
+const dom = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
+  runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/",
+  pretendToBeVisual: true,
+});
+const w = dom.window;
+w.fetch = (u) => Promise.resolve({ json: () => Promise.resolve(u.includes("meta") ? meta : cards) });
+const store = {};
+Object.defineProperty(w, "localStorage", { value: {
+  getItem: k => store[k] ?? null, setItem: (k,v) => { store[k]=String(v); },
+  removeItem: k => { delete store[k]; }, clear: () => {},
+}});
+w.HTMLDialogElement.prototype.showModal = function(){ this.open = true; };
+w.HTMLDialogElement.prototype.close = function(){ this.open = false; };
+w.URL.createObjectURL = () => "blob:x"; w.URL.revokeObjectURL = () => {};
+// jsdom does not implement scrollIntoView; every real browser does.
+w.Element.prototype.scrollIntoView = function(){};
+
+const errors = [];
+w.addEventListener("error", e => errors.push(String(e.error || e.message)));
+
+w.eval(fs.readFileSync(path.join(ROOT, "app.js"), "utf8"));
+
+setTimeout(() => {
+  const $ = s => w.document.querySelector(s);
+  const q = s => [...w.document.querySelectorAll(s)];
+  let fail = 0;
+  const check = (name, cond, extra="") => {
+    if (!cond) { fail++; console.log("FAIL " + name + " " + extra); }
+    else console.log("ok   " + name + (extra ? " — " + extra : ""));
+  };
+
+  check("no uncaught errors", errors.length === 0, errors.join("; "));
+  const rendered = q(".card").length;
+  check("cards rendered", rendered > 0, rendered + " cards at default min score 55");
+  check("header updated", $("#updated").textContent.includes("open"), $("#updated").textContent);
+  check("refresh link points at Actions", $("#refresh").href.includes("actions/workflows"));
+  check("first card auto-selected", q(".card.sel").length === 1);
+  check("detail pane filled", $("#detail").textContent.includes("Why"));
+  check("score breakdown rows", q("table.explain tr").length >= 5,
+        q("table.explain tr").length + " components");
+  check("sponsorship filter built", q("#sponsor label").length === 6);
+  check("source filter built", q("#source label").length === meta.sources.length);
+  check("dropped count shown", $("#dropcount").textContent.trim().length > 2, $("#dropcount").textContent);
+  // The banner should appear only when sponsorship data is absent.
+  check("banner matches sponsorship data state",
+        meta.has_sponsorship_data ? $("#banner").hidden
+                                  : $("#banner").textContent.includes("filing record"),
+        meta.has_sponsorship_data ? "data loaded, banner hidden" : "banner shown");
+
+  // Keyboard: j moves selection, a marks applied and persists.
+  const press = (key) => w.document.dispatchEvent(new w.KeyboardEvent("keydown", {key, bubbles:true}));
+  press("j");
+  check("j moves selection", q(".card")[1].classList.contains("sel"));
+  press("a");
+  const saved = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+  check("a marks applied and persists", Object.values(saved).some(v => v.status === "applied"),
+        JSON.stringify(Object.values(saved)[0] || {}).slice(0,80));
+  check("applied chip appears", q(".chip.applied").length >= 1);
+  check("track count updated", $("#trackcount").textContent.startsWith("1"), $("#trackcount").textContent);
+
+  // Filters
+  $("#minscore").value = 95;
+  $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));
+  const high = q(".card").length;
+  check("min score filter narrows", high < rendered, `${rendered} -> ${high} at min 95`);
+  $("#minscore").value = 0;
+  $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));
+  check("min score filter widens back", q(".card").length >= rendered);
+
+  $("#showdropped").checked = true;
+  $("#showdropped").dispatchEvent(new w.Event("change", {bubbles:true}));
+  check("show filtered reveals dropped", q(".card.is-dropped").length > 0,
+        q(".card.is-dropped").length + " dropped shown");
+
+  $("#search").value = "analyst";
+  $("#search").dispatchEvent(new w.Event("input", {bubbles:true}));
+  check("search filters", q(".card").length > 0 && q(".card").length < cards.length);
+  check("url hash reflects state", w.location.hash.includes("q=analyst"), w.location.hash);
+
+  const chips = q(".cardsub .chip");
+  check("sponsor chip rendered", chips.length > 0, chips[0] ? chips[0].textContent : "");
+  const titled = chips.filter(c => c.title && c.title.includes("certified"));
+  check("sponsor chip carries a tooltip when data exists",
+        titled.length > 0 || !meta.has_sponsorship_data,
+        titled[0] ? titled[0].title.slice(0,60) : "no sponsorship data loaded");
+
+  console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
+  process.exit(fail ? 1 : 0);
+}, 600);

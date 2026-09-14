@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-14T23:02:26Z",
+ "updated_at": "2026-09-14T23:03:10Z",
  "total": 644,
  "open": 128,
  "dropped": 516,
@@ -12,19 +12,5 @@
   "smartrecruiters",
   "workday"
  ],
- "has_sponsorship_data": true,
- "run": {
-  "boards_ok": 128,
-  "boards_failed": 0,
-  "postings_seen": 702,
-  "new": 268,
-  "closed": 0,
-  "dropped_by_reason": {
-   "location": 122,
-   "text": 4,
-   "seniority": 421,
-   "experience": 21
-  },
-  "errors": []
- }
+ "has_sponsorship_data": true
 }
