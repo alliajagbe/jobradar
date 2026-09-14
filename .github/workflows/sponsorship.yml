@@ -1,0 +1,45 @@
+name: Load sponsorship data
+
+# Quarterly at most. Downloads roughly 250MB of Department of Labor H-1B filing
+# data per fiscal year and compacts it to data/sponsors.csv.gz. Runs here rather
+# than on a laptop precisely because of that download.
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Fiscal years to ingest"
+        default: "2"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jobradar-data
+  cancel-in-progress: false
+
+jobs:
+  sponsorship:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Ingest DOL LCA data
+        run: python -m jobradar sponsorship --years ${{ inputs.years }}
+      - name: Rescore with the new signal
+        run: python -m jobradar -v refresh
+      - name: Commit
+        run: |
+          git config user.name  "jobradar"
+          git config user.email "noreply@github.com"
+          git add data docs/data
+          if git diff --staged --quiet; then
+            echo "No change."
+          else
+            git commit -m "Load DOL sponsorship data ($(date -u +%Y-%m-%d))"
+            git push
+          fi

@@ -1,0 +1,88 @@
+# What JobRadar is looking for. Edit this file to retarget the search; nothing
+# else needs to change.
+#
+# This file is committed to a public repo, so it holds a skill keyword list and
+# nothing else. No name, no contact details, no resume text.
+
+experience_years: 1          # post-graduate full-time. Drives the years-of-experience gate.
+max_years_accepted: 5        # postings asking for more than this are dropped
+
+locations:
+  # Cities that score full location points. Everywhere else in the US scores 12.
+  preferred:
+    - Winston-Salem
+    - Charlotte
+    - Raleigh
+    - Durham
+    - New York
+    - Brooklyn
+    - Jersey City
+    - Boston
+    - Washington
+    - Arlington
+    - Atlanta
+    - Chicago
+    - Austin
+    - Dallas
+    - San Francisco
+    - Oakland
+    - San Jose
+    - Seattle
+  remote_ok: true
+
+# Search terms sent to Workday tenants, which need a query rather than serving a
+# whole board. Keep this short: each term is a separate paginated crawl.
+workday_search_terms:
+  - data analyst
+  - business analyst
+  - data scientist
+  - business intelligence
+  - analytics
+  - reporting analyst
+
+# Skills the profile can already claim. Used only to compute the "gaps to expect
+# in a screen" list: a posting's requirement that is NOT in here shows up as a
+# gap. Keep it honest; an inflated list hides the things worth revising before
+# an interview.
+skills_i_have:
+  - SQL
+  - Python
+  - Excel
+  - Tableau
+  - Power BI
+  - Looker
+  - Pandas
+  - NumPy
+  - scikit-learn
+  - PostgreSQL
+  - MS SQL Server
+  - dbt
+  - BigQuery
+  - A/B testing
+  - Regression
+  - Classification
+  - Forecasting
+  - Time series
+  - Causal inference
+  - XGBoost
+  - Data visualization
+  - Dashboards
+  - ETL
+  - Statistics
+  - Segmentation
+  - VBA
+  - Power Query
+  - Git
+  - Airbyte
+  - GCP
+  - AWS
+  - Vertex AI
+  - Jira
+  - Agile
+  - NLP
+  - Neural networks
+  - Monte Carlo
+  - Linear programming
+  - Optimization
+  - LLM
+  - Prompt engineering

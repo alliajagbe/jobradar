@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobRadar</title>
+<meta name="description" content="Analytics roles, scored and checked for sponsorship history.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="dot" aria-hidden="true"></span>
+    <h1>JobRadar</h1>
+  </div>
+  <input id="search" type="search" placeholder="Search title, company, skill" autocomplete="off" spellcheck="false">
+  <div class="topmeta">
+    <span id="updated" class="muted">loading</span>
+    <a id="refresh" class="btn" href="#" target="_blank" rel="noopener">Refresh</a>
+  </div>
+</header>
+
+<div id="banner" class="banner" hidden></div>
+
+<main>
+  <aside class="rail" id="rail">
+    <section>
+      <label class="railhead" for="minscore">Minimum score <output id="minscoreout">55</output></label>
+      <input id="minscore" type="range" min="0" max="100" step="5" value="55">
+    </section>
+
+    <section>
+      <div class="railhead">Posted within</div>
+      <div class="segmented" id="age" role="group">
+        <button data-v="3">3d</button><button data-v="7">7d</button>
+        <button data-v="14">14d</button><button data-v="30">30d</button>
+        <button data-v="" class="on">Any</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="railhead">Sponsorship</div>
+      <div id="sponsor" class="checks"></div>
+      <p class="note">Based on the employer's past H-1B filings with the Department of Labor. It is a history, not a promise about this role.</p>
+    </section>
+
+    <section>
+      <div class="railhead">Source</div>
+      <div id="source" class="checks"></div>
+    </section>
+
+    <section>
+      <div class="railhead">Show</div>
+      <div class="checks">
+        <label><input type="checkbox" id="remoteonly"> Remote only</label>
+        <label><input type="checkbox" id="trackedonly"> Tracked only</label>
+        <label><input type="checkbox" id="showclosed"> Closed postings</label>
+        <label><input type="checkbox" id="showdropped"> Filtered out <span id="dropcount" class="muted"></span></label>
+      </div>
+    </section>
+
+    <section class="railfoot">
+      <button class="btn ghost" id="reset">Reset filters</button>
+      <div class="trackline">
+        <span id="trackcount">0 tracked</span>
+        <button class="linkbtn" id="export">Export</button>
+        <button class="linkbtn" id="importbtn">Import</button>
+        <input type="file" id="importfile" accept="application/json" hidden>
+      </div>
+      <p class="note">What you apply to is stored in this browser only. It never leaves your device and is not in the repository.</p>
+    </section>
+  </aside>
+
+  <section class="list" id="list" tabindex="-1" aria-label="Job results"></section>
+
+  <aside class="detail" id="detail">
+    <div class="empty">
+      <p>Select a role to see why it scored what it did.</p>
+      <p class="muted"><kbd>j</kbd> <kbd>k</kbd> to move, <kbd>a</kbd> applied, <kbd>?</kbd> for all keys.</p>
+    </div>
+  </aside>
+</main>
+
+<dialog id="help">
+  <h2>Keyboard</h2>
+  <dl>
+    <dt><kbd>j</kbd> / <kbd>k</kbd></dt><dd>Next and previous role</dd>
+    <dt><kbd>Enter</kbd></dt><dd>Open the posting in a new tab</dd>
+    <dt><kbd>a</kbd></dt><dd>Mark applied</dd>
+    <dt><kbd>s</kbd></dt><dd>Mark interested</dd>
+    <dt><kbd>x</kbd></dt><dd>Dismiss</dd>
+    <dt><kbd>/</kbd></dt><dd>Search</dd>
+    <dt><kbd>?</kbd></dt><dd>This list</dd>
+    <dt><kbd>Esc</kbd></dt><dd>Close</dd>
+  </dl>
+  <button class="btn" id="helpclose">Close</button>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>

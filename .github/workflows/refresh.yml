@@ -1,0 +1,41 @@
+name: Refresh jobs
+
+# Manual only, by choice. To have results waiting in the morning, uncomment the
+# schedule block. Note that GitHub disables scheduled workflows after 60 days of
+# repository inactivity, so a cron version needs an occasional commit to stay alive.
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 12 * * *"   # 08:00 America/New_York
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jobradar-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Refresh
+        run: python -m jobradar -v refresh
+      - name: Commit if anything changed
+        run: |
+          git config user.name  "jobradar"
+          git config user.email "noreply@github.com"
+          git add data/jobs.jsonl docs/data
+          if git diff --staged --quiet; then
+            echo "No change."
+          else
+            git commit -m "Refresh jobs ($(date -u +%Y-%m-%d))"
+            git push
+          fi

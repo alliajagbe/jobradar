@@ -1,0 +1,55 @@
+canonical,aliases,weight
+SQL,sql|t-sql|tsql|ansi sql,3
+Python,python,3
+Excel,excel|microsoft excel|ms excel,3
+Tableau,tableau,3
+Power BI,power bi|powerbi|pbi,3
+Looker,looker|looker studio,3
+Pandas,pandas,2
+NumPy,numpy,2
+scikit-learn,scikit-learn|sklearn|scikit learn,2
+PostgreSQL,postgresql|postgres,2
+MS SQL Server,sql server|ms sql|microsoft sql server,2
+Snowflake,snowflake,2
+dbt,dbt,2
+BigQuery,bigquery|big query,2
+Redshift,redshift,2
+Databricks,databricks,2
+Spark,spark|pyspark|apache spark,2
+A/B testing,a/b test|ab test|a-b test|split test|experimentation,2
+Regression,regression|linear regression|logistic regression,2
+Classification,classification,2
+Forecasting,forecasting|demand forecast,2
+Time series,time series|timeseries,2
+Causal inference,causal inference|causal analysis,2
+XGBoost,xgboost|gradient boosting,2
+Data visualization,data visualisation|data visualization|visualization,2
+Dashboards,dashboard|dashboards,2
+ETL,etl|elt|data pipeline|pipelines,2
+Statistics,statistics|statistical analysis|hypothesis testing,2
+Segmentation,segmentation|cohort analysis|clustering|k-means,2
+VBA,vba,1
+Power Query,power query,1
+Git,git|github|version control,1
+Airbyte,airbyte,1
+Airflow,airflow,1
+GCP,gcp|google cloud,1
+AWS,aws|amazon web services,1
+Azure,azure,1
+Vertex AI,vertex ai,1
+Jira,jira,1
+Agile,agile|scrum|sprint,1
+NLP,nlp|natural language processing,1
+Neural networks,neural network|deep learning,1
+Monte Carlo,monte carlo,1
+Linear programming,linear programming|milp|mixed integer,1
+Optimization,optimization|optimisation|optimizer,1
+LLM,llm|large language model|generative ai|genai,1
+Prompt engineering,prompt engineering,1
+Snowplow,snowplow,1
+Google Analytics,google analytics|ga4,1
+Salesforce,salesforce,1
+Alteryx,alteryx,1
+SAS,sas,1
+Stata,stata,1
+MATLAB,matlab,1

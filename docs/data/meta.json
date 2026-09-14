@@ -1,0 +1,30 @@
+{
+ "updated_at": "2026-09-14T22:00:33Z",
+ "total": 395,
+ "open": 85,
+ "dropped": 310,
+ "closed": 0,
+ "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
+ "sources": [
+  "ashby",
+  "greenhouse",
+  "lever",
+  "smartrecruiters",
+  "workday"
+ ],
+ "has_sponsorship_data": false,
+ "run": {
+  "boards_ok": 45,
+  "boards_failed": 0,
+  "postings_seen": 433,
+  "new": 433,
+  "closed": 0,
+  "dropped_by_reason": {
+   "location": 86,
+   "text": 1,
+   "seniority": 236,
+   "experience": 21
+  },
+  "errors": []
+ }
+}

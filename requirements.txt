@@ -1,0 +1,12 @@
+httpx==0.28.1
+# html_to_text. A regex tag-stripper loses <li> boundaries, which merges twelve
+# bulleted requirements into one 800-character line that no sentence-level
+# sponsorship pattern can split. See normalize.html_to_text.
+lxml==5.3.0
+# Streaming read of the 252MB DOL LCA workbook. See jobradar/lca.py.
+openpyxl==3.1.5
+# Employer-name matching. difflib.SequenceMatcher over ~600k candidate names
+# is minutes per company; rapidfuzz is C-backed and milliseconds.
+rapidfuzz==3.11.0
+PyYAML==6.0.2
+pytest==8.3.4

@@ -1,0 +1,16 @@
+# The resume itself never goes in a public repo.
+*.pdf
+*.docx
+
+# The 252MB DOL workbook. Delete it after a successful ingest; the compacted
+# data/sponsors.csv.gz is what we keep.
+data/lca/
+
+# Tracker exports are personal: which jobs you applied to and were rejected by.
+tracker-backup*.json
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
