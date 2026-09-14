@@ -14,3 +14,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .DS_Store
+
+# jsdom, installed only to run tests/page.test.js
+node_modules/
+package-lock.json
