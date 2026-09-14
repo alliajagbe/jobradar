@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-14T22:57:36Z",
+ "updated_at": "2026-09-14T22:59:46Z",
  "total": 396,
  "open": 85,
  "dropped": 311,
@@ -17,7 +17,7 @@
   "boards_ok": 45,
   "boards_failed": 0,
   "postings_seen": 434,
-  "new": 1,
+  "new": 0,
   "closed": 0,
   "dropped_by_reason": {
    "location": 86,
