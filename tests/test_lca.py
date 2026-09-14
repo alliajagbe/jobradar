@@ -45,3 +45,32 @@ def test_one_file_per_fiscal_year():
         "LCA_Disclosure_Data_FY2026_Q3.xlsx",   # highest quarter of FY2026
         "LCA_Disclosure_Data_FY2025_Q4.xlsx",
     ]
+
+
+def test_employer_table_renormalizes_at_load(tmp_path, monkeypatch):
+    """The table is keyed by re-normalizing display_name at load, not by the
+    norm_name written at ingest. Matching only works when both sides run the
+    same normalizer, and the file may have been built weeks and several edits
+    ago. Re-keying also merges corporate variants, which is intended."""
+    import csv as _csv
+    import gzip as _gzip
+
+    from jobradar import config as cfg, sponsorship
+
+    path = tmp_path / "sponsors.csv.gz"
+    with _gzip.open(path, "wt", newline="", encoding="utf-8") as fh:
+        w = _csv.writer(fh)
+        w.writerow(["norm_name", "display_name", "certified", "analyst_certified",
+                    "denied", "last_decision", "states"])
+        # Two spellings of one employer, written under a stale normalization.
+        w.writerow(["ANTHROPIC PBC", "Anthropic PBC", 300, 60, 1, "2026-06-01", "CA"])
+        w.writerow(["ANTHROPIC INC", "Anthropic, Inc.", 4, 4, 0, "2026-07-01", "CA"])
+    monkeypatch.setattr(cfg, "SPONSORS_CSV_GZ", path)
+    sponsorship.employer_table.cache_clear()
+    table = sponsorship.employer_table()
+    sponsorship.employer_table.cache_clear()
+
+    assert "ANTHROPIC" in table
+    assert table["ANTHROPIC"].certified == 304     # merged, not overwritten
+    assert table["ANTHROPIC"].analyst_certified == 64
+    assert table["ANTHROPIC"].last_decision == "2026-07-01"

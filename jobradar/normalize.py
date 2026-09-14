@@ -109,7 +109,7 @@ def sentences(text: str) -> list[str]:
 _LEGAL_SUFFIXES = {
     "INC", "INCORPORATED", "LLC", "LTD", "LIMITED", "CORP", "CORPORATION",
     "CO", "COMPANY", "LP", "LLP", "PLC", "PC", "PLLC", "GMBH", "SA", "NV",
-    "AG", "PTE", "PVT", "SAS", "BV", "AB",
+    "AG", "PTE", "PVT", "SAS", "BV", "AB", "PBC", "SPC", "DBA", "COM",
 }
 _GEO_SUFFIXES = {
     "USA", "US", "AMERICA", "AMERICAS", "NORTHAMERICA", "NA", "GLOBAL",

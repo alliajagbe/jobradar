@@ -81,6 +81,19 @@ class Matcher:
             return Match(alias, "alias", 100)
 
         if len(norm.replace(" ", "")) < config.FUZZY_MIN_NAME_LEN:
+            # Short names fuzzy-match nearly everything, so they do not go
+            # through the scorer. They are not hopeless though: "Ramp" files as
+            # "RAMP BUSINESS CORPORATION" and "Calm" as "CALM.COM INC", and
+            # plenty of startups have four-letter names. Accept only an exact
+            # first-token hit on a short candidate, and label the method
+            # `short-name` so the page can show that this one is a weaker
+            # inference than an exact match.
+            short = [
+                name for name in self._by_first.get(norm, ())
+                if len(name.split(" ")) <= 2
+            ]
+            if len(short) == 1:
+                return Match(short[0], "short-name", None)
             return Match(None, "too-short", None)
 
         candidates = set(self._by_prefix.get(norm[:6], ()))

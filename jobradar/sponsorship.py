@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 
 from . import config
+from .normalize import employer_norm
 
 SIGNALS = ("strong", "some", "never_filed", "unknown", "explicit_no")
 
@@ -35,21 +36,48 @@ class EmployerStats:
 @lru_cache(maxsize=1)
 def employer_table() -> dict[str, EmployerStats]:
     """Load data/sponsors.csv.gz. Missing is fine: every company then reads as
-    `unknown` and the tool still works, it just scores sponsorship at 5."""
+    `unknown` and the tool still works, it just scores sponsorship at 5.
+
+    Names are re-normalized from `display_name` at LOAD time rather than trusting
+    the `norm_name` written at ingest. Employer matching only works when both
+    sides run through the same normalizer, and the file is built by a workflow
+    that may have run weeks and several edits ago. Re-normalizing here means a
+    change to normalize.employer_norm takes effect immediately on both sides
+    instead of waiting for the next quarterly ingest, during which the two would
+    silently disagree.
+
+    Re-keying merges corporate variants that now collapse to one name, which is
+    the intended outcome: "ANTHROPIC PBC" and "ANTHROPIC INC" are one employer.
+    """
     if not config.SPONSORS_CSV_GZ.exists():
         return {}
-    table: dict[str, EmployerStats] = {}
+    merged: dict[str, EmployerStats] = {}
     with gzip.open(config.SPONSORS_CSV_GZ, "rt", encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
-            table[row["norm_name"]] = EmployerStats(
-                norm_name=row["norm_name"],
+            key = employer_norm(row["display_name"]) or row["norm_name"]
+            incoming = EmployerStats(
+                norm_name=key,
                 display_name=row["display_name"],
                 certified=int(row["certified"] or 0),
                 analyst_certified=int(row["analyst_certified"] or 0),
                 denied=int(row["denied"] or 0),
                 last_decision=row.get("last_decision") or "",
             )
-    return table
+            current = merged.get(key)
+            if current is None:
+                merged[key] = incoming
+                continue
+            merged[key] = EmployerStats(
+                norm_name=key,
+                # Keep the spelling of whichever variant files the most.
+                display_name=(current.display_name if current.certified >= incoming.certified
+                              else incoming.display_name),
+                certified=current.certified + incoming.certified,
+                analyst_certified=current.analyst_certified + incoming.analyst_certified,
+                denied=current.denied + incoming.denied,
+                last_decision=max(current.last_decision, incoming.last_decision),
+            )
+    return merged
 
 
 @dataclass(frozen=True)
