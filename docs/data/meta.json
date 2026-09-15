@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-09-15T02:08:57Z",
- "total": 644,
- "open": 128,
- "dropped": 516,
- "closed": 0,
+ "updated_at": "2026-09-15T03:07:33Z",
+ "total": 5024,
+ "open": 981,
+ "dropped": 4042,
+ "closed": 1,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
   "ashby",
@@ -12,5 +12,20 @@
   "smartrecruiters",
   "workday"
  ],
- "has_sponsorship_data": true
+ "has_sponsorship_data": true,
+ "run": {
+  "boards_ok": 1760,
+  "boards_failed": 0,
+  "postings_seen": 5940,
+  "new": 5239,
+  "closed": 1,
+  "dropped_by_reason": {
+   "location": 1500,
+   "text": 148,
+   "seniority": 3050,
+   "experience": 89,
+   "excluded": 63
+  },
+  "errors": []
+ }
 }
