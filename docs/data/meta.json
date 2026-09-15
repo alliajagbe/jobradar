@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-09-15T03:25:15Z",
- "total": 5025,
- "open": 971,
- "dropped": 4026,
- "closed": 28,
+ "updated_at": "2026-09-15T18:37:23Z",
+ "total": 5094,
+ "open": 966,
+ "dropped": 4017,
+ "closed": 111,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
   "ashby",
@@ -14,18 +14,20 @@
  ],
  "has_sponsorship_data": true,
  "run": {
-  "boards_ok": 1760,
-  "boards_failed": 0,
-  "postings_seen": 5912,
-  "new": 1,
-  "closed": 29,
+  "boards_ok": 1759,
+  "boards_failed": 1,
+  "postings_seen": 5895,
+  "new": 92,
+  "closed": 93,
   "dropped_by_reason": {
-   "location": 1493,
-   "text": 144,
-   "seniority": 3044,
-   "experience": 88,
+   "location": 1487,
+   "text": 147,
+   "seniority": 3038,
+   "experience": 89,
    "excluded": 63
   },
-  "errors": []
+  "errors": [
+   "greenhouse/toogoodtogo: GET https://boards-api.greenhouse.io/v1/boards/toogoodtogo/jobs -> 404"
+  ]
  }
 }
