@@ -6,6 +6,8 @@ Usage:
   python -m jobradar stats [--histogram]
   python -m jobradar discover --from-lca [--top N] [--apply]
   python -m jobradar crawl [--limit N] [--apply]
+  python -m jobradar tailor brief --find "intel data analyst"
+  python -m jobradar tailor render --slug IntelDataAnalyst
   python -m jobradar sponsorship [--years N] [--row-limit N] [--keep-xlsx]
   python -m jobradar verify-boards
 
@@ -315,6 +317,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--row-limit", type=int, help="stop early, for a smoke test")
     p.add_argument("--keep-xlsx", action="store_true", help="keep the 252MB source files")
     p.set_defaults(func=cmd_sponsorship)
+
+    from .resume.cli import add_parser as _add_tailor
+    _add_tailor(sub)
 
     p = sub.add_parser("crawl", help="find every board via the Common Crawl index")
     p.add_argument("--index", help="Common Crawl index id (default: newest)")

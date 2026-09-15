@@ -21,3 +21,13 @@ package-lock.json
 
 # Enumerated from Common Crawl locally, validated by the crawl workflow.
 !data/cc_tokens.csv
+
+# Resume content and output live in ~/.jobradar, outside this tree, and
+# jobradar/resume/paths.py refuses any path that resolves inside the repo.
+# These lines are the second lock, not the first.
+master.yaml
+lexicon.yaml
+*.variant.yaml
+resume-data/
+resume-out/
+jd-cache/

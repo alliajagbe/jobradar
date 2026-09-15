@@ -1,0 +1,12 @@
+# Resume rendering only. Deliberately NOT in requirements.txt: four GitHub
+# Actions workflows install that file and none of them render a resume, so
+# putting playwright there costs a browser download on every crawl run.
+#
+# There is no LaTeX engine on this machine (pdflatex, xelatex, lualatex,
+# tectonic and latexmk are all absent, /Library/TeX/texbin is empty) and no
+# HTML-to-PDF binary (wkhtmltopdf, weasyprint, libreoffice). Chromium is the
+# only renderer available. It is also the one whose text layer must be checked:
+# twenty already-submitted resumes built this way extract their email as
+# "allia jagbe001@gmail.com", which no ATS email regex matches. See
+# jobradar/resume/cli.py::_ats_checks.
+playwright==1.62.0

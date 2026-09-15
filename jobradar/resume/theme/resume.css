@@ -1,0 +1,68 @@
+/* All resume geometry. This is the one file to edit for layout.
+   Values come from theme/tokens.json and are injected as custom properties. */
+
+@page { size: Letter; margin: 0; }
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  width: 8.5in;
+  padding: var(--margin) var(--margin) var(--margin) var(--margin);
+  font-family: var(--font-stack);
+  font-size: var(--body);
+  line-height: var(--leading);
+  color: #000;
+  /* NEVER justify. Justified text made Skia emit split text runs, and the
+     extracted email in twenty already-submitted resumes reads
+     "allia jagbe001@gmail.com", which no ATS email regex will match. */
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- header ---- */
+.name {
+  font-size: var(--name); font-weight: 700; text-align: center;
+  letter-spacing: 0.01em; margin: 0 0 0.10em;
+}
+.contact {
+  text-align: center; font-size: 0.94em; margin: 0 0 var(--section-gap);
+  /* The contact line is one unbroken text node. Wrapping the email in a styled
+     span is what lets the shaper split it mid-address. */
+}
+.contact a { color: #000; text-decoration: none; }
+
+/* ---- sections ---- */
+section { margin: 0 0 var(--section-gap); }
+h2 {
+  font-size: var(--section); font-weight: 700; margin: 0 0 0.22em;
+  padding-bottom: 0.10em; border-bottom: 0.6pt solid #000;
+  text-transform: none; letter-spacing: 0.01em;
+}
+
+/* ---- entries ---- */
+.entry { margin: 0 0 var(--entry-gap); }
+.entry:last-child { margin-bottom: 0; }
+.entry-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1em;
+}
+.entry-head .left { font-weight: 700; }
+.entry-head .right { white-space: nowrap; font-style: italic; }
+.entry-sub { display: flex; justify-content: space-between; gap: 1em; }
+
+/* ---- bullets ----
+   One indent, and only one. The old resume had five distinct left edges
+   (29/42/45/48/51/54pt) because sections used differently nested LaTeX lists. */
+ul { margin: 0.10em 0 0; padding: 0; list-style: none; }
+li {
+  position: relative; padding-left: var(--indent); margin: 0 0 0.04em;
+}
+li::before {
+  content: "\2022"; position: absolute; left: 0.03in; top: 0;
+  /* One marker, one source, for every list in the document. The old PDF drew
+     its Skills markers from a second font and two of five rows extracted with
+     no bullet at all. Uniformity is the fix, not absence. */
+}
+.skills li { margin-bottom: 0.06em; }
+.honors { margin-top: 0.02em; }
