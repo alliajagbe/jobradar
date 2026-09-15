@@ -113,24 +113,32 @@ def build(doc: dict, *, overrides: dict | None = None,
     parts.append('<section><h2>Education</h2>')
     for edu in doc["education"]:
         honors = edu.get("honors") or ""
-        head_right = f'{_e(edu["grade"])} &nbsp; {_e(edu["dates"])}'
+        grade = str(edu.get("grade") or "")
+        # "3.97/4.0" renders with the score bold and the scale plain, which is
+        # what makes a high GPA read at a glance.
+        if "/" in grade:
+            top, _, scale = grade.partition("/")
+            grade_html = f'<strong>{_e(top)}</strong>/{_e(scale)}'
+        else:
+            grade_html = _e(grade)
         if inline_honors and honors and not drop_honors:
-            left = (f'{_e(edu["degree"])}, {_e(edu["school"])}, {_e(edu["location"])}. '
-                    f'<span class="honors-inline">{_e(honors)}</span>')
-            parts.append(
-                f'<div class="entry"><div class="entry-head">'
-                f'<span class="left" data-slot="{edu["id"]}" data-max-lines="2">{left}</span>'
-                f'<span class="right">{head_right}</span></div></div>')
-            continue
+            degree_cell = (f'{_e(edu["degree"])} <em>{_e(honors)}</em>')
+        else:
+            degree_cell = _e(edu["degree"])
         parts.append(
-            f'<div class="entry"><div class="entry-head">'
-            f'<span class="left" data-slot="{edu["id"]}" data-max-lines="1">'
-            f'<strong>{_e(edu["degree"])}</strong>, {_e(edu["school"])} | '
-            f'{_e(edu["location"])}</span>'
-            f'<span class="right">{head_right}</span></div>')
-        if honors and not drop_honors:
-            parts.append(f'<ul class="honors"><li data-slot="{edu["id"]}.honors" '
-                         f'data-max-lines="2"><em>Honors: {_e(honors)}</em></li></ul>')
+            f'<div class="entry edu">'
+            f'<div class="edurow" data-slot="{edu["id"]}" data-max-lines="1">'
+            f'<span class="deg">{degree_cell}</span>'
+            f'<span class="sch"><strong>{_e(edu["school"])}</strong> | '
+            f'<strong><em>{_e(edu["location"])}</em></strong></span>'
+            f'<span class="gpa">{grade_html}</span>'
+            f'<span class="when">{_e(edu["dates"])}</span>'
+            f'</div>')
+        if honors and not drop_honors and not inline_honors:
+            parts.append(
+                f'<ul class="honors"><li data-slot="{edu["id"]}.honors" '
+                f'data-max-lines="2"><strong><em>Honors:</em></strong> '
+                f'<em>{_e(honors)}</em></li></ul>')
         parts.append('</div>')
     parts.append('</section>')
 
@@ -145,9 +153,11 @@ def build(doc: dict, *, overrides: dict | None = None,
     for role in doc["experience"]:
         parts.append(
             f'<div class="entry"><div class="entry-head">'
-            f'<span class="left">{_e(role["employer"])} | {_e(role["title"])} | '
-            f'{_e(role["location"])}</span>'
-            f'<span class="right">{_e(role["dates"])}</span></div><ul>')
+            f'<span class="left"><strong>{_e(role["employer"])}</strong> | '
+            f'<strong>{_e(role["title"])}</strong> | '
+            f'<strong><em>{_e(role["location"])}</em></strong></span>'
+            f'<span class="right"><strong>{_e(role["dates"])}</strong></span>'
+            f'</div><ul>')
         for b in role["bullets"]:
             parts.append(_bullet(b["id"], b["text"], 2))
         parts.append('</ul></div>')
@@ -156,9 +166,11 @@ def build(doc: dict, *, overrides: dict | None = None,
     parts.append('<section><h2>Projects</h2>')
     for proj in doc["projects"]:
         parts.append(
-            f'<div class="entry"><div class="entry-head">'
-            f'<span class="left">{_e(proj["name"])} | {_e(proj["role"])}</span>'
-            f'<span class="right">{_e(proj["dates"])}</span></div><ul>')
+            f'<div class="entry proj"><div class="entry-head">'
+            f'<span class="left"><strong>{_e(proj["name"])}</strong> | '
+            f'<strong>{_e(proj["role"])}</strong></span>'
+            f'<span class="right"><strong>{_e(proj["dates"])}</strong></span>'
+            f'</div><ul>')
         parts.append(_bullet(proj["bullet"]["id"], proj["bullet"]["text"], 2))
         parts.append('</ul></div>')
     parts.append('</section>')

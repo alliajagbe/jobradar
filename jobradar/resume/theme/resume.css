@@ -33,6 +33,29 @@ body {
 }
 .contact a { color: #000; text-decoration: none; }
 
+[data-slot="summary"] {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: none;
+}
+
+/* ---- education: one row, four columns ----
+   Degree plain, school bold, location bold italic, score bold over a plain
+   scale, date plain and right aligned. DOM order is left-to-right order, so
+   the text still extracts in reading order. */
+.edurow {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  column-gap: 1.1em;
+  align-items: baseline;
+}
+.edurow .deg  { white-space: nowrap; }
+.edurow .sch  { justify-self: start; }
+.edurow .gpa  { justify-self: end; min-width: 3.6em; text-align: right; }
+.edurow .when { justify-self: end; min-width: 4.6em; text-align: right; }
+.entry.edu { margin-bottom: 0.16em; }
+.entry.edu + .entry.edu { margin-top: 0.16em; }
+
 /* ---- sections ----
    The rhythm is: a clear gap ABOVE a section heading, a small one below it.
    Equal gaps on both sides make the rule float between two sections instead of
@@ -49,14 +72,16 @@ h2 {
 /* ---- entries ---- */
 .entry { margin: 0 0 var(--entry-gap); }
 .entry:last-child { margin-bottom: 0; }
+.entry.proj ul { margin-top: 0.02em; }
+.entry.proj + .entry.proj { margin-top: 0.30em; }
 /* An entry header needs more air above it than its own bullets do below, or
    the next employer reads as another bullet of the previous one. */
 .entry + .entry { margin-top: 0.34em; }
 .entry-head {
   display: flex; justify-content: space-between; align-items: baseline; gap: 1em;
 }
-.entry-head .left { font-weight: 700; }
-.entry-head .right { white-space: nowrap; font-style: italic; }
+.entry-head .left { font-weight: 400; }
+.entry-head .right { white-space: nowrap; }
 .entry-sub { display: flex; justify-content: space-between; gap: 1em; }
 
 /* ---- bullets ----
@@ -74,5 +99,6 @@ li::before {
      no bullet at all. Uniformity is the fix, not absence. */
 }
 .skills li { margin-bottom: 0.12em; }
-.honors { margin-top: 0.06em; }
-.honors li { font-size: 0.97em; }
+.honors { margin-top: 0.01em; }
+.honors li { padding-left: calc(var(--indent) * 2.1); }
+.honors li::before { left: calc(var(--indent) * 1.25); }
