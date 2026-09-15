@@ -110,37 +110,36 @@ def build(doc: dict, *, overrides: dict | None = None,
     parts.append(f'<div data-slot="summary" data-max-lines="3">{_e(doc["summary"])}</div>')
     parts.append('</section>')
 
-    parts.append('<section><h2>Education</h2>')
+    parts.append('<section><h2>Education</h2><div class="edu-table">')
     for edu in doc["education"]:
         honors = edu.get("honors") or ""
         grade = str(edu.get("grade") or "")
-        # "3.97/4.0" renders with the score bold and the scale plain, which is
-        # what makes a high GPA read at a glance.
+        # Score bold over a plain scale: a high GPA should read at a glance.
         if "/" in grade:
             top, _, scale = grade.partition("/")
             grade_html = f'<strong>{_e(top)}</strong>/{_e(scale)}'
         else:
             grade_html = _e(grade)
+        degree_cell = _e(edu["degree"])
         if inline_honors and honors and not drop_honors:
-            degree_cell = (f'{_e(edu["degree"])} <em>{_e(honors)}</em>')
-        else:
-            degree_cell = _e(edu["degree"])
+            degree_cell += f' <em>{_e(honors)}</em>'
+        # Cells are direct children of ONE grid spanning the whole section, so
+        # the columns share widths down the rows. A grid per row lets each row
+        # size its own columns, and the schools and grades then wander.
         parts.append(
-            f'<div class="entry edu">'
-            f'<div class="edurow" data-slot="{edu["id"]}" data-max-lines="1">'
-            f'<span class="deg">{degree_cell}</span>'
+            f'<span class="deg" data-slot="{edu["id"]}" data-max-lines="1">'
+            f'{degree_cell}</span>'
             f'<span class="sch"><strong>{_e(edu["school"])}</strong> | '
             f'<strong><em>{_e(edu["location"])}</em></strong></span>'
             f'<span class="gpa">{grade_html}</span>'
-            f'<span class="when">{_e(edu["dates"])}</span>'
-            f'</div>')
+            f'<span class="when">{_e(edu["dates"])}</span>')
         if honors and not drop_honors and not inline_honors:
             parts.append(
-                f'<ul class="honors"><li data-slot="{edu["id"]}.honors" '
-                f'data-max-lines="2"><strong><em>Honors:</em></strong> '
-                f'<em>{_e(honors)}</em></li></ul>')
-        parts.append('</div>')
-    parts.append('</section>')
+                f'<div class="honors-row"><ul class="honors">'
+                f'<li data-slot="{edu["id"]}.honors" data-max-lines="2">'
+                f'<strong><em>Honors:</em></strong> <em>{_e(honors)}</em>'
+                f'</li></ul></div>')
+    parts.append('</div></section>')
 
     parts.append('<section><h2>Skills</h2><ul class="skills">')
     for group in doc["skills"]:

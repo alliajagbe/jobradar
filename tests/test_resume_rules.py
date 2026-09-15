@@ -128,3 +128,17 @@ def test_magnitude_and_plus_survive_tokenisation(token):
     whose ledger said "22K+". Three false positives on the first real variant."""
     doc = _sourced(f"Engineered a pipeline over {token} records.", [token])
     assert not fabrication_check(doc)
+
+
+def test_education_is_one_shared_grid():
+    """Each education row used to be its own grid, so the columns sized to
+    their own content and the schools and grades wandered between rows. The
+    whole section is one grid now; these class names are what makes the
+    columns share widths."""
+    from jobradar.resume.html import build
+    from jobradar.resume.model import default_document, load_master
+    html = build(default_document(load_master()))
+    assert html.count('class="edu-table"') == 1
+    # Cells must be direct children of that one grid, not wrapped per row.
+    assert '<div class="entry edu">' not in html
+    assert html.count('class="deg"') == html.count('class="gpa"') == 2

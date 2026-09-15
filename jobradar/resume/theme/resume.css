@@ -43,18 +43,20 @@ body {
    Degree plain, school bold, location bold italic, score bold over a plain
    scale, date plain and right aligned. DOM order is left-to-right order, so
    the text still extracts in reading order. */
-.edurow {
+.edu-table {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
-  column-gap: 1.1em;
+  grid-template-columns: auto 1fr auto auto;
+  column-gap: 1.2em;
+  row-gap: 0.10em;
   align-items: baseline;
 }
-.edurow .deg  { white-space: nowrap; }
-.edurow .sch  { justify-self: start; }
-.edurow .gpa  { justify-self: end; min-width: 3.6em; text-align: right; }
-.edurow .when { justify-self: end; min-width: 4.6em; text-align: right; }
-.entry.edu { margin-bottom: 0.16em; }
-.entry.edu + .entry.edu { margin-top: 0.16em; }
+.edu-table .deg  { grid-column: 1; }
+.edu-table .sch  { grid-column: 2; justify-self: center; }
+/* Left aligned, not right: right alignment lines up "4.0" with "10.0" and
+   leaves the bold scores ragged, and the score is the number being read. */
+.edu-table .gpa  { grid-column: 3; justify-self: start; }
+.edu-table .when { grid-column: 4; justify-self: end; white-space: nowrap; }
+.honors-row { grid-column: 1 / -1; }
 
 /* ---- sections ----
    The rhythm is: a clear gap ABOVE a section heading, a small one below it.
