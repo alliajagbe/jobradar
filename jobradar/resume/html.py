@@ -34,6 +34,37 @@ def tokens(overrides: dict | None = None) -> dict:
     return data
 
 
+def _font_faces(t: dict) -> str:
+    """Embed the base resume's own typeface.
+
+    Computer Modern is not installed on macOS and cannot be reproduced without
+    the font files, so CMU Serif (the open Unicode cut of the same design, SIL
+    OFL) is kept in ~/.jobradar/resume/fonts and inlined here as data URIs.
+    Inlined rather than linked because Chromium loads the page from a string
+    with no base URL, so a relative font path has nothing to resolve against.
+
+    TrueType rather than the original OpenType, because Chromium embeds a
+    CFF-flavoured face as a Type 3 font. Type 3 is procedural, and it split
+    "Alli Ajagbe" across two lines in the extracted text. The outlines are
+    converted once by scripts/build_fonts.py.
+    """
+    import base64
+    from .paths import resolve
+    faces = []
+    for key, filename in (t.get("font_files") or {}).items():
+        path = resolve("resume/fonts", filename)
+        if not path.exists():
+            continue
+        weight = key[:3]
+        style = "italic" if "italic" in key else "normal"
+        b64 = base64.b64encode(path.read_bytes()).decode()
+        faces.append(
+            "@font-face{font-family:'CMU Serif';"
+            f"font-weight:{weight};font-style:{style};font-display:block;"
+            f"src:url(data:font/ttf;base64,{b64}) format('truetype');}}")
+    return "".join(faces)
+
+
 def _css_vars(t: dict) -> str:
     return (
         f"--font-stack:{t['font_stack']};"
@@ -70,7 +101,7 @@ def build(doc: dict, *, overrides: dict | None = None,
 
     parts: list[str] = [
         "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">",
-        f"<style>:root{{{_css_vars(t)}}}\n{css}</style></head><body>",
+        f"<style>{_font_faces(t)}\n:root{{{_css_vars(t)}}}\n{css}</style></head><body>",
         f'<div class="name">{_e(ident["name"])}</div>',
         f'<div class="contact" data-slot="contact" data-max-lines="1">{_e(contact)}</div>',
     ]
@@ -93,12 +124,13 @@ def build(doc: dict, *, overrides: dict | None = None,
             continue
         parts.append(
             f'<div class="entry"><div class="entry-head">'
-            f'<span class="left">{_e(edu["degree"])}</span>'
-            f'<span class="right">{head_right}</span></div>'
-            f'<div class="entry-sub"><span>{_e(edu["school"])} | {_e(edu["location"])}</span></div>')
+            f'<span class="left" data-slot="{edu["id"]}" data-max-lines="1">'
+            f'<strong>{_e(edu["degree"])}</strong>, {_e(edu["school"])} | '
+            f'{_e(edu["location"])}</span>'
+            f'<span class="right">{head_right}</span></div>')
         if honors and not drop_honors:
             parts.append(f'<ul class="honors"><li data-slot="{edu["id"]}.honors" '
-                         f'data-max-lines="2">Honors: {_e(honors)}</li></ul>')
+                         f'data-max-lines="2"><em>Honors: {_e(honors)}</em></li></ul>')
         parts.append('</div>')
     parts.append('</section>')
 

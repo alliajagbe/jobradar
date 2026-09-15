@@ -10,3 +10,4 @@
 # "allia jagbe001@gmail.com", which no ATS email regex matches. See
 # jobradar/resume/cli.py::_ats_checks.
 playwright==1.62.0
+fonttools

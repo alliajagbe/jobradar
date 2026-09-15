@@ -27,23 +27,31 @@ body {
   letter-spacing: 0.01em; margin: 0 0 0.10em;
 }
 .contact {
-  text-align: center; font-size: 0.94em; margin: 0 0 var(--section-gap);
+  text-align: center; font-size: 0.95em; margin: 0 0 calc(var(--section-gap) * 1.2);
   /* The contact line is one unbroken text node. Wrapping the email in a styled
      span is what lets the shaper split it mid-address. */
 }
 .contact a { color: #000; text-decoration: none; }
 
-/* ---- sections ---- */
+/* ---- sections ----
+   The rhythm is: a clear gap ABOVE a section heading, a small one below it.
+   Equal gaps on both sides make the rule float between two sections instead of
+   belonging to the one it introduces, which is what made the first draft look
+   unsettled. */
 section { margin: 0 0 var(--section-gap); }
+section + section { margin-top: 0; }
 h2 {
-  font-size: var(--section); font-weight: 700; margin: 0 0 0.22em;
-  padding-bottom: 0.10em; border-bottom: 0.6pt solid #000;
-  text-transform: none; letter-spacing: 0.01em;
+  font-size: var(--section); font-weight: 700; margin: 0 0 0.30em;
+  padding-bottom: 0.14em; border-bottom: 0.5pt solid #000;
+  letter-spacing: 0.01em;
 }
 
 /* ---- entries ---- */
 .entry { margin: 0 0 var(--entry-gap); }
 .entry:last-child { margin-bottom: 0; }
+/* An entry header needs more air above it than its own bullets do below, or
+   the next employer reads as another bullet of the previous one. */
+.entry + .entry { margin-top: 0.34em; }
 .entry-head {
   display: flex; justify-content: space-between; align-items: baseline; gap: 1em;
 }
@@ -54,15 +62,17 @@ h2 {
 /* ---- bullets ----
    One indent, and only one. The old resume had five distinct left edges
    (29/42/45/48/51/54pt) because sections used differently nested LaTeX lists. */
-ul { margin: 0.10em 0 0; padding: 0; list-style: none; }
+ul { margin: 0.14em 0 0; padding: 0; list-style: none; }
 li {
-  position: relative; padding-left: var(--indent); margin: 0 0 0.04em;
+  position: relative; padding-left: var(--indent); margin: 0 0 0.10em;
 }
+li:last-child { margin-bottom: 0; }
 li::before {
   content: "\2022"; position: absolute; left: 0.03in; top: 0;
   /* One marker, one source, for every list in the document. The old PDF drew
      its Skills markers from a second font and two of five rows extracted with
      no bullet at all. Uniformity is the fix, not absence. */
 }
-.skills li { margin-bottom: 0.06em; }
-.honors { margin-top: 0.02em; }
+.skills li { margin-bottom: 0.12em; }
+.honors { margin-top: 0.06em; }
+.honors li { font-size: 0.97em; }
