@@ -21,7 +21,7 @@ from . import html as H
 from . import jd as jd_mod
 from . import measure as M
 from .model import default_document, load_master, resolve_variant
-from .paths import HOME, ResumeError, resolve
+from .paths import HOME, ResumeError, output_dir, resolve
 from .rules import check as check_rules, fabrication_check
 
 
@@ -182,9 +182,13 @@ def cmd_render(args: argparse.Namespace) -> int:
     page = H.build(result.document, overrides=result.overrides,
                    inline_honors=result.inline_honors, drop_honors=result.drop_honors)
     name = f"AlliAjagbe{slug}Resume.pdf" if slug != "baseline" else "AlliAjagbeResume.pdf"
-    out_dir = Path(args.out) if args.out else resolve("out", slug, create_parent=True)
+    # The PDF goes somewhere Finder will show. The working files (html, report)
+    # stay in ~/.jobradar next to the brief and the variant.
+    pdf_dir = Path(args.out).expanduser() if args.out else output_dir()
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    out_dir = resolve("out", slug, create_parent=True)
     out_dir.mkdir(parents=True, exist_ok=True)
-    pdf = out_dir / name
+    pdf = pdf_dir / name
     if pdf.exists() and not args.force:
         raise ResumeError(f"{pdf} exists. Pass --force to overwrite; you may have "
                           f"already submitted this one.")
@@ -213,8 +217,11 @@ def cmd_render(args: argparse.Namespace) -> int:
         _log(f"\n{hard} hard failures. PDF deleted; {out_dir/'resume.html'} kept for inspection.")
         return 1
     _log(f"\nwrote {pdf}")
+    _log(f"  working files: {out_dir}")
     if args.open:
         subprocess.run(["open", str(pdf)], check=False)
+    if args.reveal:
+        subprocess.run(["open", "-R", str(pdf)], check=False)
     return 0
 
 
@@ -313,9 +320,10 @@ def add_parser(sub) -> None:
     r = inner.add_parser("render", help="validate, fit to one page, write the PDF")
     r.add_argument("--slug")
     r.add_argument("--baseline", action="store_true", help="render the untailored master")
-    r.add_argument("--out", help="output directory")
+    r.add_argument("--out", help="where to write the PDF (default: ~/Desktop/jobs/<month><year>)")
     r.add_argument("--force", action="store_true", help="overwrite an existing PDF")
-    r.add_argument("--open", action="store_true")
+    r.add_argument("--open", action="store_true", help="open the PDF when done")
+    r.add_argument("--reveal", action="store_true", help="show it in Finder")
     r.set_defaults(func=cmd_render)
 
     d = inner.add_parser("doctor", help="check the setup")

@@ -65,5 +65,26 @@ def lexicon_path() -> Path:
     return resolve(LEXICON)
 
 
+def output_dir() -> Path:
+    """Where the finished PDF goes.
+
+    NOT under ~/.jobradar. That directory starts with a dot, so Finder hides it,
+    and the one file in this whole system that has to be easy to grab is the PDF
+    you upload to an application portal. Hiding the deliverable to keep the
+    working files tidy is the wrong trade.
+
+    Defaults to the folder Alli already files resumes in, named for the current
+    month the way the existing ones are (july2026, august2026, ...), so a
+    tailored resume lands beside the ones made by hand.
+    """
+    import os
+    from datetime import date
+    override = os.environ.get("JOBRADAR_RESUME_OUT")
+    if override:
+        return Path(override).expanduser()
+    month = date.today().strftime("%B%Y").lower()
+    return Path.home() / "Desktop" / "jobs" / month
+
+
 def slug_dir(kind: str, slug: str) -> Path:
     return resolve(kind, slug, create_parent=True)
