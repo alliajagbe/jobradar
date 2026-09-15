@@ -32,6 +32,38 @@ GitHub Pages serves docs/
 Your browser. Tracking lives in localStorage.
 ```
 
+## Where the boards come from
+
+1,760 boards, of which 1,610 were found rather than curated.
+
+A hand-written seed list has a flaw no amount of curation fixes: it contains the
+companies whoever wrote it already knew. The first version of this list held 128
+boards and missed 29 of the 30 largest analyst H-1B sponsors in the country.
+
+The manual workaround people use is a search engine, `site:greenhouse.io
+"data analyst"`. Scraping Google is not an option, but the useful half of that
+query does not need Google: what it really supplies is **an index of which boards
+exist**, and Common Crawl publishes that free and without a key. Read the board
+tokens out of that index, then fetch them through the ordinary adapters. A token
+yields the whole board with full descriptions, real posting dates and structured
+locations; a search result yields a stale snippet.
+
+**Keeping it current.** Common Crawl indexes what it crawled weeks ago, so a
+board that launched last week is not in it yet. Re-enumerate roughly monthly:
+
+```bash
+.venv/bin/python -m jobradar crawl --enumerate   # writes data/cc_tokens.csv
+git add data/cc_tokens.csv && git commit -m "Re-enumerate boards" && git push
+```
+
+Then run the **Crawl for boards** workflow, which validates the new tokens and
+keeps the ones hiring analysts.
+
+Enumeration runs locally, not in Actions, and that split is deliberate: Common
+Crawl throttles cloud IP ranges hard enough that a runner reliably gets 503
+where a laptop sails through. Validation only touches the ATS APIs, which do not
+care, so it runs on the runner.
+
 ## Sources
 
 | Source | Cost per board | Notes |
@@ -44,7 +76,12 @@ Your browser. Tracking lives in localStorage.
 
 ## Using it
 
-Open the page. Filter, read, and mark what you apply to. Statuses save in that
+Open the page. It defaults to roles posted in the **last three days**, because
+anything older has been seen by hundreds of applicants and being early is the
+point of running this daily. Older postings are still stored, so skipping a few
+days loses nothing; widen **Posted within** and they are there.
+
+Filter, read, and mark what you apply to. Statuses save in that
 browser and never reach the repository. Export writes a JSON backup; Import
 merges one back in.
 
@@ -66,7 +103,9 @@ One-time, and better run as workflows because of the download size:
 
 ```bash
 .venv/bin/python -m jobradar sponsorship        # ~250MB of DOL data per year
-.venv/bin/python -m jobradar discover --apply   # probe for more boards
+.venv/bin/python -m jobradar discover --apply   # probe top sponsors for boards
+.venv/bin/python -m jobradar crawl --enumerate  # board tokens from Common Crawl
+.venv/bin/python -m jobradar crawl --from-file --apply   # validate them
 ```
 
 ## Retargeting it
