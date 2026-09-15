@@ -1,18 +1,18 @@
 name: Crawl for boards
 
 # The reach of a `site:greenhouse.io` search, without a search engine.
-# Reads every public board token out of the Common Crawl URL index, fetches
-# each one, and keeps the boards actually carrying a target role. Roughly 6,700
-# candidates, so this is a long manual run, not something to do casually.
+#
+# Takes the board tokens in data/cc_tokens.csv (enumerated from the Common Crawl
+# URL index by `python -m jobradar crawl --enumerate`, which must run somewhere
+# Common Crawl will talk to), fetches each board, and keeps the ones actually
+# carrying a target role. Roughly 6,800 candidates, so this is a long manual
+# run, not something to do casually.
 on:
   workflow_dispatch:
     inputs:
-      sources:
-        description: "Comma separated (greenhouse,ashby,lever)"
-        default: "greenhouse,ashby"
-      limit:
-        description: "Cap tokens per source (blank = all)"
-        default: ""
+      note:
+        description: "Validates data/cc_tokens.csv; enumerate locally first"
+        default: "validate committed tokens"
 
 permissions:
   contents: write
@@ -32,11 +32,12 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Enumerate and validate boards
-        run: |
-          python -m jobradar -v crawl --apply \
-            --sources "${{ inputs.sources }}" \
-            ${{ inputs.limit && format('--limit {0}', inputs.limit) || '' }}
+      # Enumeration is NOT done here. Common Crawl throttles cloud IPs hard
+      # enough that a runner reliably gets 503 where a laptop does not, and the
+      # first version of this workflow reported success having read zero tokens.
+      # The token list is enumerated locally and committed; this validates it.
+      - name: Validate boards from the committed token list
+        run: python -m jobradar -v crawl --from-file --apply --workers 8
       - name: Commit
         run: |
           git config user.name  "jobradar"

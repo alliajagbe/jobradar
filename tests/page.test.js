@@ -91,6 +91,22 @@ setTimeout(() => {
         titled.length > 0 || !meta.has_sponsorship_data,
         titled[0] ? titled[0].title.slice(0,60) : "no sponsorship data loaded");
 
+  // The three-day default is now the first thing anyone sees. If it matches
+  // nothing it must say so and point at the wider window, not render an empty
+  // list that reads as a broken refresh.
+  $("#search").value = "";
+  $("#search").dispatchEvent(new w.Event("input", {bubbles:true}));
+  $("#showdropped").checked = false;
+  $("#showdropped").dispatchEvent(new w.Event("change", {bubbles:true}));
+  $("#minscore").value = 55;
+  $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));
+  [...w.document.querySelectorAll("#age button")].find(b => b.dataset.v === "3").click();
+  const threeDay = q(".card").length;
+  const emptyMsg = $("#list .empty") ? $("#list .empty").textContent : "";
+  check("three-day default renders or explains itself",
+        threeDay > 0 || /widen Posted within|lowering the minimum/.test(emptyMsg),
+        threeDay > 0 ? threeDay + " cards in 3d" : emptyMsg.slice(0, 80));
+
   console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
   process.exit(fail ? 1 : 0);
 }, 600);

@@ -149,21 +149,81 @@ def cmd_sponsorship(args: argparse.Namespace) -> int:
 
 
 def cmd_crawl(args: argparse.Namespace) -> int:
-    """Enumerate every board from Common Crawl, keep the ones hiring analysts."""
+    """Find boards from the Common Crawl index, keep the ones hiring analysts.
+
+    The two halves are separable on purpose. Enumeration reads Common Crawl,
+    which throttles cloud IPs hard enough that a GitHub runner gets 503 where a
+    laptop sails through. Validation reads the ATS APIs, which do not care where
+    the request comes from. So enumeration runs locally and commits its token
+    list, and the long validation pass runs on the runner.
+    """
     import csv as _csv
 
     from . import crawl
 
+    if args.from_file:
+        candidates = _read_tokens(config.CC_TOKENS_CSV)
+        if not candidates:
+            _log(f"No tokens in {config.CC_TOKENS_CSV}. Run `crawl --enumerate` first.")
+            return 1
+        _log(f"loaded {sum(len(v) for v in candidates.values())} tokens from "
+             f"{config.CC_TOKENS_CSV.name}")
+        return _validate(candidates, args)
+
     index_id = args.index or crawl.latest_index()
     _log(f"reading board tokens from Common Crawl index {index_id}")
-    sources = args.sources.split(",") if args.sources else list(crawl.CC_HOSTS)
+    sources = [s for s in (args.sources.split(",") if args.sources
+                           else crawl.DEFAULT_SOURCES) if s.strip()]
     candidates = {}
     for source in sources:
-        candidates[source] = crawl.tokens_for(source, index_id,
-                                              progress=_log if args.verbose else None)
+        try:
+            candidates[source] = crawl.tokens_for(
+                source, index_id, progress=_log if args.verbose else None)
+        except crawl.CrawlError as exc:
+            # One throttled source must not end the run, but it must not look
+            # like a clean zero either.
+            _log(f"  ! {source}: {exc}")
+            continue
         _log(f"  {source}: {len(candidates[source])} tokens")
+    if not candidates:
+        _log("")
+        _log("Read no board tokens at all. Common Crawl throttles cloud IPs "
+             "hard, so a runner often gets 503 where a laptop does not. "
+             "Re-run, or run it locally with `python -m jobradar crawl --apply`.")
+        return 1
     if args.limit:
         candidates = {s: set(sorted(t)[:args.limit]) for s, t in candidates.items()}
+
+    if args.enumerate_only:
+        config.CC_TOKENS_CSV.parent.mkdir(parents=True, exist_ok=True)
+        with config.CC_TOKENS_CSV.open("w", newline="", encoding="utf-8") as fh:
+            writer = _csv.writer(fh)
+            writer.writerow(["source", "token"])
+            for source in sorted(candidates):
+                for token in sorted(candidates[source]):
+                    writer.writerow([source, token])
+        total = sum(len(t) for t in candidates.values())
+        _log(f"wrote {config.CC_TOKENS_CSV}, {total} tokens")
+        return 0
+
+    return _validate(candidates, args)
+
+
+def _read_tokens(path) -> dict[str, set[str]]:
+    import csv as _csv
+    if not path.exists():
+        return {}
+    out: dict[str, set[str]] = {}
+    with path.open(newline="", encoding="utf-8") as fh:
+        for row in _csv.DictReader(fh):
+            out.setdefault(row["source"], set()).add(row["token"])
+    return out
+
+
+def _validate(candidates: dict, args: argparse.Namespace) -> int:
+    import csv as _csv
+
+    from . import crawl
 
     known = set()
     for path in (config.BOARDS_CSV, config.SEEDS_DIR / "discovered.csv"):
@@ -261,6 +321,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--sources", help="comma separated, default all crawlable")
     p.add_argument("--limit", type=int, help="only the first N tokens per source")
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--enumerate", dest="enumerate_only", action="store_true",
+                   help="only read tokens from Common Crawl, write data/cc_tokens.csv")
+    p.add_argument("--from-file", action="store_true",
+                   help="validate the tokens in data/cc_tokens.csv (skips Common Crawl)")
     p.add_argument("--apply", action="store_true", help="write seeds/discovered.csv")
     p.set_defaults(func=cmd_crawl)
 

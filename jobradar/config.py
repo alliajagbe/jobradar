@@ -30,6 +30,7 @@ PROFILE_YAML = PROFILE_DIR / "profile.yaml"
 
 JOBS_JSONL = DATA_DIR / "jobs.jsonl"
 PROBES_CSV = DATA_DIR / "probes.csv"
+CC_TOKENS_CSV = DATA_DIR / "cc_tokens.csv"
 SPONSORS_CSV_GZ = DATA_DIR / "sponsors.csv.gz"
 LCA_DIR = DATA_DIR / "lca"
 

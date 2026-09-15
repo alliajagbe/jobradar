@@ -26,7 +26,9 @@ carrying a role worth looking at.
 from __future__ import annotations
 
 import json
+import random
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
@@ -34,10 +36,52 @@ import httpx
 from . import normalize, taxonomy
 from .sources import Board, SourceError, build_sources
 
-CC_COLLINFO = "http://index.commoncrawl.org/collinfo.json"
+CC_COLLINFO = "https://index.commoncrawl.org/collinfo.json"
+
+# Common Crawl asks crawlers to identify themselves, and throttles hard from
+# cloud IP ranges: a GitHub Actions runner gets 503 SlowDown where a laptop
+# sails through. Hence the retries, and hence CrawlError below.
+CC_HEADERS = {"User-Agent": "jobradar/0.1 (personal job search; +https://github.com/alliajagbe/jobradar)"}
+CC_ATTEMPTS = 5
+
+
+class CrawlError(RuntimeError):
+    """The index could not be read.
+
+    This exists because the first version swallowed every HTTP error and
+    returned an empty set, so a throttled run reported SUCCESS having found
+    nothing and quietly wrote an empty board list over a good one. A discovery
+    pass that finds no boards is a failure, and it has to say so.
+    """
+
+
+def _get(url: str, params: dict) -> httpx.Response:
+    last: Exception | None = None
+    for attempt in range(CC_ATTEMPTS):
+        try:
+            response = httpx.get(url, params=params, timeout=180,
+                                 headers=CC_HEADERS, follow_redirects=True)
+        except httpx.HTTPError as exc:
+            last = exc
+        else:
+            if response.status_code == 200:
+                return response
+            # 503 SlowDown is Common Crawl's rate limit and is always worth
+            # waiting out; it is the normal response from a busy runner.
+            last = CrawlError(f"{url} -> {response.status_code}")
+            if response.status_code not in (429, 500, 502, 503, 504):
+                raise last
+        if attempt < CC_ATTEMPTS - 1:
+            time.sleep(min(60.0, 5.0 * (2 ** attempt)) + random.uniform(0, 3))
+    raise CrawlError(f"{url}: {last}")
 
 # Where each ATS publishes its public boards. The path segment after the host
 # is the board token, which is the same token the JSON APIs take.
+# Lever publishes at jobs.lever.co/{company}, but Common Crawl barely indexes
+# it: a full sweep returns a single token where Greenhouse returns thousands.
+# It stays supported for an explicit --sources lever, and out of the default.
+DEFAULT_SOURCES = ("greenhouse", "ashby")
+
 CC_HOSTS = {
     "greenhouse": ("job-boards.greenhouse.io", "boards.greenhouse.io"),
     "ashby": ("jobs.ashbyhq.com",),
@@ -55,26 +99,26 @@ _NOT_A_BOARD = {
 
 
 def latest_index() -> str:
-    response = httpx.get(CC_COLLINFO, timeout=60, follow_redirects=True)
-    response.raise_for_status()
-    return response.json()[0]["id"]
+    return _get(CC_COLLINFO, {}).json()[0]["id"]
 
 
 def tokens_for(source: str, index_id: str, *, progress=None) -> set[str]:
     """Board tokens for one ATS, read out of the Common Crawl URL index."""
     base = f"http://index.commoncrawl.org/{index_id}-index"
     found: set[str] = set()
+    failures: list[str] = []
     for host in CC_HOSTS[source]:
         params = {"url": f"{host}/*", "output": "json"}
         try:
-            meta = httpx.get(base, params={**params, "showNumPages": "true"},
-                             timeout=90).json()
-        except (httpx.HTTPError, ValueError):
+            meta = _get(base, {**params, "showNumPages": "true"}).json()
+        except (CrawlError, ValueError) as exc:
+            failures.append(f"{host}: {exc}")
             continue
         for page in range(meta.get("pages", 0)):
             try:
-                response = httpx.get(base, params={**params, "page": page}, timeout=180)
-            except httpx.HTTPError:
+                response = _get(base, {**params, "page": page})
+            except CrawlError as exc:
+                failures.append(f"{host} page {page}: {exc}")
                 continue
             for line in response.text.splitlines():
                 line = line.strip()
@@ -93,6 +137,14 @@ def tokens_for(source: str, index_id: str, *, progress=None) -> set[str]:
                 found.add(token if source == "ashby" else token.lower())
         if progress:
             progress(f"  {host}: {len(found)} tokens so far")
+    # Reading zero tokens from a host that certainly has thousands means the
+    # index refused us, not that the boards vanished. Say so rather than
+    # returning an empty set that looks like a legitimate answer.
+    if not found:
+        raise CrawlError(
+            f"{source}: no tokens read from {', '.join(CC_HOSTS[source])}. "
+            + ("; ".join(failures) if failures else "index returned no records")
+        )
     return found
 
 
