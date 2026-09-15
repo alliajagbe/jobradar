@@ -30,7 +30,10 @@ from jobradar.taxonomy import (
     ("Security Analyst", "N"),
     ("SOC Analyst", "N"),
     ("QA Analyst", "N"),
-    ("Credit Analyst", "N"),
+    # Not negative any more: a domain is not a different profession. A bare
+    # "Credit Analyst" still fails the gate, but on having no analytics term at
+    # all, which is a different and more honest reason.
+    ("Credit Analyst", None),
     ("Account Executive", "N"),
     ("Software Engineer", None),
     ("Registered Nurse", None),
