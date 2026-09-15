@@ -174,5 +174,21 @@ def build(doc: dict, *, overrides: dict | None = None,
         parts.append('</ul></div>')
     parts.append('</section>')
 
+    certs = doc.get("certifications") or []
+    if certs:
+        # One flex row per certification, not one grid for the section. A grid
+        # put every name in one column and every date in another, and pdftotext
+        # then extracted four names followed by four dates instead of pairing
+        # them. Education escapes this only because its full-width honors rows
+        # break the columns up.
+        parts.append('<section><h2>Certifications</h2>')
+        for cert in certs:
+            issuer = f' | {_e(cert["issuer"])}' if cert.get("issuer") else ""
+            parts.append(
+                f'<div class="entry-head cert" data-slot="{cert["id"]}" data-max-lines="1">'
+                f'<span class="left"><strong>{_e(cert["name"])}</strong>{issuer}</span>'
+                f'<span class="right">{_e(cert["dates"])}</span></div>')
+        parts.append('</section>')
+
     parts.append('</body></html>')
     return "\n".join(parts)

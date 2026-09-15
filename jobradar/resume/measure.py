@@ -60,7 +60,16 @@ _MEASURE_JS = """() => {
     for (const rect of r.getClientRects()) if (rect.width > 0.5) { lefts.add(Math.round(rect.left)); break; }
   }
   out.lefts = [...lefts].sort((a, b) => a - b);
-  out.page.height = document.documentElement.scrollHeight;
+  // scrollHeight never reports less than the viewport, so a half-empty page and
+  // a perfectly full one both read 1056 and the fit check cannot tell them
+  // apart. Measure the real bottom of the last painted content instead.
+  let bottom = 0;
+  for (const el of document.body.querySelectorAll("*")) {
+    const r = el.getBoundingClientRect();
+    if (r.height > 0 && r.width > 0) bottom = Math.max(bottom, r.bottom);
+  }
+  out.page.height = Math.ceil(bottom + parseFloat(getComputedStyle(document.body).paddingBottom));
+  out.page.scroll_height = document.documentElement.scrollHeight;
   out.page.font_ok = document.fonts.check(FONT_PROBE);
   return out;
 }"""
@@ -80,6 +89,13 @@ class Metrics:
 
     def overflow_px(self) -> int:
         return max(0, self.height_px - PAGE_PX)
+
+    def free_px(self) -> int:
+        """Unused vertical space. Roughly 13px per line at the current size."""
+        return max(0, PAGE_PX - self.height_px)
+
+    def free_lines(self) -> int:
+        return self.free_px() // 13
 
 
 def render(html: str, pdf_path: Path | None, *, font_probe: str) -> Metrics:

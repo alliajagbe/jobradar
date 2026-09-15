@@ -33,8 +33,9 @@ def _report(findings, metrics=None) -> int:
     hard = [f for f in findings if f.severity == "hard"]
     warn = [f for f in findings if f.severity == "warn"]
     if metrics is not None:
-        _log(f"  layout   {metrics.height_px}px of {M.PAGE_PX} "
-             f"({'fits' if metrics.fits_one_page else f'OVER by {metrics.overflow_px()}px'})"
+        room = (f"fits, {metrics.free_px()}px spare (~{metrics.free_lines()} lines)"
+                if metrics.fits_one_page else f"OVER by {metrics.overflow_px()}px")
+        _log(f"  layout   {metrics.height_px}px of {M.PAGE_PX} ({room})"
              f"   indents {len(metrics.lefts)}   font {'ok' if metrics.font_ok else 'FALLBACK'}")
         s = metrics.slots.get("summary")
         if s:

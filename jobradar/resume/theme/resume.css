@@ -58,6 +58,9 @@ body {
 .edu-table .when { grid-column: 4; justify-self: end; white-space: nowrap; }
 .honors-row { grid-column: 1 / -1; }
 
+.entry-head.cert { margin-bottom: 0.12em; }
+.entry-head.cert:last-child { margin-bottom: 0; }
+
 /* ---- sections ----
    The rhythm is: a clear gap ABOVE a section heading, a small one below it.
    Equal gaps on both sides make the rule float between two sections instead of

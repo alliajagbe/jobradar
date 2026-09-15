@@ -142,3 +142,25 @@ def test_education_is_one_shared_grid():
     # Cells must be direct children of that one grid, not wrapped per row.
     assert '<div class="entry edu">' not in html
     assert html.count('class="deg"') == html.count('class="gpa"') == 2
+
+
+def test_certifications_render_with_their_dates():
+    from jobradar.resume.html import build
+    from jobradar.resume.model import default_document, load_master
+    doc = default_document(load_master())
+    assert doc["certifications"], "master carries no certifications"
+    html = build(doc)
+    for cert in doc["certifications"]:
+        assert cert["name"] in html
+        assert cert["dates"] in html
+    # One flex row per certification, not one grid for the section. A grid put
+    # every name in one column and every date in another, and extraction then
+    # returned four names followed by four dates instead of pairing them.
+    assert 'class="cert-table"' not in html
+    assert html.count('entry-head cert') == len(doc["certifications"])
+
+
+def test_portfolio_link_is_present():
+    from jobradar.resume.html import build
+    from jobradar.resume.model import default_document, load_master
+    assert "alliajagbe.github.io" in build(default_document(load_master()))

@@ -109,6 +109,7 @@ def default_document(master: Master) -> dict:
         "skills": [{**g, "items": g.get("default", g["items"])} for g in master.raw["skills"]],
         "experience": master.raw["experience"],
         "projects": master.raw["projects"],
+        "certifications": master.raw.get("certifications") or [],
     }
 
 
@@ -164,4 +165,10 @@ def resolve_variant(master: Master, variant: dict) -> dict:
         "skills": doc_skills,
         "experience": doc_exp or master.raw["experience"],
         "projects": doc_proj or master.raw["projects"],
+        # Selectable but never rewritable: a certification is a fact with a
+        # name and a date, and there is nothing to tailor about one.
+        "certifications": [
+            c for c in (master.raw.get("certifications") or [])
+            if not variant.get("certifications") or c["id"] in variant["certifications"]
+        ],
     }
