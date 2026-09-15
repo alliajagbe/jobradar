@@ -2,15 +2,21 @@ const fs = require("fs"), path = require("path");
 const { JSDOM } = require("jsdom");
 const ROOT = "/Users/alli/dev/jobCollections/jobradar/docs";
 
-const cards = JSON.parse(fs.readFileSync(path.join(ROOT, "data/jobs.json")));
-const meta  = JSON.parse(fs.readFileSync(path.join(ROOT, "data/meta.json")));
+const cards    = JSON.parse(fs.readFileSync(path.join(ROOT, "data/jobs.json")));
+const filtered = JSON.parse(fs.readFileSync(path.join(ROOT, "data/filtered.json")));
+const meta     = JSON.parse(fs.readFileSync(path.join(ROOT, "data/meta.json")));
 
 const dom = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
   runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/",
   pretendToBeVisual: true,
 });
 const w = dom.window;
-w.fetch = (u) => Promise.resolve({ json: () => Promise.resolve(u.includes("meta") ? meta : cards) });
+let fetched = [];
+w.fetch = (u) => {
+  fetched.push(u);
+  const body = u.includes("meta") ? meta : u.includes("filtered") ? filtered : cards;
+  return Promise.resolve({ json: () => Promise.resolve(body) });
+};
 const store = {};
 Object.defineProperty(w, "localStorage", { value: {
   getItem: k => store[k] ?? null, setItem: (k,v) => { store[k]=String(v); },
@@ -74,10 +80,12 @@ setTimeout(() => {
   $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));
   check("min score filter widens back", q(".card").length >= rendered);
 
-  $("#showdropped").checked = true;
-  $("#showdropped").dispatchEvent(new w.Event("change", {bubbles:true}));
-  check("show filtered reveals dropped", q(".card.is-dropped").length > 0,
-        q(".card.is-dropped").length + " dropped shown");
+  // Filtered cards must NOT be in the initial payload: they outnumber open
+  // roles about five to one and nobody sees them by default.
+  check("initial load skips filtered.json",
+        !fetched.some((u) => u.includes("filtered")), fetched.join(" "));
+  check("dropped count still shown from meta", $("#dropcount").textContent.includes(String(meta.dropped)),
+        $("#dropcount").textContent);
 
   $("#search").value = "analyst";
   $("#search").dispatchEvent(new w.Event("input", {bubbles:true}));
@@ -107,6 +115,17 @@ setTimeout(() => {
         threeDay > 0 || /widen Posted within|lowering the minimum/.test(emptyMsg),
         threeDay > 0 ? threeDay + " cards in 3d" : emptyMsg.slice(0, 80));
 
-  console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
-  process.exit(fail ? 1 : 0);
+  // Now actually ask for them, and confirm they arrive lazily.
+  $("#search").value = "";
+  $("#search").dispatchEvent(new w.Event("input", {bubbles:true}));
+  $("#showdropped").checked = true;
+  $("#showdropped").dispatchEvent(new w.Event("change", {bubbles:true}));
+  setTimeout(() => {
+    check("filtered.json fetched only on demand",
+          fetched.some((u) => u.includes("filtered")));
+    check("filtered cards render once loaded", q(".card.is-dropped").length > 0,
+          q(".card.is-dropped").length + " shown");
+    console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
+    process.exit(fail ? 1 : 0);
+  }, 200);
 }, 600);

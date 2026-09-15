@@ -50,14 +50,37 @@ def group(jobs: list[dict]) -> list[dict]:
     return cards
 
 
+# Fields a filtered or closed card does not need. It is shown behind a toggle,
+# as one line explaining why it was filtered, so it needs a title, a company and
+# a reason. Carrying its full score breakdown and description costs the same as
+# an open card for something almost nobody opens.
+_SLIM_AWAY = ("explain", "snippet", "matched_skills", "missing_skills",
+              "min_years", "also_at", "location_confidence", "posted_at_source")
+
+
 def publish(jobs: list[dict], report=None) -> tuple[int, int]:
-    """Write docs/data/jobs.json and meta.json. Returns (cards, open cards)."""
+    """Write the page's data files. Returns (cards, open cards).
+
+    Split into two files on purpose. Filtered and closed cards outnumber open
+    ones roughly five to one and are hidden behind a toggle, so shipping them in
+    the initial payload means a phone downloads several megabytes to render a
+    list it was never going to show. They go in filtered.json, which the page
+    fetches only when somebody ticks the box.
+    """
     config.DOCS_DATA_DIR.mkdir(parents=True, exist_ok=True)
     cards = group(jobs)
     open_cards = [c for c in cards if c["status"] == "open"]
+    other = [
+        {k: v for k, v in c.items() if k not in _SLIM_AWAY}
+        for c in cards if c["status"] != "open"
+    ]
 
     config.PUBLISH_JOBS_JSON.write_text(
-        json.dumps(cards, ensure_ascii=False, separators=(",", ":")),
+        json.dumps(open_cards, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    (config.DOCS_DATA_DIR / "filtered.json").write_text(
+        json.dumps(other, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
 

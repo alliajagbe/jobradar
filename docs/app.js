@@ -20,6 +20,7 @@ const SPONSOR_LABELS = {
 const STATUSES = ["interested", "applied", "interviewing", "offer", "rejected", "dismissed"];
 
 let CARDS = [];
+let FILTERED = null;      // fetched lazily; see loadFiltered
 let META = {};
 let VIEW = [];
 let selected = -1;
@@ -85,12 +86,13 @@ function matches(card) {
   if (card.status === "closed" && !state.showclosed) return false;
   if (card.status === "open" && card.score < state.minscore) return false;
   if (state.age) { const a = ageDays(card); if (a === null || a > +state.age) return false; }
-  if (state.sponsor.size && !state.sponsor.has(card.sponsorship.signal)) return false;
+  if (state.sponsor.size && !state.sponsor.has((card.sponsorship || {}).signal)) return false;
   if (state.source.size && !state.source.has(card.source)) return false;
   if (state.remoteonly && !card.is_remote) return false;
   if (state.trackedonly && !tracker[card.dedupe_key]) return false;
   if (state.q) {
-    const hay = (card.title + " " + card.company + " " + card.matched_skills.join(" ") + " " + card.locations.join(" ")).toLowerCase();
+    const hay = [card.title, card.company, (card.matched_skills || []).join(" "),
+                 (card.locations || []).join(" ")].join(" ").toLowerCase();
     if (!state.q.toLowerCase().split(/\s+/).every((t) => hay.includes(t))) return false;
   }
   return true;
@@ -145,7 +147,7 @@ function cardNode(card, i) {
   const a = ageDays(card);
   if (a !== null) sub.appendChild(el("span", null, a === 0 ? "today" : a + "d ago"));
 
-  sub.appendChild(sponsorChip(card.sponsorship));
+  if (card.sponsorship) sub.appendChild(sponsorChip(card.sponsorship));
 
   const t = tracker[card.dedupe_key];
   if (t && t.status) sub.appendChild(el("span", "chip " + (t.status === "applied" ? "applied" : "state"), t.status));
@@ -153,7 +155,7 @@ function cardNode(card, i) {
   if (card.status === "closed") sub.appendChild(el("span", "chip state", "closed"));
   main.appendChild(sub);
 
-  if (card.matched_skills.length)
+  if (card.matched_skills && card.matched_skills.length)
     main.appendChild(el("div", "cardskills", card.matched_skills.slice(0, 9).join(" · ")));
 
   node.appendChild(main);
@@ -179,12 +181,14 @@ function sponsorChip(sp) {
 function renderCounts() {
   const by = (fn) => CARDS.filter(fn).length;
   document.querySelectorAll("#sponsor .count").forEach((n) => {
-    n.textContent = by((c) => c.status === "open" && c.sponsorship.signal === n.dataset.v);
+    n.textContent = by((c) => c.status === "open" && (c.sponsorship || {}).signal === n.dataset.v);
   });
   document.querySelectorAll("#source .count").forEach((n) => {
     n.textContent = by((c) => c.status === "open" && c.source === n.dataset.v);
   });
-  $("#dropcount").textContent = "(" + by((c) => c.status === "dropped") + ")";
+  const dropped = FILTERED === null ? (META.dropped || 0)
+                                    : by((c) => c.status === "dropped");
+  $("#dropcount").textContent = "(" + dropped + ")";
 }
 
 function renderTrackCount() {
@@ -213,7 +217,7 @@ function renderDetail(card) {
 
   d.appendChild(el("h2", null, card.title));
   const sub = el("div", "dsub");
-  sub.textContent = [card.company, card.locations.join(" · ") || (card.is_remote ? "Remote" : ""), card.source]
+  sub.textContent = [card.company, (card.locations || []).join(" · ") || (card.is_remote ? "Remote" : ""), card.source]
     .filter(Boolean).join("  ·  ");
   d.appendChild(sub);
 
@@ -227,10 +231,16 @@ function renderDetail(card) {
     d.appendChild(also);
   }
 
+  if (card.drop_reason) {
+    const w = section(d, "Filtered out");
+    w.appendChild(el("p", "note", "Reason: " + card.drop_reason
+      + ". Filtered roles are kept so the filters can be audited, not hidden."));
+  }
+
   /* why this score */
-  const why = section(d, "Why " + card.score);
+  const why = card.explain ? section(d, "Why " + card.score) : null;
   const table = el("table", "explain");
-  card.explain.forEach((row) => {
+  (card.explain || []).forEach((row) => {
     const tr = el("tr");
     tr.appendChild(el("td", "lbl", row.label));
     tr.appendChild(el("td", "det", row.detail));
@@ -239,12 +249,12 @@ function renderDetail(card) {
     tr.appendChild(pts);
     table.appendChild(tr);
   });
-  why.appendChild(table);
+  if (why) why.appendChild(table);
 
   /* sponsorship */
-  const sp = card.sponsorship;
+  const sp = card.sponsorship || {};
   const spSec = section(d, "Sponsorship");
-  spSec.appendChild(sponsorChip(sp));
+  if (sp.signal) spSec.appendChild(sponsorChip(sp));
   spSec.appendChild(el("p", "note", sp.detail));
   if (sp.evidence) {
     const q = el("div", "evidence bad", "“" + sp.evidence.trim() + "”");
@@ -260,13 +270,13 @@ function renderDetail(card) {
   }
 
   /* skills */
-  if (card.matched_skills.length) {
+  if (card.matched_skills && card.matched_skills.length) {
     const s = section(d, "Skills in this posting");
     const tags = el("div", "taglist");
     card.matched_skills.forEach((k) => tags.appendChild(el("span", "tag", k)));
     s.appendChild(tags);
   }
-  if (card.missing_skills.length) {
+  if (card.missing_skills && card.missing_skills.length) {
     const s = section(d, "Gaps to expect in a screen");
     const tags = el("div", "taglist");
     card.missing_skills.forEach((k) => tags.appendChild(el("span", "tag gap", k)));
@@ -346,8 +356,17 @@ function wire() {
     document.querySelectorAll("#age button").forEach((n) => n.classList.toggle("on", n === b));
     render();
   });
-  ["remoteonly", "trackedonly", "showclosed", "showdropped"].forEach((k) => {
+  ["remoteonly", "trackedonly"].forEach((k) => {
     $("#" + k).addEventListener("change", (e) => { state[k] = e.target.checked; render(); });
+  });
+  // Filtered and closed cards live in a second file, fetched the first time
+  // somebody asks to see them. They outnumber open roles about five to one.
+  ["showclosed", "showdropped"].forEach((k) => {
+    $("#" + k).addEventListener("change", async (e) => {
+      state[k] = e.target.checked;
+      if (state[k]) await loadFiltered();
+      render();
+    });
   });
   $("#reset").addEventListener("click", () => { location.hash = ""; location.reload(); });
 
@@ -402,6 +421,17 @@ function wire() {
   });
 }
 
+async function loadFiltered() {
+  if (FILTERED !== null) return;
+  try {
+    FILTERED = await fetch("data/filtered.json", { cache: "no-cache" }).then((r) => r.json());
+    CARDS = CARDS.concat(FILTERED);
+  } catch {
+    FILTERED = [];
+    banner("Could not load the filtered roles.");
+  }
+}
+
 /* ---- boot ---- */
 async function boot() {
   readHash();
@@ -447,6 +477,8 @@ async function boot() {
   }
 
   renderTrackCount();
+  // A bookmarked URL can arrive with the filtered view already on.
+  if (state.showdropped || state.showclosed) await loadFiltered();
   render();
   if (VIEW.length) select(0);
 }
