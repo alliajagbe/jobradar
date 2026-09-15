@@ -25,6 +25,16 @@
 
 <main>
   <aside class="rail" id="rail">
+    <section class="addbox">
+      <div class="railhead">Add a job by link</div>
+      <form id="addform" autocomplete="off">
+        <input id="addurl" type="url" placeholder="Paste a posting link" spellcheck="false">
+        <button class="btn" type="submit">Add</button>
+      </form>
+      <p class="note" id="addnote">Saved in this browser. Use Tailor on the card to
+        copy the command that builds a resume for it.</p>
+    </section>
+
     <section>
       <label class="railhead" for="minscore">Minimum score <output id="minscoreout">55</output></label>
       <input id="minscore" type="range" min="0" max="100" step="5" value="55">

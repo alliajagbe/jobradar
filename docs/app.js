@@ -9,6 +9,11 @@
 "use strict";
 
 const STORE_KEY = "jobradar.tracker.v1";
+const ADDED_KEY = "jobradar.added.v1";
+// The command the Tailor button copies. The page cannot fetch a posting itself
+// (every ATS blocks cross-origin reads and there is no server to proxy through)
+// so the link is carried to the local CLI, which does the work.
+const TAILOR_CMD = "python -m jobradar tailor brief --url ";
 const SPONSOR_LABELS = {
   strong: "Sponsors often",
   says_yes: "Posting offers sponsorship",
@@ -20,6 +25,7 @@ const SPONSOR_LABELS = {
 const STATUSES = ["interested", "applied", "interviewing", "offer", "rejected", "dismissed"];
 
 let CARDS = [];
+let ADDED = [];           // jobs pasted in by hand, stored in this browser only
 let FILTERED = null;      // fetched lazily; see loadFiltered
 let META = {};
 let VIEW = [];
@@ -39,6 +45,45 @@ function saveTracker() {
   catch { banner("This browser is not saving your tracking. Private windows block storage."); }
   renderTrackCount();
 }
+function loadAdded() {
+  try { return JSON.parse(localStorage.getItem(ADDED_KEY) || "[]"); }
+  catch { return []; }
+}
+function saveAdded() {
+  try { localStorage.setItem(ADDED_KEY, JSON.stringify(ADDED)); }
+  catch { banner("This browser is not saving added links."); }
+}
+
+/* A pasted link becomes a card immediately, before the CLI has seen it. It has
+   no score or sponsorship yet because working those out means fetching the
+   posting, which only the local command can do. */
+function addedCard(url) {
+  let host = url, path = "";
+  try { const u = new URL(url); host = u.hostname.replace(/^(www|jobs|job-boards|boards|apply|careers)\./, ""); path = u.pathname; }
+  catch { return null; }
+  const company = host.split(".")[0];
+  const bits = path.split("/").filter(Boolean);
+  const guess = bits.length > 1 ? bits[0] : company;
+  return {
+    id: "added:" + url,
+    dedupe_key: "added:" + url,
+    company: guess.charAt(0).toUpperCase() + guess.slice(1),
+    title: "Pasted link",
+    url: url,
+    source: "link",
+    locations: [],
+    is_remote: false,
+    score: null,
+    matched_skills: [],
+    missing_skills: [],
+    sponsorship: null,
+    status: "open",
+    drop_reason: null,
+    added: true,
+    posted_at: new Date().toISOString(),
+  };
+}
+
 function track(key, patch) {
   tracker[key] = Object.assign({}, tracker[key], patch, { updated: new Date().toISOString().slice(0, 10) });
   if (!tracker[key].status) delete tracker[key];
@@ -84,10 +129,13 @@ function ageDays(card) {
 function matches(card) {
   if (card.status === "dropped" && !state.showdropped) return false;
   if (card.status === "closed" && !state.showclosed) return false;
-  if (card.status === "open" && card.score < state.minscore) return false;
-  if (state.age) { const a = ageDays(card); if (a === null || a > +state.age) return false; }
-  if (state.sponsor.size && !state.sponsor.has((card.sponsorship || {}).signal)) return false;
-  if (state.source.size && !state.source.has(card.source)) return false;
+  // An added link has no score until the local command fetches the posting, so
+  // the score slider must not hide it. Filtering out the thing you just pasted
+  // reads as the Add button being broken.
+  if (card.status === "open" && !card.added && card.score < state.minscore) return false;
+  if (state.age && !card.added) { const a = ageDays(card); if (a === null || a > +state.age) return false; }
+  if (state.sponsor.size && !card.added && !state.sponsor.has((card.sponsorship || {}).signal)) return false;
+  if (state.source.size && !card.added && !state.source.has(card.source)) return false;
   if (state.remoteonly && !card.is_remote) return false;
   if (state.trackedonly && !tracker[card.dedupe_key]) return false;
   if (state.q) {
@@ -135,7 +183,8 @@ function cardNode(card, i) {
   const node = el("article", "card" + (card.status !== "open" ? " is-dropped" : ""));
   node.dataset.i = i;
 
-  const score = el("div", "score" + (card.score < 55 ? " low" : ""), card.score);
+  const score = el("div", "score" + (card.score == null || card.score < 55 ? " low" : ""),
+                   card.score == null ? "+" : card.score);
   node.appendChild(score);
 
   const main = el("div", "cardmain");
@@ -148,6 +197,7 @@ function cardNode(card, i) {
   if (a !== null) sub.appendChild(el("span", null, a === 0 ? "today" : a + "d ago"));
 
   if (card.sponsorship) sub.appendChild(sponsorChip(card.sponsorship));
+  if (card.added) sub.appendChild(el("span", "chip mine", "added by you"));
 
   const t = tracker[card.dedupe_key];
   if (t && t.status) sub.appendChild(el("span", "chip " + (t.status === "applied" ? "applied" : "state"), t.status));
@@ -298,6 +348,49 @@ function renderDetail(card) {
   });
   ts.appendChild(row);
 
+  // The command that builds a resume for this posting. Copying it is the whole
+  // bridge between a page that cannot reach your disk and a CLI that can.
+  const tailor = section(d, "Tailor a resume");
+  const cmd = TAILOR_CMD + card.url;
+  const copy = el("button", "btn", "Copy the tailor command");
+  const shown = el("input", "cmdbox");
+  shown.value = cmd; shown.readOnly = true; shown.hidden = true;
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(cmd);
+      copy.textContent = "Copied. Paste it in your terminal.";
+    } catch {
+      // clipboard needs a secure context; file:// and old browsers fall back.
+      shown.hidden = false; shown.focus(); shown.select();
+      copy.textContent = "Select and copy:";
+    }
+    if (!t.status) {
+      track(card.dedupe_key, { status: "interested", title: card.title,
+                               company: card.company, url: card.url });
+      render();
+    }
+  });
+  tailor.appendChild(copy);
+  tailor.appendChild(shown);
+  if (card.added) {
+    tailor.appendChild(el("p", "note",
+      "Added by you, so it has no score yet. The command above fetches the posting, "
+      + "scores it and writes the brief."));
+  }
+
+  if (card.added) {
+    const remove = el("button", "linkbtn", "Remove this link");
+    remove.style.marginTop = "8px";
+    remove.addEventListener("click", () => {
+      ADDED = ADDED.filter((a) => a.url !== card.url);
+      saveAdded();
+      CARDS = CARDS.filter((c) => c.id !== card.id);
+      $("#detail").textContent = "";
+      render();
+    });
+    tailor.appendChild(remove);
+  }
+
   const note = el("textarea");
   note.id = "note"; note.placeholder = "Notes, referrals, who you spoke to";
   note.value = t.note || "";
@@ -368,6 +461,32 @@ function wire() {
       render();
     });
   });
+  $("#addform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = $("#addurl");
+    const url = input.value.trim();
+    if (!url) return;
+    if (!/^https?:\/\/.+\..+/.test(url)) {
+      $("#addnote").textContent = "That does not look like a link. Paste the full URL.";
+      return;
+    }
+    if (ADDED.some((a) => a.url === url) || CARDS.some((c) => c.url === url)) {
+      $("#addnote").textContent = "Already on the list.";
+      input.value = "";
+      return;
+    }
+    const card = addedCard(url);
+    if (!card) { $("#addnote").textContent = "Could not read that link."; return; }
+    ADDED.unshift(card);
+    saveAdded();
+    CARDS = ADDED.concat(CARDS.filter((c) => !c.added));
+    input.value = "";
+    $("#addnote").textContent = "Added. Open it and copy the tailor command.";
+    render();
+    const i = VIEW.findIndex((c) => c.url === url);
+    if (i >= 0) select(i);
+  });
+
   $("#reset").addEventListener("click", () => { location.hash = ""; location.reload(); });
 
   $("#export").addEventListener("click", () => {
@@ -459,6 +578,9 @@ async function boot() {
     banner("Could not load the job data. If this is a fresh checkout, run the refresh workflow first.");
     CARDS = []; META = {};
   }
+
+  ADDED = loadAdded();
+  CARDS = ADDED.concat(CARDS);
 
   buildChecks("sponsor", ["strong", "says_yes", "some", "never_filed", "unknown", "explicit_no"], SPONSOR_LABELS);
   buildChecks("source", META.sources || []);

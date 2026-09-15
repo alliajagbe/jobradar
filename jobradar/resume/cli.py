@@ -49,6 +49,20 @@ def _report(findings, metrics=None) -> int:
 
 def cmd_brief(args: argparse.Namespace) -> int:
     master = load_master()
+    if getattr(args, "url", None):
+        from . import ingest
+        posting = ingest.fetch(args.url, progress=_log)
+        job = _job_from_posting(posting)
+        slug = args.slug or jd_mod.slug_for(job)
+        text, sha = posting.text, "link"
+        out = resolve("briefs", f"{slug}.md", create_parent=True)
+        out.write_text(brief_mod.write(master, job, text, sha, slug), encoding="utf-8")
+        _log(f"\n  {posting.company} - {posting.title} ({len(text)} chars)")
+        _log(f"wrote {out}")
+        _log(f"next: write ~/.jobradar/variants/{slug}.yaml, then "
+             f"`python -m jobradar tailor render --slug {slug}`")
+        return 0
+
     if args.find:
         matches = jd_mod.find_jobs(args.find, limit=6)
         if not matches:
@@ -78,6 +92,53 @@ def cmd_brief(args: argparse.Namespace) -> int:
     _log(f"next: write ~/.jobradar/variants/{slug}.yaml, then "
          f"`python -m jobradar tailor render --slug {slug}`")
     return 0
+
+
+def _job_from_posting(posting) -> dict:
+    """A jobs.jsonl-shaped record for a posting that was never crawled.
+
+    Scored and sponsorship-matched the same way a crawled posting is, so a link
+    pasted by hand carries the same signals as one the crawler found. There is
+    no reason a job should be worth less because of how it arrived.
+    """
+    from .. import normalize, score as scoring, sponsorship, taxonomy
+    from ..matching import Matcher
+    from ..refresh import load_profile
+
+    profile = load_profile()
+    preferred = {c.lower() for c in (profile.get("locations", {}).get("preferred") or [])}
+    title_n = normalize.title_norm(posting.title)
+    match = taxonomy.title_tier(title_n)
+    location = normalize.parse_locations(None, None, posting.text, preferred)
+    verdict = taxonomy.sponsorship_text_verdict(normalize.sentences(posting.text))
+
+    employers = sponsorship.employer_table()
+    stats = method = mscore = None
+    if employers:
+        matcher = Matcher(list(employers))
+        result = matcher.match(posting.company)
+        stats = employers.get(result.norm_name) if result.norm_name else None
+        method, mscore = result.method, result.score
+    signal = sponsorship.resolve(text_verdict=verdict, stats=stats,
+                                 match_method=method or "no-data", match_score=mscore,
+                                 is_us=location.is_us)
+    penalty, level = normalize.title_level_penalty(posting.title)
+    scored = scoring.score_job(
+        title_tier=match.tier, title_term=match.term, description_text=posting.text,
+        location=location, posted_at=None, sponsorship_signal=signal.signal,
+        sponsorship_detail=signal.detail, level_penalty=penalty, level_label=level,
+        profile_skills=set(profile.get("skills_i_have") or []))
+    return {
+        "id": f"link:{posting.company.lower().replace(' ', '')}:{abs(hash(posting.url)) % 10**10}",
+        "board": posting.board_key or "link", "company": posting.company,
+        "title": posting.title, "url": posting.url, "source": posting.source,
+        "locations": list(location.locations), "is_remote": location.is_remote,
+        "is_us": location.is_us, "score": scored.score, "explain": scored.components,
+        "matched_skills": scored.matched_skills, "missing_skills": scored.missing_skills,
+        "min_years": scored.min_years, "title_tier": match.tier,
+        "sponsorship": signal.as_dict(), "status": "open", "drop_reason": None,
+        "snippet": posting.text[:400],
+    }
 
 
 def _load_doc(args) -> tuple[dict, str]:
@@ -238,6 +299,7 @@ def add_parser(sub) -> None:
     g = b.add_mutually_exclusive_group(required=True)
     g.add_argument("--id", help="exact job id or url from data/jobs.jsonl")
     g.add_argument("--find", help='fuzzy match, e.g. "intel data analyst"')
+    g.add_argument("--url", help="a job posting link, from any site")
     b.add_argument("--slug", help="override the output slug")
     b.add_argument("--refetch", action="store_true", help="ignore the cached description")
     b.add_argument("--jd-file", help="use a saved description instead of refetching")

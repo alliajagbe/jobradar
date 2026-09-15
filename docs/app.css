@@ -107,6 +107,22 @@ output { color: var(--accent); font-weight: 600; }
 .checks label { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; }
 .checks input { accent-color: var(--accent); }
 .count { margin-left: auto; color: var(--ink-dim); font-size: 11px; font-variant-numeric: tabular-nums; }
+.addbox form { display: flex; gap: 6px; }
+.addbox input {
+  flex: 1; min-width: 0; padding: 6px 8px; font: inherit; font-size: 12.5px;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: var(--bg); color: var(--ink);
+}
+.addbox input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.addbox .btn { padding: 6px 10px; font-size: 12.5px; }
+.chip.mine { background: var(--accent-soft); color: var(--accent); }
+.cmdbox {
+  width: 100%; margin-top: 8px; padding: 7px 9px; font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: var(--bg); color: var(--ink);
+}
+
 .railfoot { border-top: 1px solid var(--line); padding-top: 14px; }
 .trackline { display: flex; gap: 10px; align-items: center; margin-top: 10px; font-size: 12px; }
 .trackline span { margin-right: auto; color: var(--ink-dim); }

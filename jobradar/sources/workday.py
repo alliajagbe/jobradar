@@ -94,6 +94,9 @@ class Workday:
         start = info.get("startDate")
         return RawPosting(**{
             **posting.__dict__,
+            # The detail payload carries the title, and a posting reached by URL
+            # rather than by search arrives without one.
+            "title": posting.title or info.get("title") or "",
             "description_html": info.get("jobDescription"),
             "url": info.get("externalUrl") or posting.url,
             "location_raw": info.get("location") or posting.location_raw,

@@ -125,6 +125,38 @@ setTimeout(() => {
           fetched.some((u) => u.includes("filtered")));
     check("filtered cards render once loaded", q(".card.is-dropped").length > 0,
           q(".card.is-dropped").length + " shown");
+
+    // --- pasting a job link ---
+    $("#showdropped").checked = false;
+    $("#showdropped").dispatchEvent(new w.Event("change", {bubbles:true}));
+    $("#minscore").value = 55;
+    $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));
+    const URL_IN = "https://job-boards.greenhouse.io/acme/jobs/123456";
+    $("#addurl").value = URL_IN;
+    $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+    const mine = () => q(".card").filter(n => n.textContent.includes("added by you"));
+    check("a pasted link becomes a card", mine().length === 1,
+          mine()[0] ? mine()[0].textContent.replace(/\s+/g," ").slice(0,46) : "none");
+    check("the pasted link persists",
+          JSON.parse(store["jobradar.added.v1"] || "[]").some(a => a.url === URL_IN));
+    // It has no score until the CLI fetches it, so the score slider must not hide it.
+    check("a pasted link survives the score filter", mine().length === 1,
+          "min score " + $("#minscore").value);
+    check("the detail pane offers the tailor command",
+          /Copy the tailor command/.test($("#detail").textContent));
+    const boxes = q(".cmdbox");
+    check("the command carries the pasted url",
+          boxes.some(b => b.value.includes(URL_IN) && b.value.includes("tailor brief --url")),
+          boxes[0] ? boxes[0].value.slice(0, 58) : "none");
+
+    $("#addurl").value = "not a url";
+    $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+    check("a non-url is refused with a reason",
+          /does not look like a link/.test($("#addnote").textContent), $("#addnote").textContent);
+
+    $("#addurl").value = URL_IN;
+    $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+    check("a duplicate link is not added twice", mine().length === 1);
     console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
     process.exit(fail ? 1 : 0);
   }, 200);
