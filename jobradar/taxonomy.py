@@ -52,6 +52,34 @@ def _title_terms() -> dict[str, list[str]]:
     return buckets
 
 
+@lru_cache(maxsize=1)
+def _negative_patterns() -> tuple[re.Pattern[str], ...]:
+    """Negative terms, matched with words allowed in between.
+
+    A plain substring test misses the way these titles are actually written:
+    "security analyst" does not appear in "Security Operations Analyst", and
+    eight infosec roles reached the results because of it. Any negative term
+    ending in a role noun becomes `<domain> ...up to three words... <noun>`.
+
+    This is only safe because the negative list holds different PROFESSIONS
+    rather than different industries. Alli is industry agnostic, so credit,
+    claims and fraud analytics are analytics jobs and are not in here; infosec,
+    software QA and wet-lab work are not analytics jobs and are.
+    """
+    nouns = ("analyst", "analysts", "administrator", "engineer", "specialist")
+    out: list[re.Pattern[str]] = []
+    for term in _title_terms()["N"]:
+        words = term.split()
+        if len(words) >= 2 and words[-1] in nouns:
+            head = r"\s+".join(re.escape(w) for w in words[:-1])
+            out.append(re.compile(
+                rf"(?<![a-z]){head}\b[\w\s/&,-]{{0,26}}?\b{re.escape(words[-1])}(?![a-z])"
+            ))
+        else:
+            out.append(re.compile(rf"(?<![a-z]){re.escape(term)}(?![a-z])"))
+    return tuple(out)
+
+
 def title_tier(title_norm_value: str) -> TitleMatch:
     """Classify a normalized title.
 
@@ -59,9 +87,10 @@ def title_tier(title_norm_value: str) -> TitleMatch:
     contains "analyst" but is not a role this tool is for.
     """
     terms = _title_terms()
-    for term in terms["N"]:
-        if term in title_norm_value:
-            return TitleMatch("N", term)
+    for pattern in _negative_patterns():
+        hit = pattern.search(title_norm_value)
+        if hit:
+            return TitleMatch("N", hit.group(0))
 
     for term in terms["A"]:
         if term in title_norm_value:

@@ -118,3 +118,38 @@ def test_mixed_signals_keep_both_sides():
 ])
 def test_min_years(text, years):
     assert min_years_required(text) == years
+
+
+@pytest.mark.parametrize("title", [
+    # A different profession wearing the word "analyst". A plain substring test
+    # missed every one of these: "security analyst" does not appear in
+    # "Security Operations Analyst", and eight infosec roles reached the live
+    # results because of it.
+    "Security Operations Analyst",
+    "Security Operations Analyst - Weekend 4x10 Shift",
+    "Cyber Threat Analyst",
+    "Information Security Analyst II",
+    "QA Automation Analyst",
+    "Quality Assurance Analyst",
+    "Laboratory Analyst",
+    "Clinical Research Analyst",
+])
+def test_different_professions_are_rejected(title):
+    assert title_tier(title_norm(title)).tier == "N"
+
+
+@pytest.mark.parametrize("title", [
+    # A different INDUSTRY is not a different profession. Alli is industry
+    # agnostic, so credit, claims, fraud and compliance analytics are analytics
+    # jobs and must survive. Over-tightening the negative list is the easy way
+    # to silently throw away most of the market.
+    "Credit Risk Analyst",
+    "Claims Operations Analyst",
+    "Fraud Data Analyst",
+    "Data Scientist - Fraud",
+    "Data Analyst, Go-To-Market Sales Insights",
+    "Data Analyst, Clinical Data Effectiveness",
+    "Compliance Data Analyst",
+])
+def test_domain_analytics_roles_survive(title):
+    assert title_tier(title_norm(title)).tier not in ("N", None), title
