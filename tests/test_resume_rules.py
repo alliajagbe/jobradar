@@ -164,3 +164,26 @@ def test_portfolio_link_is_present():
     from jobradar.resume.html import build
     from jobradar.resume.model import default_document, load_master
     assert "alliajagbe.github.io" in build(default_document(load_master()))
+
+
+def test_spacing_forms_a_hierarchy():
+    """Section gap > entry gap > bullet gap. The gap between sections is the
+    document's main structural signal, so it has to be the largest space on the
+    page; bullets inside one role are a single block and sit tightest."""
+    from jobradar.resume.html import tokens
+    t = tokens()
+    assert t["section_gap_em"] > t["entry_gap_em"] > t["bullet_gap_em"]
+    assert t["section_gap_em"] >= 2.5 * t["entry_gap_em"]
+
+
+def test_entry_gap_token_actually_changes_the_layout():
+    """It once did not. `.entry { margin-bottom }` collapsed against a
+    hard-coded `.entry + .entry { margin-top }`, so the token was inert and a
+    sweep over it reported identical heights at every value."""
+    from jobradar.resume.html import build
+    from jobradar.resume.model import default_document, load_master
+    doc = default_document(load_master())
+    tight = build(doc, overrides={"entry_gap_em": 0.10})
+    loose = build(doc, overrides={"entry_gap_em": 0.60})
+    assert "--entry-gap:0.1em" in tight
+    assert "--entry-gap:0.6em" in loose

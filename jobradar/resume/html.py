@@ -76,6 +76,7 @@ def _css_vars(t: dict) -> str:
         f"--indent:{t['indent_in']}in;"
         f"--section-gap:{t['section_gap_em']}em;"
         f"--entry-gap:{t['entry_gap_em']}em;"
+        f"--bullet-gap:{t['bullet_gap_em']}em;"
     )
 
 

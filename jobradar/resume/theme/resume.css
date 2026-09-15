@@ -66,6 +66,10 @@ body {
    Equal gaps on both sides make the rule float between two sections instead of
    belonging to the one it introduces, which is what made the first draft look
    unsettled. */
+/* The gap between sections is the document's main structural signal, so it is
+   the largest space on the page and roughly three times the gap between two
+   entries inside a section. Bullets inside one role sit tighter still: they
+   are one block and should read as one. */
 section { margin: 0 0 var(--section-gap); }
 section + section { margin-top: 0; }
 h2 {
@@ -75,13 +79,10 @@ h2 {
 }
 
 /* ---- entries ---- */
-.entry { margin: 0 0 var(--entry-gap); }
-.entry:last-child { margin-bottom: 0; }
+.entry { margin: 0; }
+.entry + .entry { margin-top: var(--entry-gap); }
 .entry.proj ul { margin-top: 0.02em; }
-.entry.proj + .entry.proj { margin-top: 0.30em; }
-/* An entry header needs more air above it than its own bullets do below, or
-   the next employer reads as another bullet of the previous one. */
-.entry + .entry { margin-top: 0.34em; }
+
 .entry-head {
   display: flex; justify-content: space-between; align-items: baseline; gap: 1em;
 }
@@ -94,7 +95,7 @@ h2 {
    (29/42/45/48/51/54pt) because sections used differently nested LaTeX lists. */
 ul { margin: 0.14em 0 0; padding: 0; list-style: none; }
 li {
-  position: relative; padding-left: var(--indent); margin: 0 0 0.10em;
+  position: relative; padding-left: var(--indent); margin: 0 0 var(--bullet-gap);
 }
 li:last-child { margin-bottom: 0; }
 li::before {
@@ -103,7 +104,7 @@ li::before {
      its Skills markers from a second font and two of five rows extracted with
      no bullet at all. Uniformity is the fix, not absence. */
 }
-.skills li { margin-bottom: 0.12em; }
+.skills li { margin-bottom: calc(var(--bullet-gap) * 1.2); }
 .honors { margin-top: 0.01em; }
 .honors li { padding-left: calc(var(--indent) * 2.1); }
 .honors li::before { left: calc(var(--indent) * 1.25); }
