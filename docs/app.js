@@ -172,6 +172,52 @@ function pollQueue(card) {
   }, 2000);
 }
 
+const RUN_WORDS = {
+  queued: "queued", in_progress: "running", completed: "done",
+};
+
+/* With the helper running, Refresh starts the workflow instead of sending you
+   to the Actions tab to press a second button. The helper can do it because
+   `gh` is already authenticated on this machine, so no token ever reaches the
+   browser. Without the helper the link is the only option and stays. */
+async function startRefresh(btn) {
+  const original = btn.textContent;
+  btn.textContent = "Starting…";
+  try {
+    const r = await fetch(HELPER + "/api/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(body.error || r.status);
+    btn.textContent = "Running…";
+    pollRefresh(btn, original);
+  } catch (e) {
+    btn.textContent = original;
+    banner("Could not start the refresh: " + e.message);
+  }
+}
+
+function pollRefresh(btn, original) {
+  const tick = setInterval(async () => {
+    if (document.hidden) return;
+    try {
+      const r = await fetch(HELPER + "/api/refresh");
+      const s = await r.json();
+      if (s.status === "completed") {
+        clearInterval(tick);
+        btn.textContent = s.conclusion === "success" ? "Reload for new jobs" : "Refresh failed";
+        if (s.conclusion === "success") {
+          btn.onclick = (e) => { e.preventDefault(); location.reload(); };
+        }
+      } else {
+        btn.textContent = (RUN_WORDS[s.status] || s.status) + "…";
+      }
+    } catch { clearInterval(tick); btn.textContent = original; }
+  }, 15000);
+}
+
 const QUEUE_WORDS = {
   queued: "Queued. Fetching the posting.",
   briefed: "Posting fetched. Waiting for Claude to write it.",
@@ -742,7 +788,20 @@ async function boot() {
       : Math.floor(mins / 1440) + "d ago";
     $("#updated").textContent = META.open + " open · updated " + when;
   }
-  if (META.actions_url) $("#refresh").href = META.actions_url;
+  const refreshBtn = $("#refresh");
+  if (META.actions_url) refreshBtn.href = META.actions_url;
+  if (HELPER_UP) {
+    // Trigger it here rather than handing off to the Actions tab.
+    refreshBtn.removeAttribute("target");
+    refreshBtn.href = "#";
+    refreshBtn.title = "Start the refresh workflow now";
+    refreshBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      startRefresh(refreshBtn);
+    });
+  } else {
+    refreshBtn.title = "Opens the Actions tab, where one more click runs it";
+  }
   if (META.has_sponsorship_data === false) {
     banner("Sponsorship history is not loaded yet, so every employer reads as “No filing record”. Run the sponsorship workflow once to fill it in.");
   }

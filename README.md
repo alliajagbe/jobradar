@@ -183,6 +183,12 @@ across. Its copy-the-command path still works, which is also the phone experienc
 This turned out fine. Same-origin was the safer design anyway, because the entire class of
 "another website talks to your helper" disappears rather than being defended against.
 
+With the helper running, **Refresh** also starts the workflow in place instead of sending
+you to the Actions tab for a second click. It can do that because `gh` is already
+authenticated on this machine, so no token ever reaches the browser. The button then
+reports queued, running, and finally "Reload for new jobs". Without the helper it stays a
+link to the Actions tab.
+
 `python -m jobradar tailor queue` lists what the page has asked for, and flags anything
 that has been `writing` for over 30 minutes as stalled, which usually means a session
 died mid-job.

@@ -29,6 +29,8 @@ IDLE_TIMEOUT so the port is open while you work rather than indefinitely.
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -141,6 +143,8 @@ class Handler(SimpleHTTPRequestHandler):
             return None
         if path == "/api/health":
             return self._json(200, {"ok": True, "port": PORT})
+        if path == "/api/refresh":
+            return self._json(200, _refresh_status())
         if path == "/api/queue":
             return self._json(200, {"entries": [e.as_dict() for e in Q.all_entries()]})
         if path.startswith("/api/queue/"):
@@ -174,6 +178,8 @@ class Handler(SimpleHTTPRequestHandler):
 
         if path == "/api/tailor":
             return self._tailor(body)
+        if path == "/api/refresh":
+            return self._json(*_start_refresh())
         if path.startswith("/api/queue/"):
             try:
                 slug = check_slug(path.rsplit("/", 1)[-1])
@@ -212,6 +218,47 @@ class Handler(SimpleHTTPRequestHandler):
         Q.write(entry)
         threading.Thread(target=_fetch_brief, args=(slug, url), daemon=True).start()
         return self._json(202, entry.as_dict())
+
+
+# The refresh workflow lives on GitHub, and triggering it needs authentication.
+# The helper runs on your machine where `gh` is already logged in, so it can do
+# it without a token ever reaching the browser. The workflow name is a constant,
+# so nothing from a request is interpolated into the command.
+WORKFLOW = "refresh.yml"
+
+
+def _gh(*args: str) -> tuple[int, str]:
+    if not shutil.which("gh"):
+        return 1, "the gh CLI is not installed, so the helper cannot start a workflow"
+    try:
+        done = subprocess.run(["gh", *args], capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return 1, str(exc)
+    return done.returncode, (done.stdout or done.stderr).strip()
+
+
+def _start_refresh() -> tuple[int, dict]:
+    code, out = _gh("workflow", "run", WORKFLOW)
+    if code != 0:
+        return 502, {"error": out[:300]}
+    return 202, {"ok": True, "message": "refresh started"}
+
+
+def _refresh_status() -> dict:
+    code, out = _gh("run", "list", f"--workflow={WORKFLOW}", "--limit", "1",
+                    "--json", "status,conclusion,createdAt,databaseId")
+    if code != 0:
+        return {"ok": False, "error": out[:200]}
+    try:
+        rows = json.loads(out)
+    except (json.JSONDecodeError, ValueError):
+        return {"ok": False, "error": "could not read gh output"}
+    if not rows:
+        return {"ok": True, "status": "none"}
+    row = rows[0]
+    return {"ok": True, "status": row.get("status"),
+            "conclusion": row.get("conclusion"), "id": row.get("databaseId"),
+            "created_at": row.get("createdAt")}
 
 
 def _fetch_brief(slug: str, url: str) -> None:

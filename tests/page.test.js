@@ -61,7 +61,12 @@ setTimeout(() => {
   const rendered = q(".card").length;
   check("cards rendered", rendered > 0, rendered + " cards at default min score 55");
   check("header updated", $("#updated").textContent.includes("open"), $("#updated").textContent);
-  check("refresh link points at Actions", $("#refresh").href.includes("actions/workflows"));
+  // With a helper the button triggers the workflow in place; without one it
+  // links to the Actions tab, where a second click runs it.
+  check("refresh either triggers in place or links to Actions",
+        helperUp ? $("#refresh").getAttribute("href") === "#"
+                 : $("#refresh").href.includes("actions/workflows"),
+        $("#refresh").getAttribute("href"));
   check("first card auto-selected", q(".card.sel").length === 1);
   check("detail pane filled", $("#detail").textContent.includes("Why"));
   check("score breakdown rows", q("table.explain tr").length >= 5,
@@ -179,6 +184,8 @@ setTimeout(() => {
     if (helperUp) {
       check("helper dot reads on", /helper on/.test(dot.textContent), dot.textContent);
       check("Tailor button present when the helper answers", hasButton);
+      check("Refresh triggers in place rather than linking out",
+            !/actions\/workflows/.test($("#refresh").href), $("#refresh").href);
       check("the copy fallback is still there",
             q(".dsec button").some(b => /Copy the tailor command/.test(b.textContent)));
     } else {
@@ -186,7 +193,9 @@ setTimeout(() => {
       // loopback. "helper off" would be a lie: the helper may well be running,
       // it just cannot be reached FROM HERE, and telling someone to start a
       // helper they already started is the wrong advice.
-      check("dot points at localhost rather than claiming the helper is off",
+      check("Refresh still links to Actions without a helper",
+          /actions\/workflows/.test($("#refresh").href), $("#refresh").href);
+    check("dot points at localhost rather than claiming the helper is off",
             /tailor on localhost/.test(dot.textContent), dot.textContent);
       check("Tailor button absent when unreachable", !hasButton);
       check("the copy fallback carries the whole experience",
