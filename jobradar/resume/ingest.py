@@ -79,6 +79,7 @@ class Posting:
     url: str
     text: str
     source: str
+    location: str = ""
     board_key: str | None = None
     external_id: str | None = None
 
@@ -122,6 +123,32 @@ def identify(url: str) -> dict | None:
     return None
 
 
+# A Workday job path starts with the worksite: /job/US-Arizona-Phoenix/...,
+# /job/CHL-Costanera-Piso-31/..., /job/BR-So-Paulo-Sumare/... The country is
+# right there in the URL, and not reading it let a Chile role through the
+# location gate because the posting's own locationsText was empty when fetched
+# by URL rather than by search.
+_WD_WORKSITE = re.compile(r"/job/([^/]+)/")
+_ISO3 = {"CHL": "Chile", "BRA": "Brazil", "MEX": "Mexico", "ARG": "Argentina",
+         "COL": "Colombia", "PER": "Peru", "CRI": "Costa Rica", "IND": "India",
+         "DEU": "Germany", "GBR": "United Kingdom", "FRA": "France",
+         "ESP": "Spain", "POL": "Poland", "CHN": "China", "JPN": "Japan",
+         "PHL": "Philippines", "CAN": "Canada", "AUS": "Australia",
+         "IRL": "Ireland", "NLD": "Netherlands", "ISR": "Israel", "USA": "United States"}
+
+
+def worksite_from_path(path: str) -> str:
+    """The human-readable worksite a Workday job path encodes, if any."""
+    m = _WD_WORKSITE.search(path or "")
+    if not m:
+        return ""
+    raw = m.group(1).replace("-", " ").strip()
+    head = raw.split(" ")[0].upper()
+    if head in _ISO3:
+        return f"{_ISO3[head]}, {raw}"
+    return raw
+
+
 def _from_ats(spec: dict, url: str, progress=None) -> Posting:
     board = Board(company=spec["token"], source=spec["source"], token=spec["token"],
                   site=spec.get("site"), wd_num=spec.get("wd_num"))
@@ -159,8 +186,12 @@ def _from_ats(spec: dict, url: str, progress=None) -> Posting:
         )
     text = hit.description_text or normalize.html_to_text(
         hit.description_html, double_unescape=hit.double_escaped)
+    location = hit.location_raw
+    if spec["source"] == "workday":
+        location = location or worksite_from_path(str(spec.get("external_id") or ""))
     return Posting(
         company=hit.company_name or spec["token"],
+        location=location,
         title=hit.title or "Role",
         url=hit.url or url,
         text=text,

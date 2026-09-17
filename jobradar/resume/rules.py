@@ -106,7 +106,7 @@ def check(doc: dict, metrics=None) -> list[Finding]:
         if not metrics.fits_one_page:
             out.append(Finding("one_page", "hard",
                                f"overflows by {metrics.overflow_px()}px "
-                               f"(~{metrics.overflow_px() // 13} lines)"))
+                               f"(~{max(1, metrics.overflow_px() // 13)} lines)"))
         if metrics.pages not in (None, 1):
             out.append(Finding("one_page", "hard", f"PDF has {metrics.pages} pages"))
         if not metrics.font_ok:

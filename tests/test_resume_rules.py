@@ -187,3 +187,13 @@ def test_entry_gap_token_actually_changes_the_layout():
     loose = build(doc, overrides={"entry_gap_em": 0.60})
     assert "--entry-gap:0.1em" in tight
     assert "--entry-gap:0.6em" in loose
+
+
+def test_page_budget_is_below_the_raw_page_height():
+    """Chromium paginates earlier than the measured document height suggests.
+    Found by bisection: a variant measuring 1055px printed on two pages, 1049px
+    printed on one. Three resumes were declared to fit and came out two pages
+    before this budget existed."""
+    from jobradar.resume.measure import PAGE_BUDGET, PAGE_PX, PRINT_SLACK
+    assert PAGE_BUDGET == PAGE_PX - PRINT_SLACK
+    assert PAGE_BUDGET <= 1049, "budget must sit under the observed crossover"

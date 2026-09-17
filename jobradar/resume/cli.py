@@ -35,7 +35,7 @@ def _report(findings, metrics=None) -> int:
     if metrics is not None:
         room = (f"fits, {metrics.free_px()}px spare (~{metrics.free_lines()} lines)"
                 if metrics.fits_one_page else f"OVER by {metrics.overflow_px()}px")
-        _log(f"  layout   {metrics.height_px}px of {M.PAGE_PX} ({room})"
+        _log(f"  layout   {metrics.height_px}px of {M.PAGE_BUDGET} ({room})"
              f"   indents {len(metrics.lefts)}   font {'ok' if metrics.font_ok else 'FALLBACK'}")
         s = metrics.slots.get("summary")
         if s:
@@ -124,7 +124,8 @@ def _job_from_posting(posting) -> dict:
     preferred = {c.lower() for c in (profile.get("locations", {}).get("preferred") or [])}
     title_n = normalize.title_norm(posting.title)
     match = taxonomy.title_tier(title_n)
-    location = normalize.parse_locations(None, None, posting.text, preferred)
+    location = normalize.parse_locations(
+        getattr(posting, "location", "") or None, None, posting.text, preferred)
     verdict = taxonomy.sponsorship_text_verdict(normalize.sentences(posting.text))
 
     employers = sponsorship.employer_table()

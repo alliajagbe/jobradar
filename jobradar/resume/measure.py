@@ -23,10 +23,20 @@ from pathlib import Path
 
 from .paths import ResumeError
 
-# One page at 96 CSS pixels per inch. The guard absorbs sub-pixel rounding;
-# without it a document that prints on one page fails by a third of a pixel.
+# One page at 96 CSS pixels per inch.
 PAGE_PX = 1056
-PAGE_GUARD = 4
+
+# Chromium's print pagination breaks EARLIER than the measured document height
+# suggests. Found by bisection on a real variant: a document measuring 1055px
+# printed on two pages, 1049px printed on one. So the measured height alone is
+# not a safe fit signal, and three resumes were declared to fit and then came
+# out as two pages.
+#
+# The fit ladder uses this reduced budget, and the render still asserts
+# pages == 1 from pdfinfo afterwards. If this constant ever drifts, that
+# assertion fails loudly instead of a two-page resume being written.
+PRINT_SLACK = 8
+PAGE_BUDGET = PAGE_PX - PRINT_SLACK
 
 _MEASURE_JS = """() => {
   const out = {slots: {}, lefts: [], page: {}};
@@ -85,14 +95,14 @@ class Metrics:
 
     @property
     def fits_one_page(self) -> bool:
-        return self.height_px <= PAGE_PX + PAGE_GUARD
+        return self.height_px <= PAGE_BUDGET
 
     def overflow_px(self) -> int:
-        return max(0, self.height_px - PAGE_PX)
+        return max(0, self.height_px - PAGE_BUDGET)
 
     def free_px(self) -> int:
         """Unused vertical space. Roughly 13px per line at the current size."""
-        return max(0, PAGE_PX - self.height_px)
+        return max(0, PAGE_BUDGET - self.height_px)
 
     def free_lines(self) -> int:
         return self.free_px() // 13
