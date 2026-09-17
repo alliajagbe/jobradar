@@ -74,6 +74,23 @@ kbd {
   background: none; border: 0; color: var(--accent); cursor: pointer;
   font: inherit; padding: 0; text-decoration: underline;
 }
+.helperdot {
+  font-size: 11px; color: var(--ink-dim); padding: 2px 7px;
+  border: 1px solid var(--line); border-radius: 999px; white-space: nowrap;
+}
+.helperdot.on { color: var(--accent); border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+.btn.primary:hover { opacity: .9; color: var(--panel); }
+.btn:disabled { opacity: .6; cursor: default; }
+.note.queue { min-height: 1em; }
+.note.queue.ready { color: var(--accent); font-weight: 600; }
+.note.queue.failed { color: var(--bad); }
+.chip.q-queued, .chip.q-briefed, .chip.q-writing {
+  background: var(--bg); color: var(--warn); border-color: var(--line);
+}
+.chip.q-ready { background: var(--accent); color: var(--panel); }
+.chip.q-failed { background: var(--bg); color: var(--bad); border-color: var(--line); }
+
 .banner {
   padding: 8px 16px; background: var(--accent-soft);
   border-bottom: 1px solid var(--line); font-size: 13px;

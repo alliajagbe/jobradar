@@ -14,6 +14,17 @@ const ADDED_KEY = "jobradar.added.v1";
 // (every ATS blocks cross-origin reads and there is no server to proxy through)
 // so the link is carried to the local CLI, which does the work.
 const TAILOR_CMD = "python -m jobradar tailor brief --url ";
+
+// The local helper. The page cannot reach your disk or a Claude session, so a
+// button that triggers real work has to post to something listening locally.
+// If it is not running, everything below stays hidden and the copy-command
+// button is the whole experience, which is also the phone experience.
+const HELPER = "http://127.0.0.1:8777";
+let HELPER_UP = false;
+// Keyed by dedupe_key. renderDetail rebuilds the pane from scratch on every
+// selection and every status change, so anything held in a closure is lost.
+const QUEUE_STATUS = {};
+let POLL = null;
 const SPONSOR_LABELS = {
   strong: "Sponsors often",
   says_yes: "Posting offers sponsorship",
@@ -88,6 +99,80 @@ function track(key, patch) {
   tracker[key] = Object.assign({}, tracker[key], patch, { updated: new Date().toISOString().slice(0, 10) });
   if (!tracker[key].status) delete tracker[key];
   saveTracker();
+}
+
+async function probeHelper() {
+  // Silent on failure: most of the time you are on a phone with no helper
+  // running, and an error banner for the expected case is just noise.
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 1500);
+    const r = await fetch(HELPER + "/api/health", { signal: ctrl.signal });
+    clearTimeout(timer);
+    HELPER_UP = r.ok;
+  } catch { HELPER_UP = false; }
+  const dot = $("#helper");
+  if (dot) {
+    dot.textContent = HELPER_UP ? "helper on" : "helper off";
+    dot.className = "helperdot" + (HELPER_UP ? " on" : "");
+    dot.title = HELPER_UP
+      ? "The local helper is running, so Tailor works from this page."
+      : "Run `python -m jobradar serve` to enable the Tailor button.";
+  }
+}
+
+async function queueTailor(card) {
+  const r = await fetch(HELPER + "/api/tailor", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: card.url, company: card.company,
+                           title: card.title, dedupe_key: card.dedupe_key }),
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+  const entry = await r.json();
+  QUEUE_STATUS[card.dedupe_key] = entry;
+  return entry;
+}
+
+function pollQueue(card) {
+  if (POLL) clearInterval(POLL);
+  POLL = setInterval(async () => {
+    // A backgrounded tab should cost nothing; the next foreground tick catches up.
+    if (document.hidden) return;
+    const entry = QUEUE_STATUS[card.dedupe_key];
+    if (!entry) return;
+    try {
+      const r = await fetch(HELPER + "/api/queue/" + entry.slug);
+      if (!r.ok) return;
+      const fresh = await r.json();
+      QUEUE_STATUS[card.dedupe_key] = fresh;
+      paintQueueStatus(card);
+      if (fresh.status === "ready" || fresh.status === "failed") {
+        clearInterval(POLL); POLL = null;
+        render();
+      }
+    } catch { /* helper went away; leave the last state on screen */ }
+  }, 2000);
+}
+
+const QUEUE_WORDS = {
+  queued: "Queued. Fetching the posting.",
+  briefed: "Posting fetched. Waiting for Claude to write it.",
+  writing: "Claude is writing the resume.",
+  ready: "Ready.",
+  failed: "Failed.",
+};
+
+function paintQueueStatus(card) {
+  const line = $("#queuestatus");
+  if (!line) return;
+  const entry = QUEUE_STATUS[card.dedupe_key];
+  if (!entry) { line.textContent = ""; return; }
+  let text = QUEUE_WORDS[entry.status] || entry.status;
+  if (entry.status === "ready" && entry.pdf) text += " " + entry.pdf.split("/").pop();
+  if (entry.status === "failed" && entry.error) text += " " + entry.error;
+  line.textContent = text;
+  line.className = "note queue " + entry.status;
 }
 
 /* ---- filter state, mirrored into the URL hash so a view is bookmarkable ---- */
@@ -198,6 +283,8 @@ function cardNode(card, i) {
 
   if (card.sponsorship) sub.appendChild(sponsorChip(card.sponsorship));
   if (card.added) sub.appendChild(el("span", "chip mine", "added by you"));
+  const qs = QUEUE_STATUS[card.dedupe_key];
+  if (qs) sub.appendChild(el("span", "chip q-" + qs.status, "resume " + qs.status));
 
   const t = tracker[card.dedupe_key];
   if (t && t.status) sub.appendChild(el("span", "chip " + (t.status === "applied" ? "applied" : "state"), t.status));
@@ -370,6 +457,34 @@ function renderDetail(card) {
       render();
     }
   });
+  if (HELPER_UP) {
+    const go = el("button", "btn primary", "Tailor this resume");
+    go.addEventListener("click", async () => {
+      go.disabled = true;
+      go.textContent = "Queueing…";
+      try {
+        await queueTailor(card);
+        go.textContent = "Queued";
+        if (!t.status) {
+          track(card.dedupe_key, { status: "interested", title: card.title,
+                                   company: card.company, url: card.url });
+        }
+        paintQueueStatus(card);
+        pollQueue(card);
+        render();
+      } catch (e) {
+        go.disabled = false;
+        go.textContent = "Tailor this resume";
+        const line = $("#queuestatus");
+        if (line) line.textContent = "Could not queue it: " + e.message;
+      }
+    });
+    tailor.appendChild(go);
+  }
+  const status = el("p", "note queue");
+  status.id = "queuestatus";
+  tailor.appendChild(status);
+
   tailor.appendChild(copy);
   tailor.appendChild(shown);
   if (card.added) {
@@ -398,6 +513,8 @@ function renderDetail(card) {
   ts.appendChild(note);
 
   /* description */
+  paintQueueStatus(card);
+
   if (card.snippet) {
     const s = section(d, "From the posting");
     s.appendChild(el("div", "snippet", card.snippet + "…"));
@@ -581,6 +698,8 @@ async function boot() {
 
   ADDED = loadAdded();
   CARDS = ADDED.concat(CARDS);
+
+  await probeHelper();
 
   buildChecks("sponsor", ["strong", "says_yes", "some", "never_filed", "unknown", "explicit_no"], SPONSOR_LABELS);
   buildChecks("source", META.sources || []);

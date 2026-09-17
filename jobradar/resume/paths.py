@@ -15,6 +15,7 @@ into the repo is not discouraged here, it is impossible.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 from .. import config
@@ -34,10 +35,38 @@ JD_CACHE = "jd-cache"
 BRIEFS = "briefs"
 VARIANTS = "variants"
 OUT = "out"
+QUEUE = "queue"
+
+# jd.slug_for only ever emits [A-Za-z0-9]+, so this is an allowlist rather than a
+# blocklist. It runs before a slug reaches resolve(), because a slug is the one
+# value in this system that arrives from a request rather than from a person.
+_SLUG_OK = re.compile(r"^[A-Za-z0-9]{1,64}$")
+
+
+def check_slug(slug: str) -> str:
+    if not isinstance(slug, str) or not _SLUG_OK.match(slug):
+        raise ResumeError(
+            f"refusing slug {slug!r}: must be 1 to 64 characters of letters and "
+            f"digits only, which is what jd.slug_for produces."
+        )
+    return slug
 
 
 def resolve(*parts: str, create_parent: bool = False) -> Path:
-    """A path under HOME, guaranteed to sit outside the repository."""
+    """A path under HOME, guaranteed to sit outside the repository and under HOME.
+
+    The `..` rejection is not theoretical. Before it existed,
+    `resolve("queue", "../../../tmp/evil.json")` returned `/Users/tmp/evil.json`: the
+    only check was "is this inside the repo", so anything that escaped HOME entirely
+    sailed through. That was harmless while every caller was a path you typed, and stops
+    being harmless the moment a slug arrives over HTTP.
+    """
+    for part in parts:
+        if ".." in Path(part).parts:
+            raise ResumeError(
+                f"refusing path component {part!r}: '..' can escape "
+                f"{HOME} entirely, and this function is reachable from HTTP."
+            )
     path = HOME.joinpath(*parts).expanduser()
     try:
         repo = config.ROOT.resolve()

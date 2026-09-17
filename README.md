@@ -158,3 +158,45 @@ is not a project dependency:
 ```bash
 npm install jsdom && node tests/page.test.js
 ```
+
+## The Tailor button
+
+Clicking Tailor on a job card needs a local helper running, because a static page
+cannot reach your disk or a Claude Code session:
+
+```bash
+.venv/bin/python -m jobradar serve
+```
+
+Then on https://alliajagbe.github.io/jobradar the header shows **helper on** and every
+card gets a **Tailor this resume** button. Clicking it queues the job, the helper fetches
+the full posting, and a Claude Code session writes and renders the resume. The card
+reports queued → briefed → writing → ready, and macOS notifies you when the PDF lands.
+
+Without the helper the button is simply absent and the copy-the-command path is the whole
+experience. That is also the phone experience.
+
+`python -m jobradar tailor queue` lists what the page has asked for, and flags anything
+that has been `writing` for over 30 minutes as stalled, which usually means a session
+died mid-job.
+
+**This needs a Claude Code session running and watching the queue.** Entries persist, so
+clicking Tailor with no session open is not lost work; it waits.
+
+### Security
+
+The helper binds to `127.0.0.1`, which the kernel will not route external packets to, so
+it is not reachable from the network. It exits after 30 idle minutes. The only thing that
+can reach it is a page in your browser, which is why three checks run on every request:
+
+- **Origin** allowlist. CORS controls who may *read* a response, not who may *send* a
+  request, so without this any site you visit could queue jobs.
+- **Host** must be loopback, which is what stops a malicious domain pointing its own DNS
+  at 127.0.0.1 and being treated as same-origin.
+- **Content-Type** must be `application/json` on POST, which forces a preflight so the
+  Origin check gets to run before anything executes.
+
+Supporting guards: slugs from a request must match `^[A-Za-z0-9]{1,64}$` before they
+reach a filesystem path, `ingest.fetch` refuses non-public addresses and non-http
+schemes, and notification text is passed as an argument rather than concatenated into an
+AppleScript string.

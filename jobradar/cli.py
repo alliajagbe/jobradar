@@ -284,6 +284,11 @@ def cmd_verify_boards(args: argparse.Namespace) -> int:
     return 1 if bad else 0
 
 
+def cmd_serve(args: argparse.Namespace) -> int:
+    from .serve import run
+    return run(port=args.port, verbose=args.verbose)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="jobradar", description=__doc__,
@@ -332,6 +337,10 @@ def main(argv: list[str] | None = None) -> int:
                    help="validate the tokens in data/cc_tokens.csv (skips Common Crawl)")
     p.add_argument("--apply", action="store_true", help="write seeds/discovered.csv")
     p.set_defaults(func=cmd_crawl)
+
+    p = sub.add_parser("serve", help="local helper the page's Tailor button talks to")
+    p.add_argument("--port", type=int, default=config.HELPER_PORT)
+    p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("verify-boards", help="probe every seeded board")
     p.set_defaults(func=cmd_verify_boards)

@@ -127,4 +127,7 @@ FUZZY_MIN_NAME_LEN = 5
 
 # Where the page's Refresh link sends you. Overridden by publish.py when the
 # repo slug is known from the Actions environment.
+# The local helper. A constant rather than an env var, matching this module.
+HELPER_PORT = 8777
+
 ACTIONS_URL = "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml"

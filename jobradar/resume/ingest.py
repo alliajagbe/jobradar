@@ -34,6 +34,44 @@ from .paths import ResumeError
 MIN_JD_CHARS = 700
 
 
+def check_public_url(url: str) -> str:
+    """Refuse anything that is not a public http(s) address.
+
+    This fetches a URL that, once the local helper exists, can be supplied by a
+    request rather than typed by a person. Without this guard the helper is an
+    open relay into the machine's own network: `http://127.0.0.1:8777/`,
+    `http://192.168.1.1/`, the cloud metadata address, or `file:///etc/passwd`.
+
+    It is blind SSRF, since the response lands in a brief the caller cannot
+    read, which lowers the severity and does not remove it.
+    """
+    import ipaddress
+    import socket
+
+    parts = urlsplit(url if "//" in url else "https://" + url)
+    if parts.scheme not in ("http", "https"):
+        raise ResumeError(
+            f"refusing scheme {parts.scheme!r}: only http and https are fetched, "
+            f"so file:// and friends cannot be used to read local files."
+        )
+    host = parts.hostname
+    if not host:
+        raise ResumeError(f"no host in {url!r}")
+    try:
+        infos = socket.getaddrinfo(host, None)
+    except socket.gaierror as exc:
+        raise ResumeError(f"cannot resolve {host!r}: {exc}") from exc
+    for info in infos:
+        address = ipaddress.ip_address(info[4][0])
+        if (address.is_private or address.is_loopback or address.is_link_local
+                or address.is_reserved or address.is_multicast):
+            raise ResumeError(
+                f"refusing {host!r}: it resolves to {address}, which is not a public "
+                f"address. A job posting does not live on this machine's own network."
+            )
+    return url
+
+
 @dataclass(frozen=True)
 class Posting:
     company: str
@@ -194,6 +232,7 @@ def _from_html(url: str, progress=None) -> Posting:
 
 
 def fetch(url: str, *, progress=None) -> Posting:
+    check_public_url(url)
     spec = identify(url)
     if spec:
         return _from_ats(spec, url, progress)

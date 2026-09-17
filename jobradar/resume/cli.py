@@ -48,17 +48,31 @@ def _report(findings, metrics=None) -> int:
     return len(hard)
 
 
+def build_brief(url: str, *, slug: str | None = None,
+                progress=None) -> tuple[Path, dict, str]:
+    """Fetch a posting and write its brief. Returns (brief_path, job, slug).
+
+    Extracted from cmd_brief so the local helper can call it. cmd_brief read five
+    interdependent Namespace attributes and only printed the path it wrote, so a
+    request handler would have had to fake a Namespace and scrape stdout.
+    """
+    from . import ingest
+
+    master = load_master()
+    posting = ingest.fetch(url, progress=progress)
+    job = _job_from_posting(posting)
+    slug = slug or jd_mod.slug_for(job)
+    out = resolve("briefs", f"{slug}.md", create_parent=True)
+    out.write_text(brief_mod.write(master, job, posting.text, "link", slug),
+                   encoding="utf-8")
+    return out, job, slug
+
+
 def cmd_brief(args: argparse.Namespace) -> int:
     master = load_master()
     if getattr(args, "url", None):
-        from . import ingest
-        posting = ingest.fetch(args.url, progress=_log)
-        job = _job_from_posting(posting)
-        slug = args.slug or jd_mod.slug_for(job)
-        text, sha = posting.text, "link"
-        out = resolve("briefs", f"{slug}.md", create_parent=True)
-        out.write_text(brief_mod.write(master, job, text, sha, slug), encoding="utf-8")
-        _log(f"\n  {posting.company} - {posting.title} ({len(text)} chars)")
+        out, job, slug = build_brief(args.url, slug=args.slug, progress=_log)
+        _log(f"\n  {job['company']} - {job['title']} ({len(job['snippet'])}+ chars)")
         _log(f"wrote {out}")
         _log(f"next: write ~/.jobradar/variants/{slug}.yaml, then "
              f"`python -m jobradar tailor render --slug {slug}`")
@@ -219,6 +233,15 @@ def cmd_render(args: argparse.Namespace) -> int:
         return 1
     _log(f"\nwrote {pdf}")
     _log(f"  working files: {out_dir}")
+    # Close the loop for a job that came from the page's Tailor button. Silent
+    # when the slug was never queued, which is the ordinary CLI case.
+    from . import queue as Q
+    try:
+        if Q.read(slug) is not None:
+            Q.update(slug, status=Q.READY, pdf=str(pdf), error=None)
+            notify("JobRadar", f"Resume ready: {pdf.name}")
+    except ResumeError:
+        pass
     if args.open:
         subprocess.run(["open", str(pdf)], check=False)
     if args.reveal:
@@ -256,6 +279,50 @@ def _ats_checks(pdf: Path, doc: dict):
         out.append(Finding("ats_reading_order", "hard",
                            "bullets extract out of document order"))
     return out
+
+
+def notify(title: str, message: str) -> None:
+    """A macOS notification, with the text passed as an argument.
+
+    Job titles come from third-party postings and are the first untrusted text
+    this project puts near a shell. Concatenating them into an AppleScript
+    string means a posting called `Analyst" & (do shell script "...") & "` runs
+    that shell script. `on run {argv}` keeps the text as data.
+    """
+    script = ('on run argv\n'
+              '  display notification (item 1 of argv) with title (item 2 of argv)\n'
+              'end run')
+    try:
+        subprocess.run(["osascript", "-e", script, message, title],
+                       capture_output=True, timeout=10, check=False)
+    except (OSError, subprocess.SubprocessError):
+        pass          # a missing notification must never fail a render
+
+
+def cmd_queue(args: argparse.Namespace) -> int:
+    from . import queue as Q
+    entries = Q.all_entries()
+    if not entries:
+        _log("queue is empty")
+        return 0
+    for e in entries:
+        flag = "  STALLED" if e.stalled else ""
+        _log(f"  {e.status:8} {e.slug:34} {e.company[:18]:18} "
+             f"{e.age_minutes:5.0f}m{flag}")
+        if e.error:
+            _log(f"           {e.error[:90]}")
+    pend = Q.pending()
+    _log("")
+    _log(f"{len(entries)} entries, {len(pend)} waiting for a session")
+    return 0
+
+
+def cmd_take(args: argparse.Namespace) -> int:
+    from . import queue as Q
+    entry = Q.take(args.slug, note=args.note or "")
+    _log(f"{entry.slug}: {entry.status}")
+    _log(f"  brief: {entry.brief or '(not written yet)'}")
+    return 0
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
@@ -326,6 +393,14 @@ def add_parser(sub) -> None:
     r.add_argument("--open", action="store_true", help="open the PDF when done")
     r.add_argument("--reveal", action="store_true", help="show it in Finder")
     r.set_defaults(func=cmd_render)
+
+    q = inner.add_parser("queue", help="what the page has asked for")
+    q.set_defaults(func=cmd_queue)
+
+    tk = inner.add_parser("take", help="claim a queued job before working on it")
+    tk.add_argument("slug")
+    tk.add_argument("--note")
+    tk.set_defaults(func=cmd_take)
 
     d = inner.add_parser("doctor", help="check the setup")
     d.set_defaults(func=cmd_doctor)

@@ -12,11 +12,26 @@ const dom = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
 });
 const w = dom.window;
 let fetched = [];
-w.fetch = (u) => {
+// Flip to true to simulate `jobradar serve` running.
+let helperUp = process.env.HELPER_UP === "1";
+w.fetch = (u, opts) => {
   fetched.push(u);
+  if (u.includes("/api/health")) {
+    return helperUp ? Promise.resolve({ ok: true, json: () => Promise.resolve({ok:true}) })
+                    : Promise.reject(new Error("ECONNREFUSED"));
+  }
+  if (u.includes("/api/tailor")) {
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(
+      {slug: "AcmeAnalyst", status: "queued", url: "x", dedupe_key: "k"}) });
+  }
+  if (u.includes("/api/queue/")) {
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(
+      {slug: "AcmeAnalyst", status: "ready", pdf: "/x/AlliAjagbeAcmeAnalystResume.pdf"}) });
+  }
   const body = u.includes("meta") ? meta : u.includes("filtered") ? filtered : cards;
   return Promise.resolve({ json: () => Promise.resolve(body) });
 };
+w.AbortController = class { constructor(){ this.signal = {}; } abort(){} };
 const store = {};
 Object.defineProperty(w, "localStorage", { value: {
   getItem: k => store[k] ?? null, setItem: (k,v) => { store[k]=String(v); },
@@ -157,6 +172,22 @@ setTimeout(() => {
     $("#addurl").value = URL_IN;
     $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
     check("a duplicate link is not added twice", mine().length === 1);
+
+    // --- the local helper ---
+    const dot = $("#helper");
+    const hasButton = q(".dsec button").some(b => b.textContent === "Tailor this resume");
+    if (helperUp) {
+      check("helper dot reads on", /helper on/.test(dot.textContent), dot.textContent);
+      check("Tailor button present when the helper answers", hasButton);
+      check("the copy fallback is still there",
+            q(".dsec button").some(b => /Copy the tailor command/.test(b.textContent)));
+    } else {
+      check("helper dot reads off", /helper off/.test(dot.textContent), dot.textContent);
+      // Absent, not broken: without a helper there is nothing for it to talk to.
+      check("Tailor button absent when the helper is down", !hasButton);
+      check("the copy fallback carries the whole experience",
+            q(".dsec button").some(b => /Copy the tailor command/.test(b.textContent)));
+    }
     console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
     process.exit(fail ? 1 : 0);
   }, 200);
