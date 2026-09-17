@@ -196,6 +196,20 @@ died mid-job.
 **This needs a Claude Code session running and watching the queue.** Entries persist, so
 clicking Tailor with no session open is not lost work; it waits.
 
+## Tracker
+
+The **Tracker** tab lists one row per job you have taken an interest in: company, job
+title, city, state, whether a resume exists, your application status, and a link. Sortable
+by any column, with CSV export.
+
+It merges two halves that each know only part of the story. Your browser knows what you
+marked interested or applied; the helper knows which PDFs actually exist on disk. Without
+the helper running you get the browser half, which is still the useful half on a phone.
+
+The Resume column is deliberately about the artifact rather than the application:
+**produced** when a PDF exists, **skipped** when you decided against the role, and blank
+when neither has happened yet.
+
 ### Security
 
 The helper binds to `127.0.0.1`, which the kernel will not route external packets to, so

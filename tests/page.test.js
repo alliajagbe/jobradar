@@ -24,6 +24,15 @@ w.fetch = (u, opts) => {
     return Promise.resolve({ ok: true, json: () => Promise.resolve(
       {slug: "AcmeAnalyst", status: "queued", url: "x", dedupe_key: "k"}) });
   }
+  if (u.endsWith("/api/queue")) {
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({entries: [
+      {slug:"AcmeAnalyst", status:"ready", url:"https://job-boards.greenhouse.io/acme/jobs/123456",
+       company:"Acme", title:"Data Analyst", dedupe_key:"added:https://job-boards.greenhouse.io/acme/jobs/123456",
+       pdf:"/x/AlliAjagbeAcmeAnalystResume.pdf", updated_at:"2026-09-17T00:00:00Z"},
+      {slug:"SkipCo", status:"failed", error:"skipped by Alli: not a fit",
+       company:"SkipCo", title:"Senior Analyst", url:"https://example.com/skip", dedupe_key:"skipco"},
+    ]}) });
+  }
   if (u.includes("/api/queue/")) {
     return Promise.resolve({ ok: true, json: () => Promise.resolve(
       {slug: "AcmeAnalyst", status: "ready", pdf: "/x/AlliAjagbeAcmeAnalystResume.pdf"}) });
@@ -205,7 +214,39 @@ setTimeout(() => {
       check("and links there",
             q("#detail a").some(a => a.href.includes("localhost:8777")));
     }
-    console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
-    process.exit(fail ? 1 : 0);
+    // --- tracker view ---
+    $("#viewtracker").click();
+    setTimeout(() => {
+      check("tracker view replaces the job list", $("#list").hidden && !$("#tracker").hidden);
+      const rows = q("#trackertable tbody tr");
+      check("tracker has rows", rows.length > 0, rows.length + " rows");
+      const cells = rows.map(r => [...r.children].map(c => c.textContent));
+      const flat = cells.map(c => c.join("|")).join("  ");
+      check("seven columns per row", cells.every(c => c.length === 7),
+            cells[0] ? cells[0].join(" | ") : "none");
+      if (helperUp) {
+        // The helper is the authority on whether a PDF exists; the browser only
+        // knows what you marked.
+        check("a produced resume shows as produced", /produced/.test(flat));
+        check("a skipped one shows as skipped", /skipped/.test(flat));
+      }
+      const csv = q("#trackercsv").length === 1;
+      check("CSV export button present", csv);
+      check("summary counts something", /tracked/.test($("#trackersummary").textContent),
+            $("#trackersummary").textContent);
+
+      // sorting
+      const before = q("#trackertable tbody tr")[0].children[0].textContent;
+      w.document.querySelector('#trackertable th[data-sort="company"]').click();
+      const after = q("#trackertable tbody tr")[0].children[0].textContent;
+      check("clicking a header re-sorts", rows.length < 2 || before !== after
+            || q("#trackertable th.sorted").length === 1);
+
+      $("#viewjobs").click();
+      check("switching back restores the job list", !$("#list").hidden && $("#tracker").hidden);
+
+      console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
+      process.exit(fail ? 1 : 0);
+    }, 150);
   }, 200);
 }, 600);

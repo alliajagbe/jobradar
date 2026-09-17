@@ -680,6 +680,24 @@ function wire() {
     if (i >= 0) select(i);
   });
 
+  $("#viewjobs").addEventListener("click", () => showView("jobs"));
+  $("#viewtracker").addEventListener("click", () => showView("tracker"));
+  document.querySelectorAll("#trackertable th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      TRACK_SORT = { key, dir: TRACK_SORT.key === key ? -TRACK_SORT.dir : 1 };
+      renderTracker();
+    });
+  });
+  $("#trackercsv").addEventListener("click", () => {
+    const blob = new Blob([trackerCsv()], { type: "text/csv" });
+    const a = el("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "jobradar-tracker-" + new Date().toISOString().slice(0, 10) + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
   $("#reset").addEventListener("click", () => { location.hash = ""; location.reload(); });
 
   $("#export").addEventListener("click", () => {
@@ -741,6 +759,180 @@ async function loadFiltered() {
   } catch {
     FILTERED = [];
     banner("Could not load the filtered roles.");
+  }
+}
+
+/* ---- tracker ----
+   One row per job you have taken an interest in, merged from two places that
+   each know half the story. localStorage knows what you marked; the helper
+   knows which resumes actually exist on disk. Neither alone is the tracker.
+
+   City and state come from location_primary, which the pipeline already stores
+   as "city|ST", so they are split rather than re-parsed. */
+
+let QUEUE_ALL = {};        // slug -> entry, from the helper
+let TRACK_SORT = { key: "company", dir: 1 };
+
+async function loadQueueAll() {
+  if (!HELPER_UP) return;
+  try {
+    const r = await fetch(HELPER + "/api/queue");
+    if (!r.ok) return;
+    const body = await r.json();
+    QUEUE_ALL = {};
+    for (const e of body.entries || []) QUEUE_ALL[e.slug] = e;
+  } catch { /* helper went away; the browser half still renders */ }
+}
+
+function splitPlace(card) {
+  const lp = (card && card.location_primary) || "";
+  if (lp.includes("|")) {
+    const [city, state] = lp.split("|");
+    return { city: title_case(city), state: state.toUpperCase() };
+  }
+  if (lp.startsWith("remote-")) {
+    const tail = lp.slice(7);
+    return { city: "Remote", state: tail === "us" ? "" : tail.toUpperCase() };
+  }
+  if (lp && lp !== "unknown") return { city: title_case(lp), state: "" };
+  const first = (card && card.locations && card.locations[0]) || "";
+  return { city: first || "", state: "" };
+}
+
+function title_case(s) {
+  return String(s).replace(/\b[a-z]/g, (m) => m.toUpperCase());
+}
+
+/* "Resume" is deliberately about the artifact, not the application: produced
+   when a PDF exists, skipped when you decided against it, and blank when
+   neither has happened yet. */
+function resumeState(card, entry) {
+  if (entry) {
+    if (entry.status === "ready") return "produced";
+    if (entry.status === "failed") {
+      return /skipped/i.test(entry.error || "") ? "skipped" : "failed";
+    }
+    return entry.status;
+  }
+  const t = tracker[card ? card.dedupe_key : ""] || {};
+  if (t.status === "dismissed") return "skipped";
+  return "";
+}
+
+const PLACEHOLDERS = /^(pasted link|role|link|untitled)$/i;
+
+function pickName(...candidates) {
+  for (const c of candidates) {
+    if (c && !PLACEHOLDERS.test(String(c).trim())) return c;
+  }
+  return candidates.find((c) => c) || "";
+}
+
+function trackerRows() {
+  const byKey = {};
+  for (const c of CARDS) byKey[c.dedupe_key] = c;
+  const byUrl = {};
+  for (const c of CARDS) byUrl[c.url] = c;
+
+  const rows = {};
+  // Everything you marked in this browser.
+  for (const [key, t] of Object.entries(tracker)) {
+    const card = byKey[key];
+    const place = splitPlace(card);
+    rows[key] = {
+      company: (card && card.company) || t.company || "",
+      title: (card && card.title) || t.title || "",
+      city: place.city, state: place.state,
+      url: (card && card.url) || t.url || "",
+      status: t.status || "", resume: resumeState(card, null),
+      updated: t.updated || "",
+    };
+  }
+  // Everything the helper has a queue entry for, which is the authority on
+  // whether a resume exists.
+  for (const entry of Object.values(QUEUE_ALL)) {
+    const card = byUrl[entry.url];
+    const key = entry.dedupe_key || card ? (entry.dedupe_key || card.dedupe_key) : entry.slug;
+    const place = splitPlace(card);
+    const existing = rows[key] || {};
+    rows[key] = {
+      // A pasted link's card carries the placeholder "Pasted link" until a
+      // refresh picks the posting up properly, so the helper's title, which
+      // came from the posting itself, wins over it.
+      company: pickName(existing.company, card && card.company, entry.company),
+      title: pickName(existing.title, card && card.title, entry.title),
+      city: existing.city || place.city, state: existing.state || place.state,
+      url: existing.url || entry.url || "",
+      status: existing.status || "",
+      resume: resumeState(card, entry),
+      pdf: entry.pdf || "",
+      updated: existing.updated || (entry.updated_at || "").slice(0, 10),
+    };
+  }
+  return Object.values(rows);
+}
+
+function renderTracker() {
+  const rows = trackerRows();
+  const dir = TRACK_SORT.dir, key = TRACK_SORT.key;
+  rows.sort((a, b) => String(a[key] || "").localeCompare(String(b[key] || "")) * dir);
+
+  const body = $("#trackertable tbody");
+  body.textContent = "";
+  for (const r of rows) {
+    const tr = el("tr");
+    tr.appendChild(el("td", "co", r.company));
+    tr.appendChild(el("td", null, r.title));
+    tr.appendChild(el("td", null, r.city));
+    tr.appendChild(el("td", "st", r.state));
+    const res = el("td");
+    if (r.resume) res.appendChild(el("span", "chip q-" + (r.resume === "produced" ? "ready" : r.resume), r.resume));
+    tr.appendChild(res);
+    const st = el("td");
+    if (r.status) st.appendChild(el("span", "chip " + (r.status === "applied" ? "applied" : "state"), r.status));
+    tr.appendChild(st);
+    const link = el("td");
+    if (r.url) {
+      const a = el("a", null, "open");
+      a.href = r.url; a.target = "_blank"; a.rel = "noopener";
+      link.appendChild(a);
+    }
+    tr.appendChild(link);
+    body.appendChild(tr);
+  }
+  const produced = rows.filter((r) => r.resume === "produced").length;
+  const applied = rows.filter((r) => r.status === "applied").length;
+  $("#trackersummary").textContent =
+    `${rows.length} tracked · ${produced} resume${produced === 1 ? "" : "s"} produced · ${applied} applied`;
+  $("#trackerempty").hidden = rows.length > 0;
+  $("#trackertable").hidden = rows.length === 0;
+  document.querySelectorAll("#trackertable th").forEach((th) => {
+    th.classList.toggle("sorted", th.dataset.sort === key);
+  });
+}
+
+function trackerCsv() {
+  const rows = trackerRows();
+  const head = ["Company", "Job Title", "City", "State", "Resume", "Status", "Link"];
+  const esc = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const lines = [head.map(esc).join(",")];
+  for (const r of rows) {
+    lines.push([r.company, r.title, r.city, r.state, r.resume, r.status, r.url].map(esc).join(","));
+  }
+  return lines.join("\n");
+}
+
+async function showView(which) {
+  const jobs = which === "jobs";
+  $("#viewjobs").classList.toggle("on", jobs);
+  $("#viewtracker").classList.toggle("on", !jobs);
+  $("#list").hidden = !jobs;
+  $("#detail").hidden = !jobs;
+  $("#rail").hidden = !jobs;
+  $("#tracker").hidden = jobs;
+  if (!jobs) {
+    await loadQueueAll();
+    renderTracker();
   }
 }
 
