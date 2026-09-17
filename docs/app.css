@@ -79,6 +79,7 @@ kbd {
   border: 1px solid var(--line); border-radius: 999px; white-space: nowrap;
 }
 .helperdot.on { color: var(--accent); border-color: var(--accent); }
+.helperdot.elsewhere { color: var(--warn); border-color: var(--warn); }
 .btn.primary { background: var(--accent); color: var(--panel); border-color: var(--accent); }
 .btn.primary:hover { opacity: .9; color: var(--panel); }
 .btn:disabled { opacity: .6; cursor: default; }

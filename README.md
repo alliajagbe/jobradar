@@ -168,13 +168,20 @@ cannot reach your disk or a Claude Code session:
 .venv/bin/python -m jobradar serve
 ```
 
-Then on https://alliajagbe.github.io/jobradar the header shows **helper on** and every
-card gets a **Tailor this resume** button. Clicking it queues the job, the helper fetches
-the full posting, and a Claude Code session writes and renders the resume. The card
-reports queued → briefed → writing → ready, and macOS notifies you when the PDF lands.
+Then open **http://localhost:8777**, which serves the same page and the same data. The
+header shows **helper on** and every card gets a **Tailor this resume** button. Clicking
+it queues the job, the helper fetches the full posting, and a Claude Code session writes
+and renders the resume. The card reports queued → briefed → writing → ready, and macOS
+notifies you when the PDF lands.
 
-Without the helper the button is simply absent and the copy-the-command path is the whole
-experience. That is also the phone experience.
+**The button does not work from the github.io URL.** Chrome refuses a cross-origin call
+from an HTTPS page to a server on loopback: Private Network Access is enforced in current
+Chrome and the preflight headers are not sufficient. Tested and confirmed, not assumed.
+The github.io page detects this, says "tailor on localhost" in the header, and links you
+across. Its copy-the-command path still works, which is also the phone experience.
+
+This turned out fine. Same-origin was the safer design anyway, because the entire class of
+"another website talks to your helper" disappears rather than being defended against.
 
 `python -m jobradar tailor queue` lists what the page has asked for, and flags anything
 that has been `writing` for over 30 minutes as stalled, which usually means a session

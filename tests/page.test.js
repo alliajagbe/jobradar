@@ -182,11 +182,19 @@ setTimeout(() => {
       check("the copy fallback is still there",
             q(".dsec button").some(b => /Copy the tailor command/.test(b.textContent)));
     } else {
-      check("helper dot reads off", /helper off/.test(dot.textContent), dot.textContent);
-      // Absent, not broken: without a helper there is nothing for it to talk to.
-      check("Tailor button absent when the helper is down", !hasButton);
+      // The jsdom origin is the github.io one, where Chrome refuses the call to
+      // loopback. "helper off" would be a lie: the helper may well be running,
+      // it just cannot be reached FROM HERE, and telling someone to start a
+      // helper they already started is the wrong advice.
+      check("dot points at localhost rather than claiming the helper is off",
+            /tailor on localhost/.test(dot.textContent), dot.textContent);
+      check("Tailor button absent when unreachable", !hasButton);
       check("the copy fallback carries the whole experience",
             q(".dsec button").some(b => /Copy the tailor command/.test(b.textContent)));
+      check("the detail pane says where the button lives",
+            /localhost:8777/.test($("#detail").textContent));
+      check("and links there",
+            q("#detail a").some(a => a.href.includes("localhost:8777")));
     }
     console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
     process.exit(fail ? 1 : 0);

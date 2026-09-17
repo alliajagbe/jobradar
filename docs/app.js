@@ -111,13 +111,30 @@ async function probeHelper() {
     clearTimeout(timer);
     HELPER_UP = r.ok;
   } catch { HELPER_UP = false; }
+  // Chrome refuses a cross-origin call from this HTTPS page to the helper on
+  // loopback. Private Network Access is enforced in current Chrome and the
+  // preflight headers are not enough. So "off" here does not mean the helper
+  // is not running, it means it cannot be reached FROM THIS URL, and telling
+  // someone to start a helper they already started is the wrong advice.
+  const local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   const dot = $("#helper");
   if (dot) {
-    dot.textContent = HELPER_UP ? "helper on" : "helper off";
-    dot.className = "helperdot" + (HELPER_UP ? " on" : "");
-    dot.title = HELPER_UP
-      ? "The local helper is running, so Tailor works from this page."
-      : "Run `python -m jobradar serve` to enable the Tailor button.";
+    if (HELPER_UP) {
+      dot.textContent = "helper on";
+      dot.title = "The local helper is running, so Tailor works from this page.";
+    } else if (local) {
+      dot.textContent = "helper off";
+      dot.title = "Run `python -m jobradar serve` to enable the Tailor button.";
+    } else {
+      dot.textContent = "tailor on localhost";
+      dot.title = "Chrome will not let this page reach a local helper. "
+        + "Open http://localhost:8777 for the same page with a working Tailor button.";
+    }
+    dot.className = "helperdot" + (HELPER_UP ? " on" : local ? "" : " elsewhere");
+    dot.onclick = HELPER_UP || local ? null : () => {
+      window.open("http://localhost:8777" + location.hash, "_blank", "noopener");
+    };
+    dot.style.cursor = HELPER_UP || local ? "" : "pointer";
   }
 }
 
@@ -484,6 +501,19 @@ function renderDetail(card) {
   const status = el("p", "note queue");
   status.id = "queuestatus";
   tailor.appendChild(status);
+
+  if (!HELPER_UP && location.hostname !== "localhost"
+      && location.hostname !== "127.0.0.1") {
+    const hint = el("p", "note");
+    const a = el("a", null, "http://localhost:8777");
+    a.href = "http://localhost:8777" + location.hash;
+    a.target = "_blank"; a.rel = "noopener";
+    hint.appendChild(document.createTextNode("Chrome will not let this page reach a "
+      + "local helper. For a one-click Tailor button, open "));
+    hint.appendChild(a);
+    hint.appendChild(document.createTextNode(" instead. Same page, same data."));
+    tailor.appendChild(hint);
+  }
 
   tailor.appendChild(copy);
   tailor.appendChild(shown);
