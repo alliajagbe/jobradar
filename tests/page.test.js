@@ -31,6 +31,10 @@ w.fetch = (u, opts) => {
        pdf:"/x/AlliAjagbeAcmeAnalystResume.pdf", updated_at:"2026-09-17T00:00:00Z"},
       {slug:"SkipCo", status:"failed", error:"skipped by Alli: not a fit",
        company:"SkipCo", title:"Senior Analyst", url:"https://example.com/skip", dedupe_key:"skipco"},
+      // No dedupe_key at all. This is the shape that produced a phantom row:
+      // the queue branch had no `key`, so the dropdown wrote tracker[undefined].
+      {slug:"NoKeyCo", status:"ready", company:"NoKeyCo", title:"Data Analyst",
+       url:"https://example.com/nokey", pdf:"/x/nokey.pdf"},
     ]}) });
   }
   if (u.includes("/api/queue/")) {
@@ -231,6 +235,13 @@ setTimeout(() => {
             sels.length + " of " + rows.length);
       check("process defaults to pending",
             sels.every(s => s.value === "pending"), sels[0] ? sels[0].value : "none");
+      // The summary counted 0 pending while every dropdown displayed pending,
+      // because an undefined process still shows the first option.
+      check("the summary agrees with the dropdowns",
+            new RegExp(rows.length + " pending").test($("#trackersummary").textContent),
+            $("#trackersummary").textContent);
+      check("every row has a stable key, so none is read-only",
+            sels.every(s => !s.disabled));
       check("options are pending, complete, dismissed",
             sels[0] && [...sels[0].options].map(o => o.value).join(",")
               === "pending,complete,dismissed",
@@ -256,6 +267,15 @@ setTimeout(() => {
       const cleared = JSON.parse(store["jobradar.tracker.v1"] || "{}");
       check("pending is stored as absence, not as a value",
             !Object.values(cleared).some(v => v.process === "pending"));
+      // The phantom row: an entry under a missing key, rendering as a dropdown
+      // with no job attached and no way to clear it from the page.
+      check("no entry is written under a missing key",
+            !Object.keys(cleared).some(k => !k || k === "undefined" || k === "null"),
+            Object.keys(cleared).join(","));
+      check("every rendered row has a company",
+            q("#trackertable tbody tr").every(
+              tr => tr.children[0].textContent.trim().length > 0),
+            q("#trackertable tbody tr").map(tr => tr.children[0].textContent).join("|"));
 
       check("the table header carries Process",
             q("#trackertable th").some(t => t.textContent === "Process"

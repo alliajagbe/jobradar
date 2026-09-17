@@ -51,8 +51,25 @@ const el = (t, c, txt) => { const n = document.createElement(t); if (c) n.classN
 
 /* ---- storage ---- */
 function loadTracker() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }
+  let raw;
+  try { raw = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }
   catch { return {}; }
+  // Drop entries a bug wrote under a missing key. They render as a phantom row
+  // with a dropdown and no job attached to it, and they cannot be cleared from
+  // the page because there is nothing to click.
+  let healed = false;
+  for (const key of Object.keys(raw)) {
+    const v = raw[key] || {};
+    const empty = !v.company && !v.title && !v.url && !v.status;
+    if (key === "undefined" || key === "null" || key === "" || empty) {
+      delete raw[key];
+      healed = true;
+    }
+  }
+  if (healed) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(raw)); } catch { /* ignore */ }
+  }
+  return raw;
 }
 function saveTracker() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(tracker)); }
@@ -859,10 +876,18 @@ function trackerRows() {
   // whether a resume exists.
   for (const entry of Object.values(QUEUE_ALL)) {
     const card = byUrl[entry.url];
-    const key = entry.dedupe_key || card ? (entry.dedupe_key || card.dedupe_key) : entry.slug;
+    // Explicit, because `a || b ? x : y` parses as `(a || b) ? x : y` and the
+    // previous one-liner only looked like it said what it meant.
+    const key = entry.dedupe_key || (card && card.dedupe_key) || entry.slug;
     const place = splitPlace(card);
     const existing = rows[key] || {};
     rows[key] = {
+      // `key` and `process` are load-bearing and were missing here, which is
+      // what produced a phantom row: the dropdown wrote to tracker[undefined],
+      // and every real row reported an undefined process that the summary then
+      // counted as neither pending nor complete.
+      key: key,
+      process: existing.process || (tracker[key] || {}).process || "pending",
       // A pasted link's card carries the placeholder "Pasted link" until a
       // refresh picks the posting up properly, so the helper's title, which
       // came from the posting itself, wins over it.
@@ -907,7 +932,14 @@ function renderTracker() {
       sel.appendChild(opt);
     }
     sel.className = "procsel p-" + r.process;
+    if (!r.key) {
+      // Never write to an undefined key again. A row with no key is a bug
+      // upstream, and it should be visible rather than silently persisted.
+      sel.disabled = true;
+      sel.title = "This row has no stable key, so a process cannot be saved against it.";
+    }
     sel.addEventListener("change", () => {
+      if (!r.key) return;
       // "pending" is the default, so it is stored as absence rather than as a
       // value. That keeps an untouched row out of the tracker entirely.
       track(r.key, { process: sel.value === "pending" ? null : sel.value });
