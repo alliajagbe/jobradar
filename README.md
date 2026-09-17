@@ -206,9 +206,13 @@ It merges two halves that each know only part of the story. Your browser knows w
 marked interested or applied; the helper knows which PDFs actually exist on disk. Without
 the helper running you get the browser half, which is still the useful half on a phone.
 
-The Resume column is deliberately about the artifact rather than the application:
-**produced** when a PDF exists, **skipped** when you decided against the role, and blank
-when neither has happened yet.
+Two columns answer different questions and are deliberately separate:
+
+- **Resume** is about the artifact: **produced** when a PDF exists, **skipped** when you
+  ruled the role out, blank when neither has happened. It is derived, not editable.
+- **Process** is where you are with the role overall, and you set it: **pending** (the
+  default), **complete**, or **dismissed**. Pending is stored as absence rather than as a
+  value, so an untouched row stays out of the tracker entirely.
 
 ### Security
 

@@ -222,8 +222,44 @@ setTimeout(() => {
       check("tracker has rows", rows.length > 0, rows.length + " rows");
       const cells = rows.map(r => [...r.children].map(c => c.textContent));
       const flat = cells.map(c => c.join("|")).join("  ");
-      check("seven columns per row", cells.every(c => c.length === 7),
+      check("eight columns per row", cells.every(c => c.length === 8),
             cells[0] ? cells[0].join(" | ") : "none");
+
+      // --- the Process column ---
+      const sels = q("#trackertable select.procsel");
+      check("every row has a process selector", sels.length === rows.length,
+            sels.length + " of " + rows.length);
+      check("process defaults to pending",
+            sels.every(s => s.value === "pending"), sels[0] ? sels[0].value : "none");
+      check("options are pending, complete, dismissed",
+            sels[0] && [...sels[0].options].map(o => o.value).join(",")
+              === "pending,complete,dismissed",
+            sels[0] ? [...sels[0].options].map(o => o.value).join(",") : "none");
+
+      // Setting a process on a row with no application status must persist. The
+      // old track() deleted any entry without a status, which would have thrown
+      // this away silently.
+      const target = q("#trackertable select.procsel")[0];
+      target.value = "complete";
+      target.dispatchEvent(new w.Event("change", {bubbles:true}));
+      const saved = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+      check("process persists to storage",
+            Object.values(saved).some(v => v.process === "complete"),
+            JSON.stringify(Object.values(saved).map(v => v.process)));
+      check("summary counts complete", /1 complete/.test($("#trackersummary").textContent),
+            $("#trackersummary").textContent);
+
+      // Back to pending must clear it rather than storing the default.
+      const again = q("#trackertable select.procsel").find(s => s.value === "complete");
+      again.value = "pending";
+      again.dispatchEvent(new w.Event("change", {bubbles:true}));
+      const cleared = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+      check("pending is stored as absence, not as a value",
+            !Object.values(cleared).some(v => v.process === "pending"));
+
+      check("the table header carries Process",
+            q("#trackertable th").some(t => t.textContent === "Process"
+                                            && t.dataset.sort === "process"));
       if (helperUp) {
         // The helper is the authority on whether a PDF exists; the browser only
         // knows what you marked.

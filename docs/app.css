@@ -128,6 +128,13 @@ kbd {
 #trackertable td.co { font-weight: 600; white-space: nowrap; }
 #trackertable td.st { white-space: nowrap; }
 #trackertable a { color: var(--accent); }
+.procsel {
+  font: inherit; font-size: 12px; padding: 2px 4px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink-dim);
+  cursor: pointer;
+}
+.procsel.p-complete { color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.procsel.p-dismissed { color: var(--ink-dim); opacity: .7; }
 
 /* ---- layout ---- */
 main {

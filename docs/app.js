@@ -34,6 +34,9 @@ const SPONSOR_LABELS = {
   explicit_no: "No sponsorship",
 };
 const STATUSES = ["interested", "applied", "interviewing", "offer", "rejected", "dismissed"];
+// Where you are with the role overall, as opposed to the application stage.
+// Pending is the default and is never stored: absence means pending.
+const PROCESS = ["pending", "complete", "dismissed"];
 
 let CARDS = [];
 let ADDED = [];           // jobs pasted in by hand, stored in this browser only
@@ -97,7 +100,9 @@ function addedCard(url) {
 
 function track(key, patch) {
   tracker[key] = Object.assign({}, tracker[key], patch, { updated: new Date().toISOString().slice(0, 10) });
-  if (!tracker[key].status) delete tracker[key];
+  // Clearing the status used to delete the whole entry, which would silently
+  // discard a process you had set on a row you never marked interested.
+  if (!tracker[key].status && !tracker[key].process) delete tracker[key];
   saveTracker();
 }
 
@@ -840,11 +845,13 @@ function trackerRows() {
     const card = byKey[key];
     const place = splitPlace(card);
     rows[key] = {
+      key: key,
       company: (card && card.company) || t.company || "",
       title: (card && card.title) || t.title || "",
       city: place.city, state: place.state,
       url: (card && card.url) || t.url || "",
       status: t.status || "", resume: resumeState(card, null),
+      process: t.process || "pending",
       updated: t.updated || "",
     };
   }
@@ -891,6 +898,24 @@ function renderTracker() {
     const st = el("td");
     if (r.status) st.appendChild(el("span", "chip " + (r.status === "applied" ? "applied" : "state"), r.status));
     tr.appendChild(st);
+    const proc = el("td");
+    const sel = el("select", "procsel");
+    for (const value of PROCESS) {
+      const opt = el("option", null, value);
+      opt.value = value;
+      if (value === r.process) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.className = "procsel p-" + r.process;
+    sel.addEventListener("change", () => {
+      // "pending" is the default, so it is stored as absence rather than as a
+      // value. That keeps an untouched row out of the tracker entirely.
+      track(r.key, { process: sel.value === "pending" ? null : sel.value });
+      renderTracker();
+    });
+    proc.appendChild(sel);
+    tr.appendChild(proc);
+
     const link = el("td");
     if (r.url) {
       const a = el("a", null, "open");
@@ -901,9 +926,11 @@ function renderTracker() {
     body.appendChild(tr);
   }
   const produced = rows.filter((r) => r.resume === "produced").length;
-  const applied = rows.filter((r) => r.status === "applied").length;
+  const done = rows.filter((r) => r.process === "complete").length;
+  const pending = rows.filter((r) => r.process === "pending").length;
   $("#trackersummary").textContent =
-    `${rows.length} tracked · ${produced} resume${produced === 1 ? "" : "s"} produced · ${applied} applied`;
+    `${rows.length} tracked · ${produced} resume${produced === 1 ? "" : "s"} produced`
+    + ` · ${done} complete · ${pending} pending`;
   $("#trackerempty").hidden = rows.length > 0;
   $("#trackertable").hidden = rows.length === 0;
   document.querySelectorAll("#trackertable th").forEach((th) => {
@@ -913,11 +940,13 @@ function renderTracker() {
 
 function trackerCsv() {
   const rows = trackerRows();
-  const head = ["Company", "Job Title", "City", "State", "Resume", "Status", "Link"];
+  const head = ["Company", "Job Title", "City", "State", "Resume", "Status",
+                "Process", "Link"];
   const esc = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
   const lines = [head.map(esc).join(",")];
   for (const r of rows) {
-    lines.push([r.company, r.title, r.city, r.state, r.resume, r.status, r.url].map(esc).join(","));
+    lines.push([r.company, r.title, r.city, r.state, r.resume, r.status,
+                r.process, r.url].map(esc).join(","));
   }
   return lines.join("\n");
 }
