@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-09-17T18:04:53Z",
- "total": 5260,
+ "updated_at": "2026-09-17T18:23:31Z",
+ "total": 5261,
  "open": 963,
  "dropped": 4013,
- "closed": 284,
+ "closed": 285,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
   "ashby",
@@ -16,12 +16,12 @@
  "run": {
   "boards_ok": 1759,
   "boards_failed": 1,
-  "postings_seen": 5851,
-  "new": 232,
-  "closed": 227,
+  "postings_seen": 5850,
+  "new": 1,
+  "closed": 2,
   "dropped_by_reason": {
    "location": 1490,
-   "text": 139,
+   "text": 138,
    "seniority": 3016,
    "experience": 88,
    "excluded": 61
