@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-19T18:28:53Z",
- "total": 5340,
+ "updated_at": "2026-09-19T19:03:28Z",
+ "total": 5342,
  "open": 957,
- "dropped": 3961,
+ "dropped": 3963,
  "closed": 422,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
@@ -16,13 +16,13 @@
  "run": {
   "boards_ok": 1756,
   "boards_failed": 4,
-  "postings_seen": 5775,
-  "new": 113,
-  "closed": 163,
+  "postings_seen": 5778,
+  "new": 3,
+  "closed": 0,
   "dropped_by_reason": {
-   "location": 1485,
+   "location": 1486,
    "text": 123,
-   "seniority": 2978,
+   "seniority": 2980,
    "experience": 89,
    "excluded": 58
   },
