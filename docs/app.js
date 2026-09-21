@@ -88,18 +88,32 @@ function saveAdded() {
 /* A pasted link becomes a card immediately, before the CLI has seen it. It has
    no score or sponsorship yet because working those out means fetching the
    posting, which only the local command can do. */
+/* Most job URLs carry the role in a hyphenated slug. Taking the longest one
+   beats "Pasted link" until a real fetch replaces it, and it makes the page's
+   guess agree with what the helper will find. */
+function titleFromPath(bits) {
+  let best = "";
+  for (const bit of bits) {
+    const words = bit.split("-").filter((w) => /^[A-Za-z][A-Za-z0-9.&']*$/.test(w));
+    if (words.length >= 3 && bit.length > best.length) best = words.join(" ");
+  }
+  return best;
+}
+
 function addedCard(url) {
   let host = url, path = "";
   try { const u = new URL(url); host = u.hostname.replace(/^(www|jobs|job-boards|boards|apply|careers)\./, ""); path = u.pathname; }
   catch { return null; }
-  const company = host.split(".")[0];
+  // The company comes from the HOSTNAME, not the first path segment. A Lenovo
+  // URL is jobs.lenovo.com/en_US/careers/... and the old guess read the locale
+  // segment, so the card, the slug and the queue entry all said "En_US".
+  const guess = host.split(".")[0];
   const bits = path.split("/").filter(Boolean);
-  const guess = bits.length > 1 ? bits[0] : company;
   return {
     id: "added:" + url,
     dedupe_key: "added:" + url,
     company: guess.charAt(0).toUpperCase() + guess.slice(1),
-    title: "Pasted link",
+    title: titleFromPath(bits) || "Pasted link",
     url: url,
     source: "link",
     locations: [],
