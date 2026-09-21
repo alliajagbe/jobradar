@@ -162,11 +162,20 @@ npm install jsdom && node tests/page.test.js
 ## The Tailor button
 
 Clicking Tailor on a job card needs a local helper running, because a static page
-cannot reach your disk or a Claude Code session:
+cannot reach your disk or a Claude Code session. Install it once as a login agent:
 
 ```bash
-.venv/bin/python -m jobradar serve
+scripts/install_helper.sh              # starts now and at every login
+scripts/install_helper.sh --uninstall  # stop and remove
 ```
+
+It costs 19MB and 0% CPU, binds to loopback, and launchd restarts it if it dies.
+To run it by hand instead, `.venv/bin/python -m jobradar serve`.
+
+It used to exit after 30 idle minutes, which meant a dead page at the moment you sat
+down to work. The Origin, Host and Content-Type checks are what actually guard it; the
+timeout was defence in depth that cost more than it saved. Set `JOBRADAR_IDLE_TIMEOUT`
+to a number of seconds to bring it back.
 
 Then open **http://localhost:8777**, which serves the same page and the same data. The
 header shows **helper on** and every card gets a **Tailor this resume** button. Clicking

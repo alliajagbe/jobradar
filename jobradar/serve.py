@@ -29,6 +29,7 @@ IDLE_TIMEOUT so the port is open while you work rather than indefinitely.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import threading
@@ -52,8 +53,14 @@ ALLOWED_ORIGINS = frozenset({
 })
 ALLOWED_HOSTS = frozenset({f"localhost:{PORT}", f"127.0.0.1:{PORT}"})
 
-# Minutes without a request before the helper exits on its own.
-IDLE_TIMEOUT = 30 * 60
+# Seconds without a request before the helper exits, or 0 to stay up.
+#
+# Zero by default now. The timeout was defence in depth on top of the Origin,
+# Host and Content-Type checks, which are the control that actually stops a
+# malicious page. It narrowed the exposure window and cost a dead page at the
+# exact moment Alli sat down to work, twice. Under launchd KeepAlive it would
+# also be theatre: the process would restart seconds after exiting.
+IDLE_TIMEOUT = int(os.environ.get("JOBRADAR_IDLE_TIMEOUT", "0"))
 
 _last_request = time.monotonic()
 _lock = threading.Lock()
@@ -277,6 +284,8 @@ def _fetch_brief(slug: str, url: str) -> None:
 
 
 def _idle_watch(server: ThreadingHTTPServer) -> None:
+    if not IDLE_TIMEOUT:
+        return
     while True:
         time.sleep(30)
         with _lock:
@@ -294,7 +303,10 @@ def run(*, port: int = PORT, verbose: bool = False) -> int:
     print(f"jobradar helper on http://{HOST}:{port}")
     print(f"  serving  {config.DOCS_DIR}")
     print(f"  accepts  {', '.join(sorted(ALLOWED_ORIGINS))}")
-    print(f"  exits after {IDLE_TIMEOUT // 60} idle minutes. Ctrl-C to stop.")
+    if IDLE_TIMEOUT:
+        print(f"  exits after {IDLE_TIMEOUT // 60} idle minutes. Ctrl-C to stop.")
+    else:
+        print("  stays up. Ctrl-C to stop.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

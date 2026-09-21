@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.alli.jobradar</string>
+
+  <!-- The venv interpreter directly, not a shell. A LaunchAgent gets a minimal
+       environment with no PATH worth relying on, so anything resolved by name
+       fails silently at login and you find out days later. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PYTHON__</string>
+    <string>-m</string>
+    <string>jobradar</string>
+    <string>serve</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO__</string>
+
+  <!-- `gh` lives in /opt/homebrew/bin, which launchd does not put on PATH.
+       Without this the Refresh button cannot start the workflow. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__LOG__/jobradar-helper.log</string>
+  <key>StandardErrorPath</key>
+  <string>__LOG__/jobradar-helper.log</string>
+</dict>
+</plist>
