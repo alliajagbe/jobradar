@@ -197,3 +197,32 @@ def test_page_budget_is_below_the_raw_page_height():
     from jobradar.resume.measure import PAGE_BUDGET, PAGE_PX, PRINT_SLACK
     assert PAGE_BUDGET == PAGE_PX - PRINT_SLACK
     assert PAGE_BUDGET <= 1049, "budget must sit under the observed crossover"
+
+
+def test_cover_letter_shares_the_resume_theme():
+    """Not a second theme. A candidate who turns up with two documents in two
+    typefaces looks like two people."""
+    from jobradar.resume.cover import build
+    from jobradar.resume.html import tokens
+    from jobradar.resume.model import load_master
+    master = load_master()
+    html = build(master.identity, {"company": "X", "role": "Y",
+                                   "paragraphs": ["one", "two"]})
+    t = tokens()
+    assert "CMU Serif" in html
+    assert f"--body:{t['body_pt']}pt" in html
+    assert f"--margin:{t['margin_in']}in" in html
+    # The signature must NOT reuse .name, which is the centred 18pt document
+    # header and rendered as a second giant title halfway down the page.
+    assert 'class="signature"' in html
+    assert html.count('class="name"') == 1
+
+
+def test_cover_letter_carries_the_same_contact_line():
+    from jobradar.resume.cover import build
+    from jobradar.resume.model import load_master
+    master = load_master()
+    html = build(master.identity, {"company": "X", "role": "Y", "paragraphs": ["a"]})
+    assert master.identity["email"] in html
+    for link in master.identity["links"]:
+        assert link["label"] in html

@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import re
 import subprocess
 import yaml
 from pathlib import Path
@@ -22,6 +23,7 @@ from . import jd as jd_mod
 from . import measure as M
 from .model import default_document, load_master, resolve_variant
 from .paths import HOME, ResumeError, output_dir, resolve
+from .rules import _NUM as _NUM_RE, _norm_num
 from .rules import check as check_rules, fabrication_check
 
 
@@ -326,6 +328,73 @@ def cmd_take(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_cover(args: argparse.Namespace) -> int:
+    """Render a cover letter in the resume's own type."""
+    import yaml as _yaml
+
+    from . import cover as cover_mod
+    from .rules import Finding, NEVER_ADD, _EM_DASH, _SPONSOR, fabrication_check
+
+    master = load_master()
+    path = resolve("covers", f"{args.slug}.yaml")
+    if not path.exists():
+        raise ResumeError(
+            f"no letter at {path}. Write one there with company, role and "
+            f"paragraphs, then run this again."
+        )
+    letter = _yaml.safe_load(path.read_text(encoding="utf-8"))
+    body = " ".join(" ".join(str(p).split()) for p in letter["paragraphs"])
+
+    findings: list[Finding] = []
+    if _EM_DASH.search(body):
+        findings.append(Finding("no_em_dash", "hard", "contains an em or en dash"))
+    if _SPONSOR.search(body):
+        findings.append(Finding("no_sponsorship_language", "hard",
+                                "mentions sponsorship, work authorization or seeking a role"))
+    low = body.lower()
+    for term in NEVER_ADD:
+        if re.search(rf"(?<![a-z0-9]){re.escape(term.lower())}(?![a-z0-9])", low):
+            findings.append(Finding("never_add", "hard", f"{term!r} is on the never-add list"))
+    # Every number in the letter must already be on the resume. A figure that
+    # appears in one and not the other is worse than no figure.
+    known = set()
+    for b in master.bullets.values():
+        known.update(_norm_num(x) for x in b.metrics)
+    known.update(_norm_num(x) for x in master.raw.get("shared_numbers") or [])
+    for tok in _NUM_RE.findall(body):
+        norm = _norm_num(tok)
+        if norm and norm not in known and norm not in {str(n) for n in range(1, 31)}:
+            findings.append(Finding("no_invented_metric", "hard",
+                                    f"{tok.strip()!r} is not on the resume"))
+
+    t = H.tokens()
+    html = cover_mod.build(master.identity, letter)
+    out_dir = Path(args.out).expanduser() if args.out else output_dir()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pdf = out_dir / f"AlliAjagbe{args.slug}CoverLetter.pdf"
+    if pdf.exists() and not args.force:
+        raise ResumeError(f"{pdf} exists. Pass --force to overwrite.")
+    metrics = M.render(html, pdf, font_probe=t["font_probe"])
+    if metrics.pages not in (None, 1):
+        findings.append(Finding("one_page", "hard", f"PDF has {metrics.pages} pages"))
+    if not metrics.font_ok:
+        findings.append(Finding("font_loaded", "hard", "the body font did not load"))
+
+    _log(f"letter for {letter.get('company', args.slug)}")
+    _log(f"  layout   {metrics.height_px}px of {M.PAGE_BUDGET}   "
+         f"{len(letter['paragraphs'])} paragraphs   font "
+         f"{'ok' if metrics.font_ok else 'FALLBACK'}")
+    hard = _report(findings)
+    if hard:
+        pdf.unlink(missing_ok=True)
+        _log(f"\n{hard} hard failures. No PDF written.")
+        return 1
+    _log(f"\nwrote {pdf}")
+    if args.open:
+        subprocess.run(["open", str(pdf)], check=False)
+    return 0
+
+
 def cmd_doctor(args: argparse.Namespace) -> int:
     ok = True
     _log(f"resume home   {HOME}")
@@ -402,6 +471,13 @@ def add_parser(sub) -> None:
     tk.add_argument("slug")
     tk.add_argument("--note")
     tk.set_defaults(func=cmd_take)
+
+    cv = inner.add_parser("cover", help="render a cover letter in the resume's type")
+    cv.add_argument("--slug", required=True)
+    cv.add_argument("--out")
+    cv.add_argument("--force", action="store_true")
+    cv.add_argument("--open", action="store_true")
+    cv.set_defaults(func=cmd_cover)
 
     d = inner.add_parser("doctor", help="check the setup")
     d.set_defaults(func=cmd_doctor)

@@ -149,6 +149,20 @@ The gate tests matter most. The single most important assertion is that
 a posting out: someone on OPT is authorized to work. Only the longer form, the
 one adding "without sponsorship" or "now or in the future", disqualifies.
 
+## Cover letters
+
+```bash
+.venv/bin/python -m jobradar tailor cover --slug <Slug> --force
+```
+
+Reads `~/.jobradar/covers/<Slug>.yaml` (company, role, salutation, address,
+paragraphs) and renders a PDF beside the resume. It imports the resume's font faces,
+tokens and stylesheet rather than defining its own, so the two documents cannot drift
+apart, and it enforces the same rules: no em-dashes, no sponsorship or "seeking
+opportunities" language, nothing from the never-add list, and no number that is not
+already on the resume. A figure that appears in one and not the other is worse than no
+figure.
+
 ### Page tests
 
 `tests/page.test.js` runs the published page in a real DOM and checks render,
