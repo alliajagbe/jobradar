@@ -11,6 +11,22 @@ The content rules are the resume's rules. No em-dashes. No sponsorship or
 master, because a letter is as easy to check against a resume as a resume is to
 check against itself, and a figure that appears in one and not the other is
 worse than no figure.
+
+THE WRITING follows Zinsser's four principles, which Alli asked for by name:
+
+  simplicity  Strip every word doing no work. "In order to" is "to". "The part
+              that mattered was translating X" is "I explained X".
+  brevity     Short sentences. A cover letter that runs past three paragraphs
+              has started restating the resume.
+  clarity     One idea per sentence, in the order a reader needs them. No
+              pronoun whose referent is two sentences back.
+  humanity    Written by a person, not assembled from posting language. Alli's
+              own note is that she would rather sound authentically personal
+              than polished and generic, so a plain sentence beats a clever one.
+
+The failure mode to watch is constructed cleverness: a first draft here opened
+"The part of this job I want most is the part most people skip", which is a
+line, not a sentence. It went.
 """
 
 from __future__ import annotations

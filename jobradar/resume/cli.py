@@ -346,6 +346,21 @@ def cmd_cover(args: argparse.Namespace) -> int:
     body = " ".join(" ".join(str(p).split()) for p in letter["paragraphs"])
 
     findings: list[Finding] = []
+    # Alli graduated in May 2026. A first draft said "I am completing a
+    # Master's", which was true when the master resume was written and is not
+    # true now. Tense drift is the kind of error that survives a proofread
+    # because every word in the sentence is fine.
+    if re.search(r"\b(am|currently)\s+(completing|pursuing|studying)\b"
+                 r"|\bwill\s+graduate\b|\bfinal[- ]year\b", body, re.I):
+        findings.append(Finding("graduation_tense", "hard",
+                                "claims Alli is still studying; she graduated May 2026"))
+    # Zinsser, brevity. Past three paragraphs a cover letter restates the resume.
+    if len(letter["paragraphs"]) > 3:
+        findings.append(Finding("brevity", "warn",
+                                f"{len(letter['paragraphs'])} paragraphs; three is the limit"))
+    if len(body.split()) > 300:
+        findings.append(Finding("brevity", "warn",
+                                f"{len(body.split())} words; aim under 300"))
     if _EM_DASH.search(body):
         findings.append(Finding("no_em_dash", "hard", "contains an em or en dash"))
     if _SPONSOR.search(body):
