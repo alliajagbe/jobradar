@@ -50,18 +50,30 @@ def _report(findings, metrics=None) -> int:
     return len(hard)
 
 
-def build_brief(url: str, *, slug: str | None = None,
-                progress=None) -> tuple[Path, dict, str]:
+def build_brief(url: str, *, slug: str | None = None, progress=None,
+                jd_text: str | None = None, company: str | None = None,
+                title: str | None = None) -> tuple[Path, dict, str]:
     """Fetch a posting and write its brief. Returns (brief_path, job, slug).
 
     Extracted from cmd_brief so the local helper can call it. cmd_brief read five
     interdependent Namespace attributes and only printed the path it wrote, so a
     request handler would have had to fake a Namespace and scrape stdout.
+
+    `jd_text` supplies the description instead of fetching it, for the pages that
+    cannot be read: Oracle Cloud, Workday behind a login, anything that renders
+    its body in JavaScript. The failure message has always told Alli to save the
+    description and pass --jd-file, and on this path that flag was ignored and
+    the fetch was retried, so the advice sent her in a circle. A supplied
+    description is scored and matched exactly like a fetched one.
     """
     from . import ingest
 
     master = load_master()
-    posting = ingest.fetch(url, progress=progress)
+    if jd_text is not None:
+        posting = ingest.Posting(company=company or "Unknown", title=title or "Role",
+                                 url=url, text=jd_text, source="manual")
+    else:
+        posting = ingest.fetch(url, progress=progress)
     job = _job_from_posting(posting)
     slug = slug or jd_mod.slug_for(job)
     out = resolve("briefs", f"{slug}.md", create_parent=True)
@@ -73,7 +85,13 @@ def build_brief(url: str, *, slug: str | None = None,
 def cmd_brief(args: argparse.Namespace) -> int:
     master = load_master()
     if getattr(args, "url", None):
-        out, job, slug = build_brief(args.url, slug=args.slug, progress=_log)
+        jd_text = None
+        if args.jd_file:
+            jd_text = Path(args.jd_file).read_text(encoding="utf-8")
+            _log(f"  using {args.jd_file} ({len(jd_text)} chars)")
+        out, job, slug = build_brief(args.url, slug=args.slug, progress=_log,
+                                     jd_text=jd_text, company=args.company,
+                                     title=args.title)
         _log(f"\n  {job['company']} - {job['title']} ({len(job['snippet'])}+ chars)")
         _log(f"wrote {out}")
         _log(f"next: write ~/.jobradar/variants/{slug}.yaml, then "
@@ -471,6 +489,11 @@ def add_parser(sub) -> None:
     b.add_argument("--slug", help="override the output slug")
     b.add_argument("--refetch", action="store_true", help="ignore the cached description")
     b.add_argument("--jd-file", help="use a saved description instead of refetching")
+    # Only meaningful alongside --jd-file and --url: with no page to read, the
+    # employer and role cannot be derived, and "Unknown / Role" would be carried
+    # into the brief, the slug and the PDF filename.
+    b.add_argument("--company", help="employer name, when --jd-file supplies the text")
+    b.add_argument("--title", help="role title, when --jd-file supplies the text")
     b.set_defaults(func=cmd_brief)
 
     c = inner.add_parser("check", help="validate without writing a PDF")
