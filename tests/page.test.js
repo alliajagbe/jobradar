@@ -175,6 +175,11 @@ setTimeout(() => {
           mine()[0] ? mine()[0].textContent.replace(/\s+/g," ").slice(0,46) : "none");
     check("the pasted link persists",
           JSON.parse(store["jobradar.added.v1"] || "[]").some(a => a.url === URL_IN));
+    // On an ATS the company is the path segment, not the host. Reading the host
+    // here labels every Greenhouse posting "Greenhouse".
+    check("an ATS link is named for the company, not the ATS",
+          /Acme/.test(mine()[0].textContent) && !/Greenhouse/i.test(mine()[0].textContent),
+          mine()[0].textContent.replace(/\s+/g," ").slice(0, 40));
     // It has no score until the CLI fetches it, so the score slider must not hide it.
     check("a pasted link survives the score filter", mine().length === 1,
           "min score " + $("#minscore").value);
@@ -193,6 +198,15 @@ setTimeout(() => {
     $("#addurl").value = URL_IN;
     $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
     check("a duplicate link is not added twice", mine().length === 1);
+    // ...and off an ATS it is the host, not the path, which is where "En_US"
+    // came from: a careers site whose first path segment is a locale.
+    const URL_CO = "https://jobs.acmecorp.com/en_US/careers/JobDetail/Data-Analyst-Role/81563";
+    $("#addurl").value = URL_CO;
+    $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+    const direct = mine().find(n => n.textContent.includes("Data Analyst Role"));
+    check("a company-hosted link is named for the host, not the locale",
+          !!direct && /Acmecorp/i.test(direct.textContent) && !/En_US/i.test(direct.textContent),
+          direct ? direct.textContent.replace(/\s+/g," ").slice(0, 40) : "no card");
 
     // --- the local helper ---
     const dot = $("#helper");

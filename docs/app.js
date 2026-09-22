@@ -100,15 +100,28 @@ function titleFromPath(bits) {
   return best;
 }
 
+/* On an applicant tracking system the company is the FIRST PATH SEGMENT, because
+   the host belongs to the ATS. Everywhere else it is the hostname. Each rule
+   alone gets the other case wrong: reading the hostname everywhere labels an
+   ATS posting with the name of the ATS, and reading the path everywhere turns
+   a careers site like jobs.<company>.com/en_US/careers/... into "En_US". So it
+   depends on which kind of host it is, and both shapes have a test. */
+const ATS_HOSTS = /(^|\.)(greenhouse\.io|ashbyhq\.com|lever\.co|smartrecruiters\.com|myworkdayjobs\.com)$/;
+
 function addedCard(url) {
-  let host = url, path = "";
-  try { const u = new URL(url); host = u.hostname.replace(/^(www|jobs|job-boards|boards|apply|careers)\./, ""); path = u.pathname; }
+  let host = url, path = "", rawHost = "";
+  try {
+    const u = new URL(url);
+    rawHost = u.hostname;
+    host = u.hostname.replace(/^(www|jobs|job-boards|boards|apply|careers)\./, "");
+    path = u.pathname;
+  }
   catch { return null; }
-  // The company comes from the HOSTNAME, not the first path segment. A Lenovo
-  // URL is jobs.lenovo.com/en_US/careers/... and the old guess read the locale
-  // segment, so the card, the slug and the queue entry all said "En_US".
-  const guess = host.split(".")[0];
   const bits = path.split("/").filter(Boolean);
+  // Workday puts the company in the hostname (acme.wd1.myworkdayjobs.com), so
+  // it takes the hostname branch even though it is an ATS.
+  const onAts = ATS_HOSTS.test(rawHost) && !/myworkdayjobs\.com$/.test(rawHost);
+  const guess = (onAts && bits[0]) ? bits[0] : host.split(".")[0];
   return {
     id: "added:" + url,
     dedupe_key: "added:" + url,
