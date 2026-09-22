@@ -78,6 +78,24 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=str(config.DOCS_DIR), **kw)
 
+    # ---- caching ---- #
+
+    def end_headers(self):
+        """Never let the browser cache what this server hands out.
+
+        The helper serves files straight off disk, so what it sends is always
+        the current version, and a cached copy is always the wrong one. This
+        has now cost Alli twice: a pasted link produced a card reading "En_US"
+        from JavaScript that had already been fixed, and a tracker change she
+        was looking at was not the one running. Both looked like bugs in the
+        feature and were the browser holding an old file.
+
+        Pages sets its own headers and is unaffected; this only covers what the
+        local helper serves.
+        """
+        self.send_header("Cache-Control", "no-store, must-revalidate")
+        super().end_headers()
+
     # ---- logging ---- #
 
     def log_message(self, fmt, *args):
