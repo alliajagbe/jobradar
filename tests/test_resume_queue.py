@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from jobradar.resume import queue as Q
@@ -75,3 +77,54 @@ def test_notification_text_is_passed_as_an_argument_not_a_script():
     notify("JobRadar", 'Analyst" & (do shell script "touch '
                        '/tmp/jr_queue_injection_probe") & "')
     assert not marker.exists()
+
+
+# --- the stale-localhost hole -------------------------------------------------
+# Refresh started the workflow, the workflow committed to GitHub, and this
+# checkout never fast-forwarded, so localhost:8777 served the previous run's
+# jobs behind a button that reported success. These pin the two halves: the
+# pull happens once per completed run, and a refusal is reported, not hidden.
+
+def test_successful_run_pulls_once_and_only_once(monkeypatch):
+    from jobradar import serve
+
+    calls = []
+    monkeypatch.setattr(serve, "_pulled_run", None)
+    monkeypatch.setattr(serve, "_gh", lambda *a: (0, json.dumps(
+        [{"status": "completed", "conclusion": "success",
+          "createdAt": "2026-09-22T16:12:19Z", "databaseId": 4242}])))
+    monkeypatch.setattr(serve, "_pull_data", lambda: calls.append(1) or {"pulled": True})
+
+    assert serve._refresh_status()["pulled"] is True
+    serve._refresh_status()          # the page polls repeatedly
+    serve._refresh_status()
+    assert len(calls) == 1, "polling must not re-run git on every tick"
+
+
+def test_a_failed_pull_is_reported_not_swallowed(monkeypatch):
+    from jobradar import serve
+
+    monkeypatch.setattr(serve, "_pulled_run", None)
+    monkeypatch.setattr(serve, "_gh", lambda *a: (0, json.dumps(
+        [{"status": "completed", "conclusion": "success",
+          "createdAt": "2026-09-22T16:12:19Z", "databaseId": 99}])))
+    monkeypatch.setattr(serve, "_pull_data",
+                        lambda: {"pulled": False, "error": "local changes would be overwritten"})
+
+    reply = serve._refresh_status()
+    assert reply["conclusion"] == "success"
+    assert reply["pulled"] is False, "the page must be able to tell the data is stale"
+    assert "local changes" in reply["error"]
+
+
+def test_an_unfinished_run_does_not_pull(monkeypatch):
+    from jobradar import serve
+
+    monkeypatch.setattr(serve, "_pulled_run", None)
+    monkeypatch.setattr(serve, "_gh", lambda *a: (0, json.dumps(
+        [{"status": "in_progress", "conclusion": None,
+          "createdAt": "2026-09-22T16:12:19Z", "databaseId": 7}])))
+    monkeypatch.setattr(serve, "_pull_data",
+                        lambda: pytest.fail("pulled mid-run"))
+
+    assert "pulled" not in serve._refresh_status()

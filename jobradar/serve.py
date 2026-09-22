@@ -251,7 +251,37 @@ def _start_refresh() -> tuple[int, dict]:
     return 202, {"ok": True, "message": "refresh started"}
 
 
+# The workflow commits the new jobs to GitHub, not to this checkout. When the
+# page is served from disk at localhost:8777 rather than from Pages, a refresh
+# that succeeded upstream left the local data untouched and the page showed the
+# previous run's jobs forever. This is exactly the failure Alli hit: Refresh
+# worked, the workflow worked, Pages worked, and localhost served data three
+# days old because nothing pulled it back down.
+_pulled_run: int | None = None
+
+
+def _pull_data() -> dict:
+    """Fast-forward this checkout so the local page serves the new jobs.
+
+    Fast-forward only, and never stashing: uncommitted work belongs to Alli and
+    a helper moving it around behind her back is worse than a stale page. On
+    refusal the reason is reported rather than swallowed.
+    """
+    git = shutil.which("git")
+    if not git:
+        return {"pulled": False, "error": "git is not installed"}
+    try:
+        done = subprocess.run([git, "-C", str(config.ROOT), "pull", "--ff-only", "origin", "main"],
+                              capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"pulled": False, "error": str(exc)[:200]}
+    if done.returncode != 0:
+        return {"pulled": False, "error": (done.stderr or done.stdout).strip()[:200]}
+    return {"pulled": True}
+
+
 def _refresh_status() -> dict:
+    global _pulled_run
     code, out = _gh("run", "list", f"--workflow={WORKFLOW}", "--limit", "1",
                     "--json", "status,conclusion,createdAt,databaseId")
     if code != 0:
@@ -263,9 +293,16 @@ def _refresh_status() -> dict:
     if not rows:
         return {"ok": True, "status": "none"}
     row = rows[0]
-    return {"ok": True, "status": row.get("status"),
-            "conclusion": row.get("conclusion"), "id": row.get("databaseId"),
-            "created_at": row.get("createdAt")}
+    reply = {"ok": True, "status": row.get("status"),
+             "conclusion": row.get("conclusion"), "id": row.get("databaseId"),
+             "created_at": row.get("createdAt")}
+    # Pull once per completed run, so polling does not re-run git every 2s.
+    run_id = row.get("databaseId")
+    if (row.get("status") == "completed" and row.get("conclusion") == "success"
+            and run_id is not None and run_id != _pulled_run):
+        _pulled_run = run_id
+        reply.update(_pull_data())
+    return reply
 
 
 def _fetch_brief(slug: str, url: str) -> None:

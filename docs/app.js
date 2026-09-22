@@ -243,8 +243,19 @@ function pollRefresh(btn, original) {
       const s = await r.json();
       if (s.status === "completed") {
         clearInterval(tick);
-        btn.textContent = s.conclusion === "success" ? "Reload for new jobs" : "Refresh failed";
-        if (s.conclusion === "success") {
+        if (s.conclusion !== "success") {
+          btn.textContent = "Refresh failed";
+        } else if (s.pulled === false) {
+          // The workflow succeeded but this checkout did not fast-forward, so
+          // reloading would show the PREVIOUS run's jobs. Saying "Reload for
+          // new jobs" here is the bug that hid three-day-old data behind a
+          // working button, so the failure is named instead.
+          btn.textContent = "Refreshed, but not pulled";
+          banner("The refresh succeeded on GitHub, but this checkout could not "
+                 + "fast-forward, so the page below is still the previous run. "
+                 + (s.error || "") + " Run: git pull --ff-only");
+        } else {
+          btn.textContent = "Reload for new jobs";
           btn.onclick = (e) => { e.preventDefault(); location.reload(); };
         }
       } else {
