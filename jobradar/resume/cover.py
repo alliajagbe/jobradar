@@ -12,7 +12,23 @@ master, because a letter is as easy to check against a resume as a resume is to
 check against itself, and a figure that appears in one and not the other is
 worse than no figure.
 
-THE WRITING follows Zinsser's four principles, which Alli asked for by name:
+THE REGISTER comes from Alli's own letters, which she supplied as the model:
+
+  - Four paragraphs, around 400 words. Conventional, warm, fully formed
+    sentences rather than clipped ones.
+  - Open by naming the role and the company plainly.
+  - The second paragraph is SPECIFIC COMPANY RESEARCH and is what makes the
+    letter worth reading: a named product, initiative or figure, and why it
+    interests her. Generic praise here wastes the only paragraph a reader
+    remembers.
+  - The third covers her background BROADLY. Note that her own letters do not
+    repeat the resume's metrics here; the letter complements the resume rather
+    than restating it.
+  - The fourth connects to the company's stated values, quoted from their own
+    materials.
+  - Close with thanks and an invitation to talk.
+
+Zinsser's four principles apply WITHIN that register rather than replacing it:
 
   simplicity  Strip every word doing no work. "In order to" is "to". "The part
               that mattered was translating X" is "I explained X".
@@ -26,7 +42,9 @@ THE WRITING follows Zinsser's four principles, which Alli asked for by name:
 
 The failure mode to watch is constructed cleverness: a first draft here opened
 "The part of this job I want most is the part most people skip", which is a
-line, not a sentence. It went.
+line, not a sentence. It went. The opposite failure is over-correction: a
+Zinsser-only reading produced 223 clipped words that read as terse rather than
+warm, and that is not how Alli writes.
 """
 
 from __future__ import annotations

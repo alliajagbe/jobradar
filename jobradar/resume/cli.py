@@ -354,13 +354,15 @@ def cmd_cover(args: argparse.Namespace) -> int:
                  r"|\bwill\s+graduate\b|\bfinal[- ]year\b", body, re.I):
         findings.append(Finding("graduation_tense", "hard",
                                 "claims Alli is still studying; she graduated May 2026"))
-    # Zinsser, brevity. Past three paragraphs a cover letter restates the resume.
-    if len(letter["paragraphs"]) > 3:
+    # Alli's own example letter runs four paragraphs and about 420 words. These
+    # thresholds mark where a letter starts restating the resume, not where it
+    # stops being concise.
+    if len(letter["paragraphs"]) > 5:
         findings.append(Finding("brevity", "warn",
-                                f"{len(letter['paragraphs'])} paragraphs; three is the limit"))
-    if len(body.split()) > 300:
+                                f"{len(letter['paragraphs'])} paragraphs; five is a lot"))
+    if len(body.split()) > 520:
         findings.append(Finding("brevity", "warn",
-                                f"{len(body.split())} words; aim under 300"))
+                                f"{len(body.split())} words; aim under 500"))
     if _EM_DASH.search(body):
         findings.append(Finding("no_em_dash", "hard", "contains an em or en dash"))
     if _SPONSOR.search(body):
@@ -370,17 +372,23 @@ def cmd_cover(args: argparse.Namespace) -> int:
     for term in NEVER_ADD:
         if re.search(rf"(?<![a-z0-9]){re.escape(term.lower())}(?![a-z0-9])", low):
             findings.append(Finding("never_add", "hard", f"{term!r} is on the never-add list"))
-    # Every number in the letter must already be on the resume. A figure that
-    # appears in one and not the other is worse than no figure.
+    # A number in a letter must come from the resume or from the posting. The
+    # first rule alone was too strict: a good cover letter cites the company's
+    # own figures back at them, which is evidence of research, and Alli's own
+    # example letter quotes a $30 million saving from a case study. What must
+    # never appear is a number from neither source.
     known = set()
     for b in master.bullets.values():
         known.update(_norm_num(x) for x in b.metrics)
     known.update(_norm_num(x) for x in master.raw.get("shared_numbers") or [])
+    brief = resolve("briefs", f"{args.slug}.md")
+    if brief.exists():
+        known.update(_norm_num(x) for x in _NUM_RE.findall(brief.read_text(encoding="utf-8")))
     for tok in _NUM_RE.findall(body):
         norm = _norm_num(tok)
         if norm and norm not in known and norm not in {str(n) for n in range(1, 31)}:
             findings.append(Finding("no_invented_metric", "hard",
-                                    f"{tok.strip()!r} is not on the resume"))
+                                    f"{tok.strip()!r} is on neither the resume nor the posting"))
 
     t = H.tokens()
     html = cover_mod.build(master.identity, letter)
