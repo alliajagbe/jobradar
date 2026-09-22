@@ -12,7 +12,7 @@ import copy
 import pytest
 
 from jobradar.resume.model import Bullet
-from jobradar.resume.rules import check, fabrication_check
+from jobradar.resume.rules import _SPONSOR, check, fabrication_check
 
 
 def _doc(**over):
@@ -226,3 +226,37 @@ def test_cover_letter_carries_the_same_contact_line():
     assert master.identity["email"] in html
     for link in master.identity["links"]:
         assert link["label"] in html
+
+
+# --- the Ads & Sponsorships false positive ------------------------------------
+# The rule keeps Alli's immigration status out of her own documents. A bare
+# \bsponsor\w* also matched the ordinary commercial word and blocked a letter
+# for a team literally named "Ads & Sponsorships", where every use of the word
+# was the business unit. Both directions are pinned, because loosening this rule is
+# exactly the kind of change that quietly stops catching the real thing.
+
+@pytest.mark.parametrize("text", [
+    "I would require sponsorship to work in the United States",
+    "I need visa sponsorship",
+    "sponsorship now or in the future",
+    "Are you able to sponsor me?",
+    "my work authorization is current",
+    "I am currently on OPT",
+    "eligible for H-1B",
+    "my visa status",
+    "sponsorship is required for this role",
+    "seeking a role in analytics",
+])
+def test_immigration_language_is_still_caught(text):
+    assert _SPONSOR.search(text), f"{text!r} must be refused"
+
+
+@pytest.mark.parametrize("text", [
+    "the Ads & Sponsorships team",
+    "in-game advertising and sponsorships inventory",
+    "reporting for all custom sponsorship inventory across our titles",
+    "brand sponsorships and partnerships",
+    "Advertising & Sponsorships Insights & Innovations",
+])
+def test_commercial_sponsorship_is_not_immigration_language(text):
+    assert not _SPONSOR.search(text), f"{text!r} is a business unit, not a visa"

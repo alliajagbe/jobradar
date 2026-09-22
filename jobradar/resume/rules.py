@@ -32,8 +32,19 @@ NEVER_ADD = (
 _EM_DASH = re.compile(r"[‒–—―−]")
 _SHORT_BTECH = re.compile(r"\b(B\.?\s?Tech\b|B\.?\s?T\.?\b|Bachelor of Tech(?!nology))", re.I)
 _HEADED = re.compile(r"\bheaded\b", re.I)
+# The point of this rule is that Alli's own immigration status never appears in
+# a resume or a letter. A bare \bsponsor\w* was too broad: "sponsorship" is an
+# ordinary commercial word, and it blocked a letter for an Ads & Sponsorships
+# team where every use was the name of the business unit. So the sponsor branch
+# now needs immigration context around it, while visa, H-1B, OPT, CPT and work
+# authorisation stay unconditional, since those have no innocent reading here.
 _SPONSOR = re.compile(
-    r"\bsponsor\w*|\bvisa\b|\bH-?1B\b|\bOPT\b|\bCPT\b|work authoriz\w*|"
+    r"(?:visa|immigration|employment|work|h-?1b|require\w*|need\w*|request\w*|"
+    r"seek\w*|obtain\w*|provid\w*|offer\w*|willing to|able to|eligible for)"
+    r"\s+(?:\w+\s+){0,2}?sponsor\w*|"
+    r"sponsor\w*\s+(?:\w+\s+){0,2}?(?:required|needed|necessary|now or in the future)|"
+    r"sponsor\s+(?:me|my|an? employee)|"
+    r"\bvisa\b|\bH-?1B\b|\bOPT\b|\bCPT\b|work authoriz\w*|"
     r"seeking (?:an? )?(?:opportunit|role|position)|looking for a (?:role|position)", re.I)
 _SPELLING = ((re.compile(r"agro[\s-]ecological", re.I), "agroecological"),
              (re.compile(r"\bdata based\b", re.I), "data-based"),
