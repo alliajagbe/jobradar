@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
 
@@ -87,7 +87,7 @@ class Posting:
 _PATTERNS = (
     ("greenhouse", re.compile(
         r"^(?:job-)?boards\.greenhouse\.io$|^boards-api\.greenhouse\.io$"),
-     re.compile(r"^/(?:embed/job_app\?for=)?(?P<token>[^/?]+)/jobs/(?P<id>\d+)")),
+     re.compile(r"^/(?P<token>[^/?]+)/jobs/(?P<id>\d+)")),
     ("ashby", re.compile(r"^jobs\.ashbyhq\.com$"),
      re.compile(r"^/(?P<token>[^/]+)/(?P<id>[0-9a-f-]{16,})")),
     ("lever", re.compile(r"^jobs\.lever\.co$"),
@@ -100,10 +100,26 @@ _WORKDAY_HOST = re.compile(r"^(?P<tenant>[^.]+)\.wd(?P<wd>\d+)\.myworkdayjobs\.c
 _WORKDAY_PATH = re.compile(r"^(?:/[a-z]{2}-[A-Z]{2})?/(?P<site>[^/]+)(?P<path>/job/.+)$")
 
 
+# Greenhouse's embed link keeps both halves in the QUERY STRING: the board is
+# ?for=<token> and the posting is &token=<id>, over a fixed /embed/job_app path.
+# The old pattern tried to spell this inside the path regex, where the query
+# never appears, so it could not match and the fetch fell back to guessing the
+# employer from the hostname. That produced briefs headed "Job-Boards".
+_GH_EMBED = re.compile(r"^/embed/job_app/?$")
+
+
 def identify(url: str) -> dict | None:
     """Decode an ATS URL into the board and posting it names, or None."""
     parts = urlsplit(url if "//" in url else "https://" + url)
     host, path = parts.netloc.lower(), parts.path
+
+    if host.endswith("greenhouse.io") and _GH_EMBED.match(path):
+        q = parse_qs(parts.query)
+        token = (q.get("for") or [""])[0]
+        jid = (q.get("token") or [""])[0]
+        if token and jid.isdigit():
+            return {"source": "greenhouse", "token": token, "external_id": jid}
+        return None
 
     wd = _WORKDAY_HOST.match(host)
     if wd:

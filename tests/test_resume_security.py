@@ -64,3 +64,29 @@ def test_fetch_refuses_non_http_schemes(url):
 ])
 def test_real_postings_are_still_allowed(url):
     assert check_public_url(url) == url
+
+
+# --- the Greenhouse embed link ------------------------------------------------
+# Both halves live in the query string: ?for=<board>&token=<id>, over a fixed
+# /embed/job_app path. The old pattern spelled "?for=" inside the PATH regex,
+# where urlsplit never puts the query, so it could not match and the fetch fell
+# back to guessing the employer from the hostname. Briefs came out headed
+# "Job-Boards" instead of the company.
+
+def test_greenhouse_embed_link_is_decoded_from_its_query():
+    from jobradar.resume.ingest import identify
+    got = identify("https://job-boards.greenhouse.io/embed/job_app?for=acmeco&token=4158121007")
+    assert got == {"source": "greenhouse", "token": "acmeco", "external_id": "4158121007"}
+
+
+def test_the_ordinary_greenhouse_path_still_decodes():
+    from jobradar.resume.ingest import identify
+    got = identify("https://job-boards.greenhouse.io/towerresearchcapital/jobs/8167234")
+    assert got == {"source": "greenhouse", "token": "towerresearchcapital",
+                   "external_id": "8167234"}
+
+
+def test_an_embed_link_missing_its_parameters_is_refused():
+    from jobradar.resume.ingest import identify
+    assert identify("https://job-boards.greenhouse.io/embed/job_app") is None
+    assert identify("https://job-boards.greenhouse.io/embed/job_app?for=acmeco") is None
