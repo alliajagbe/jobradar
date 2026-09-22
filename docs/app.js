@@ -736,6 +736,7 @@ function wire() {
       renderTracker();
     });
   });
+  $("#trackershowdone").addEventListener("click", () => setShowDone(!SHOW_DONE));
   $("#trackercsv").addEventListener("click", () => {
     const blob = new Blob([trackerCsv()], { type: "text/csv" });
     const a = el("a");
@@ -819,6 +820,20 @@ async function loadFiltered() {
 
 let QUEUE_ALL = {};        // slug -> entry, from the helper
 let TRACK_SORT = { key: "company", dir: 1 };
+
+/* A row marked complete leaves the table. The work is finished and leaving it
+   there buries the rows that still need something. It is HIDDEN, not deleted:
+   the tracker is the record of what Alli applied to, the counts below still
+   include it, and both exports still carry it. The toggle brings it back. */
+const DONE_KEY = "jobradar.tracker.showdone";
+let SHOW_DONE = false;
+try { SHOW_DONE = localStorage.getItem(DONE_KEY) === "1"; } catch { /* private window */ }
+
+function setShowDone(on) {
+  SHOW_DONE = on;
+  try { localStorage.setItem(DONE_KEY, on ? "1" : "0"); } catch { /* private window */ }
+  renderTracker();
+}
 
 async function loadQueueAll() {
   if (!HELPER_UP) return;
@@ -934,9 +949,13 @@ function renderTracker() {
   const dir = TRACK_SORT.dir, key = TRACK_SORT.key;
   rows.sort((a, b) => String(a[key] || "").localeCompare(String(b[key] || "")) * dir);
 
+  // `rows` stays whole so the summary counts everything; only what is drawn
+  // is filtered.
+  const shown = SHOW_DONE ? rows : rows.filter((r) => r.process !== "complete");
+
   const body = $("#trackertable tbody");
   body.textContent = "";
-  for (const r of rows) {
+  for (const r of shown) {
     const tr = el("tr");
     tr.appendChild(el("td", "co", r.company));
     tr.appendChild(el("td", null, r.title));
@@ -987,9 +1006,20 @@ function renderTracker() {
   const pending = rows.filter((r) => r.process === "pending").length;
   $("#trackersummary").textContent =
     `${rows.length} tracked · ${produced} resume${produced === 1 ? "" : "s"} produced`
-    + ` · ${done} complete · ${pending} pending`;
+    + ` · ${done} complete${done && !SHOW_DONE ? " (cleared)" : ""} · ${pending} pending`;
+
+  // The toggle appears only once there is something to reveal, so the control
+  // does not sit there meaninglessly on a tracker with nothing completed.
+  const toggle = $("#trackershowdone");
+  toggle.hidden = done === 0;
+  toggle.textContent = SHOW_DONE ? "Hide completed" : `Show ${done} completed`;
+
+  // An empty table with completed rows hidden is not the same as an empty
+  // tracker, and saying "nothing tracked yet" there would be wrong.
+  const allDone = rows.length > 0 && shown.length === 0;
   $("#trackerempty").hidden = rows.length > 0;
-  $("#trackertable").hidden = rows.length === 0;
+  $("#trackerdone").hidden = !allDone;
+  $("#trackertable").hidden = shown.length === 0;
   document.querySelectorAll("#trackertable th").forEach((th) => {
     th.classList.toggle("sorted", th.dataset.sort === key);
   });

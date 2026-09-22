@@ -12,6 +12,7 @@ const dom = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
 });
 const w = dom.window;
 let fetched = [];
+let exported = null;
 // Flip to true to simulate `jobradar serve` running.
 let helperUp = process.env.HELPER_UP === "1";
 w.fetch = (u, opts) => {
@@ -52,7 +53,9 @@ Object.defineProperty(w, "localStorage", { value: {
 }});
 w.HTMLDialogElement.prototype.showModal = function(){ this.open = true; };
 w.HTMLDialogElement.prototype.close = function(){ this.open = false; };
-w.URL.createObjectURL = () => "blob:x"; w.URL.revokeObjectURL = () => {};
+let lastBlob = null;
+w.URL.createObjectURL = (b) => { lastBlob = b; return "blob:x"; };
+w.URL.revokeObjectURL = () => {};
 // jsdom does not implement scrollIntoView; every real browser does.
 w.Element.prototype.scrollIntoView = function(){};
 
@@ -220,7 +223,7 @@ setTimeout(() => {
     }
     // --- tracker view ---
     $("#viewtracker").click();
-    setTimeout(() => {
+    setTimeout(async () => {
       check("tracker view replaces the job list", $("#list").hidden && !$("#tracker").hidden);
       const rows = q("#trackertable tbody tr");
       check("tracker has rows", rows.length > 0, rows.length + " rows");
@@ -250,6 +253,7 @@ setTimeout(() => {
       // Setting a process on a row with no application status must persist. The
       // old track() deleted any entry without a status, which would have thrown
       // this away silently.
+      const rowsBefore = q("#trackertable tbody tr").length;
       const target = q("#trackertable select.procsel")[0];
       target.value = "complete";
       target.dispatchEvent(new w.Event("change", {bubbles:true}));
@@ -259,6 +263,30 @@ setTimeout(() => {
             JSON.stringify(Object.values(saved).map(v => v.process)));
       check("summary counts complete", /1 complete/.test($("#trackersummary").textContent),
             $("#trackersummary").textContent);
+
+      // A completed row leaves the table. This is the whole point of marking it:
+      // finished work should stop competing for attention with work that is not.
+      // Counted relative to the rows actually present, because the helper adds
+      // its own queue rows and hardcoding 1 made this pass only when it was off.
+      check("a completed row is cleared from the table",
+            q("#trackertable tbody tr").length === rowsBefore - 1,
+            `${rowsBefore} rows, ${q("#trackertable tbody tr").length} drawn after completing one`);
+      check("the tracker claims to be empty only when it actually is",
+            rowsBefore === 1 ? ($("#trackerempty").hidden && !$("#trackerdone").hidden)
+                             : $("#trackerdone").hidden);
+      // Cleared means hidden, never deleted: the tracker is the record of what
+      // Alli applied to, and the export is that record.
+      $("#trackercsv").click();
+      exported = lastBlob;
+
+      // The toggle brings them back.
+      const toggle = $("#trackershowdone");
+      check("the toggle offers to show them", !toggle.hidden && /Show 1 completed/.test(toggle.textContent),
+            toggle.textContent);
+      toggle.dispatchEvent(new w.Event("click", {bubbles:true}));
+      check("showing completed restores the row",
+            q("#trackertable tbody tr").length === rowsBefore,
+            q("#trackertable tbody tr").length + " of " + rowsBefore + " rows");
 
       // Back to pending must clear it rather than storing the default.
       const again = q("#trackertable select.procsel").find(s => s.value === "complete");
@@ -300,6 +328,13 @@ setTimeout(() => {
 
       $("#viewjobs").click();
       check("switching back restores the job list", !$("#list").hidden && $("#tracker").hidden);
+
+      // Cleared means hidden, never deleted: the tracker is the record of what
+      // Alli applied to, so the export must still carry a completed row.
+      const csvText = exported ? await exported.text() : "";
+      check("a cleared row is still in the CSV export", /complete/.test(csvText),
+            csvText ? csvText.split("\n").length - 1 + " data rows exported"
+                    : "no export captured");
 
       console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
       process.exit(fail ? 1 : 0);

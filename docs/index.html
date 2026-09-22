@@ -91,6 +91,7 @@
   <section class="tracker" id="tracker" hidden>
     <div class="trackerhead">
       <span id="trackersummary" class="muted"></span>
+      <button class="btn" id="trackershowdone" hidden></button>
       <button class="btn" id="trackercsv">Export CSV</button>
     </div>
     <table id="trackertable"><thead><tr>
@@ -105,6 +106,8 @@
     </tr></thead><tbody></tbody></table>
     <p class="note" id="trackerempty" hidden>Nothing tracked yet. Mark a job
       interested, or click Tailor on one, and it appears here.</p>
+    <p class="note" id="trackerdone" hidden>All caught up. Every tracked job is
+      marked complete, so the table is clear. Use Show completed to see them.</p>
   </section>
 
   <aside class="detail" id="detail">
