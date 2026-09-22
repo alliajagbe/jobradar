@@ -109,19 +109,22 @@ function titleFromPath(bits) {
 const ATS_HOSTS = /(^|\.)(greenhouse\.io|ashbyhq\.com|lever\.co|smartrecruiters\.com|myworkdayjobs\.com)$/;
 
 function addedCard(url) {
-  let host = url, path = "", rawHost = "";
+  let host = url, path = "", rawHost = "", forParam = "";
   try {
     const u = new URL(url);
     rawHost = u.hostname;
     host = u.hostname.replace(/^(www|jobs|job-boards|boards|apply|careers)\./, "");
     path = u.pathname;
+    // Greenhouse's embed link carries the employer in ?for=, and its path is
+    // /embed/job_app, so both the host rule and the path rule name it wrongly.
+    forParam = u.searchParams.get("for") || "";
   }
   catch { return null; }
   const bits = path.split("/").filter(Boolean);
   // Workday puts the company in the hostname (acme.wd1.myworkdayjobs.com), so
   // it takes the hostname branch even though it is an ATS.
   const onAts = ATS_HOSTS.test(rawHost) && !/myworkdayjobs\.com$/.test(rawHost);
-  const guess = (onAts && bits[0]) ? bits[0] : host.split(".")[0];
+  const guess = forParam || ((onAts && bits[0]) ? bits[0] : host.split(".")[0]);
   return {
     id: "added:" + url,
     dedupe_key: "added:" + url,

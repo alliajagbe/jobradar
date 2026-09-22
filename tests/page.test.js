@@ -207,6 +207,15 @@ setTimeout(() => {
     check("a company-hosted link is named for the host, not the locale",
           !!direct && /Acmecorp/i.test(direct.textContent) && !/En_US/i.test(direct.textContent),
           direct ? direct.textContent.replace(/\s+/g," ").slice(0, 40) : "no card");
+    // The Greenhouse embed link puts the employer in ?for= and its path is
+    // /embed/job_app, so neither the host nor the path rule finds it.
+    const URL_EMBED = "https://job-boards.greenhouse.io/embed/job_app?for=widgetco&token=5220191007";
+    $("#addurl").value = URL_EMBED;
+    $("#addform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+    const embed = mine().find(n => /Widgetco/i.test(n.textContent));
+    check("an embed link is named from its for= parameter",
+          !!embed && !/Embed|Greenhouse/i.test(embed.textContent),
+          embed ? embed.textContent.replace(/\s+/g," ").slice(0, 40) : "no card");
 
     // --- the local helper ---
     const dot = $("#helper");
