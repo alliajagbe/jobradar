@@ -156,3 +156,44 @@ def test_different_professions_are_rejected(title):
 ])
 def test_domain_analytics_roles_survive(title):
     assert title_tier(title_norm(title)).tier not in ("N", None), title
+
+
+# --- clearance ----------------------------------------------------------------
+# Alli asked for anything needing a clearance to be dropped. The old group caught
+# "security clearance ... required" and "must hold ... clearance" and missed the
+# commonest federal phrasing, "must be able to OBTAIN and maintain" one, which
+# put a Veterans Affairs role in front of her.
+
+@pytest.mark.parametrize("sentence", [
+    "Must be able to obtain and maintain the required federal public trust clearance for this role.",
+    "An active security clearance is required.",
+    "Must possess a current Top Secret clearance.",
+    "Candidates must hold a TS/SCI clearance with polygraph.",
+    "Ability to obtain a security clearance.",
+    "Applicants must be eligible for a public trust determination.",
+    "A full-scope polygraph is required.",
+    "US Government clearance is mandatory for this position.",
+])
+def test_a_posting_needing_a_clearance_is_refused(sentence):
+    assert sponsorship_text_verdict(sentences(sentence)).verdict == "requires_clearance"
+
+
+@pytest.mark.parametrize("sentence", [
+    "No security clearance is required for this role.",
+    "This position does not require a security clearance.",
+    "Clearance is not required.",
+    "Experience with data clearance workflows in retail inventory.",
+])
+def test_saying_a_clearance_is_not_needed_keeps_the_posting(sentence):
+    """The opposite sentence is a reason to KEEP a job. A pattern that reads the
+    word and not the polarity throws away exactly the roles Alli can take."""
+    assert sponsorship_text_verdict(sentences(sentence)).verdict != "requires_clearance"
+
+
+def test_the_work_authorization_rule_still_holds_with_clearance_added():
+    """Load-bearing. Alli is authorized on OPT, and this sentence must never
+    filter a posting out. Broadening a neighbouring pattern is exactly when it
+    would silently start to."""
+    v = sponsorship_text_verdict(sentences(
+        "Applicants must be authorized to work in the United States."))
+    assert v.verdict == "silent"

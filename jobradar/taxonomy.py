@@ -166,12 +166,38 @@ _CITIZENSHIP = [
 # Only a REQUIRED clearance disqualifies. Real Databricks postings say
 # "candidates with an active Secret clearance are strongly encouraged to apply",
 # which is a preference, and dropping those loses good roles.
+# Alli asked for anything needing a clearance to be dropped outright. The old
+# group only caught "security clearance ... required" and "must hold ...
+# clearance", so it missed the commonest federal phrasing of all: "must be able
+# to OBTAIN and maintain" one. A Veterans Affairs role reached the page that way
+# and she spent time on it before the requirement surfaced.
+#
+# Public trust is included. It is a suitability determination rather than a
+# clearance in the strict sense, but it is granted on the same basis and the
+# practical effect on someone on OPT is identical.
+#
+# _CLEARANCE_NOT guards the opposite sentence. "No clearance is required" and
+# "does not require a security clearance" are reasons to KEEP a posting, and a
+# pattern that reads the word and not the polarity would throw those away.
+_CLEARANCE_NOT = re.compile(
+    r"(?:no|not|without|never|don'?t|does not|do not|is not|are not|aren'?t|isn'?t)"
+    r"[^.]{0,40}\b(?:clearance|public trust)\b|"
+    r"\b(?:clearance|public trust)\b[^.]{0,40}(?:is |are )?not (?:required|needed|necessary)|"
+    r"\bno\b[^.]{0,20}\bclearance\b", re.I)
+
 _CLEARANCE = [
     ("clearance", re.compile(
-        r"(?:active |current )?(?:security|government) clearance.{0,40}"
+        r"(?:active |current )?(?:security|government|federal|dod|doe) clearance.{0,40}"
         r"(?:is )?(?:required|mandatory|must)|"
-        r"(?:must|required to) (?:possess|hold|have).{0,40}clearance|"
-        r"\b(?:ts/sci|top secret|secret clearance)\b.{0,40}(?:required|mandatory)",
+        r"(?:must|required to|ability to|able to) "
+        r"(?:be able to )?(?:possess|hold|have|obtain|maintain|acquire|get)"
+        r"[^.]{0,60}\b(?:clearance|public trust)\b|"
+        r"\b(?:ts/sci|top secret|secret clearance|public trust)\b[^.]{0,60}"
+        r"(?:required|mandatory|eligib\w*|must)|"
+        r"(?:required|mandatory|eligib\w*)[^.]{0,60}\b(?:ts/sci|top secret|"
+        r"secret clearance|public trust|security clearance)\b|"
+        r"\bpolygraph\b[^.]{0,40}(?:required|mandatory)|"
+        r"\b(?:ts/sci|counterintelligence polygraph|full[- ]scope polygraph)\b",
         re.I)),
 ]
 
@@ -238,6 +264,10 @@ def sponsorship_text_verdict(sentence_list: list[str]) -> TextVerdict:
                 ("requires_clearance", _CLEARANCE),
                 ("says_no", _NO_SPONSOR),
             ):
+                # A sentence saying a clearance is NOT required is a reason to
+                # keep the posting, so the polarity is read before the verdict.
+                if verdict == "requires_clearance" and _CLEARANCE_NOT.search(sentence):
+                    continue
                 for name, rx in group:
                     if rx.search(sentence):
                         negative = (verdict, name, sentence)
