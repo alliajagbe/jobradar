@@ -364,9 +364,21 @@ function matches(card) {
   return true;
 }
 
+/* Newest first, by Alli's instruction: a job posted today matters more than a
+   better-scoring one from two weeks ago, because the older one has already been
+   read by everyone. Score breaks ties within the same timestamp. A card with no
+   posted_at sorts last rather than first, since an empty string would otherwise
+   win a descending comparison. Sorted here as well as in publish.py so the
+   order is right on the next reload rather than after the next refresh. */
+function byNewest(a, b) {
+  const ta = a.posted_at || "", tb = b.posted_at || "";
+  if (ta !== tb) return ta < tb ? 1 : -1;
+  return (b.score ?? -1) - (a.score ?? -1);
+}
+
 /* ---- rendering ---- */
 function render() {
-  VIEW = CARDS.filter(matches);
+  VIEW = CARDS.filter(matches).sort(byNewest);
   const list = $("#list");
   list.textContent = "";
 

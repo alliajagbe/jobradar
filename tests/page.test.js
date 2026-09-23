@@ -107,10 +107,26 @@ setTimeout(() => {
   check("applied chip appears", q(".chip.applied").length >= 1);
   check("track count updated", $("#trackcount").textContent.startsWith("1"), $("#trackcount").textContent);
 
+  // Newest first, by Alli's instruction: score only breaks ties. The card shows
+  // its own age, so the ages down the list must never decrease.
+  const ages = q(".card").map(n => {
+    // The age has its own span; textContent runs the fields together, so a
+    // regex over the whole card matched nothing and the check passed vacuously.
+    const span = [...n.querySelectorAll(".cardsub span")]
+      .find(e => /^(today|\d+d ago)$/.test(e.textContent.trim()));
+    if (!span) return null;
+    const t = span.textContent.trim();
+    return t === "today" ? 0 : Number(t.replace("d ago", ""));
+  }).filter(v => v !== null);
+  check("the feed is ordered newest first",
+        ages.length > 5 && ages.every((v, i) => i === 0 || ages[i - 1] <= v),
+        ages.length ? ages.slice(0, 8).join(", ") : "no ages read");
+
   // Filters
   $("#minscore").value = 95;
   $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));
   const high = q(".card").length;
+
   check("min score filter narrows", high < rendered, `${rendered} -> ${high} at min 95`);
   $("#minscore").value = 0;
   $("#minscore").dispatchEvent(new w.Event("input", {bubbles:true}));

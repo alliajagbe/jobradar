@@ -60,3 +60,27 @@ def test_prefix_matching_does_not_swallow_unrelated_names():
     excluded = frozenset({"FANDUEL", "STAKE"})
     for name in ["FANDUELLING SYSTEMS", "STAKEHOLDER ANALYTICS", "STRIPE"]:
         assert not _is_excluded(name, excluded), name
+
+
+# --- feed order ---------------------------------------------------------------
+
+def test_the_feed_is_ordered_newest_first():
+    """Alli's instruction: recency over score. A job posted today is worth more
+    than a better-scoring one from two weeks ago that everybody has seen."""
+    from jobradar.publish import group
+    jobs = [
+        {"dedupe_key": "old-strong", "posted_at": "2026-09-01T00:00:00Z", "score": 95},
+        {"dedupe_key": "new-weak", "posted_at": "2026-09-22T00:00:00Z", "score": 40},
+        {"dedupe_key": "undated", "posted_at": None, "score": 99},
+        {"dedupe_key": "new-strong", "posted_at": "2026-09-22T00:00:00Z", "score": 80},
+    ]
+    base = {k: None for k in (
+        "id", "company", "source", "url", "title", "locations", "location_primary",
+        "is_remote", "is_us", "location_confidence", "snippet", "explain",
+        "matched_skills", "missing_skills", "min_years", "title_tier",
+        "sponsorship", "status", "drop_reason", "first_seen", "last_seen")}
+    cards = group([{**base, **j} for j in jobs])
+    order = [c["dedupe_key"] for c in cards]
+    assert order[:2] == ["new-strong", "new-weak"], order
+    assert order.index("old-strong") < order.index("undated"), order
+    assert order[-1] == "undated", "a card with no date sorts last, not first"

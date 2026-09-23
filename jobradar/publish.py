@@ -46,7 +46,11 @@ def group(jobs: list[dict]) -> list[dict]:
         card["also_at"] = others
         cards.append(card)
 
-    cards.sort(key=lambda c: (-c["score"], c["company"]))
+    # Newest first. A job posted today is worth more to Alli than a better
+    # scoring one from two weeks ago, which everybody else has already seen.
+    # Score breaks ties. A missing posted_at sorts last, not first.
+    cards.sort(key=lambda c: (c.get("posted_at") or "", c.get("score", 0)),
+               reverse=True)
     return cards
 
 
