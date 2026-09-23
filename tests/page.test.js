@@ -359,6 +359,51 @@ setTimeout(() => {
             csvText ? csvText.split("\n").length - 1 + " data rows exported"
                     : "no export captured");
 
+      // A RELOAD, which is where the tracker actually lost its work. Marking a
+      // job complete writes {process} and nothing else, and loadTracker's heal
+      // treated an entry with no company, title, url or status as a phantom row
+      // and deleted it. The row cleared, and came back pending on reload. The
+      // existing "process persists to storage" check read the store straight
+      // after writing it, so it passed the whole time the bug was live.
+      // Evaluating app.js in a second window over the SAME store is the reload.
+      const priorTracker = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+      store["jobradar.tracker.v1"] = JSON.stringify(
+        Object.assign({}, priorTracker, {"survives-a-reload": {process: "complete", updated: "2026-09-23"}}));
+      const dom2 = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
+        runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/",
+        pretendToBeVisual: true,
+      });
+      const w2 = dom2.window;
+      w2.fetch = w.fetch;
+      w2.AbortController = w.AbortController;
+      Object.defineProperty(w2, "localStorage", { value: w.localStorage });
+      w2.HTMLDialogElement.prototype.showModal = function(){ this.open = true; };
+      w2.HTMLDialogElement.prototype.close = function(){ this.open = false; };
+      w2.URL.createObjectURL = () => "blob:x"; w2.URL.revokeObjectURL = () => {};
+      w2.Element.prototype.scrollIntoView = function(){};
+      try { w2.eval(fs.readFileSync(path.join(ROOT, "app.js"), "utf8")); } catch { /* boot noise */ }
+      const reloaded = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+      check("a completed job survives a reload",
+            !!reloaded["survives-a-reload"] && reloaded["survives-a-reload"].process === "complete",
+            reloaded["survives-a-reload"] ? JSON.stringify(reloaded["survives-a-reload"])
+                                          : "the entry was deleted on load");
+      // The heal must still do its job.
+      store["jobradar.tracker.v1"] = JSON.stringify({"": {}, "undefined": {}, "ok": {process: "complete"}});
+      const dom3 = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
+        runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/", pretendToBeVisual: true });
+      const w3 = dom3.window;
+      w3.fetch = w.fetch; w3.AbortController = w.AbortController;
+      Object.defineProperty(w3, "localStorage", { value: w.localStorage });
+      w3.HTMLDialogElement.prototype.showModal = function(){ this.open = true; };
+      w3.HTMLDialogElement.prototype.close = function(){ this.open = false; };
+      w3.URL.createObjectURL = () => "blob:x"; w3.URL.revokeObjectURL = () => {};
+      w3.Element.prototype.scrollIntoView = function(){};
+      try { w3.eval(fs.readFileSync(path.join(ROOT, "app.js"), "utf8")); } catch { /* boot noise */ }
+      const healed = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+      check("phantom rows are still healed away",
+            !("" in healed) && !("undefined" in healed) && !!healed.ok,
+            Object.keys(healed).join(",") || "empty");
+
       console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
       process.exit(fail ? 1 : 0);
     }, 150);

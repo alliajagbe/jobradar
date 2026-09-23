@@ -57,10 +57,17 @@ function loadTracker() {
   // Drop entries a bug wrote under a missing key. They render as a phantom row
   // with a dropdown and no job attached to it, and they cannot be cleared from
   // the page because there is nothing to click.
+  //
+  // `process` counts as content. Marking a job complete writes {process} and
+  // nothing else, because the company and title come from the card or the queue
+  // entry rather than from the tracker, so an entry carrying only a process
+  // looked empty and was deleted on the NEXT LOAD. The row cleared correctly
+  // and came back pending on reload. This heal is meant to remove rows that are
+  // not about any job, never a decision Alli recorded.
   let healed = false;
   for (const key of Object.keys(raw)) {
     const v = raw[key] || {};
-    const empty = !v.company && !v.title && !v.url && !v.status;
+    const empty = !v.company && !v.title && !v.url && !v.status && !v.process;
     if (key === "undefined" || key === "null" || key === "" || empty) {
       delete raw[key];
       healed = true;
