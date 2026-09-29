@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-09-23T18:39:01Z",
- "total": 5554,
- "open": 958,
- "dropped": 3938,
- "closed": 658,
+ "updated_at": "2026-09-29T16:22:55Z",
+ "total": 5838,
+ "open": 881,
+ "dropped": 3937,
+ "closed": 1020,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
   "ashby",
@@ -14,21 +14,23 @@
  ],
  "has_sponsorship_data": true,
  "run": {
-  "boards_ok": 1756,
-  "boards_failed": 5,
-  "postings_seen": 5732,
-  "new": 125,
-  "closed": 115,
+  "boards_ok": 1754,
+  "boards_failed": 7,
+  "postings_seen": 5638,
+  "new": 428,
+  "closed": 463,
   "dropped_by_reason": {
-   "location": 1491,
-   "text": 122,
-   "seniority": 2946,
-   "experience": 92,
-   "excluded": 54
+   "location": 1532,
+   "seniority": 2864,
+   "experience": 81,
+   "text": 167,
+   "excluded": 51
   },
   "errors": [
+   "greenhouse/amplitude: GET https://boards-api.greenhouse.io/v1/boards/amplitude/jobs -> 404",
    "greenhouse/instabase: GET https://boards-api.greenhouse.io/v1/boards/instabase/jobs -> 404",
    "greenhouse/buyersedgeplatformrecruiting: GET https://boards-api.greenhouse.io/v1/boards/buyersedgeplatformrecruiting/jobs -> 404",
+   "greenhouse/forgeglobal: GET https://boards-api.greenhouse.io/v1/boards/forgeglobal/jobs -> 404",
    "greenhouse/janeasystems: GET https://boards-api.greenhouse.io/v1/boards/janeasystems/jobs -> 404",
    "greenhouse/toogoodtogo: GET https://boards-api.greenhouse.io/v1/boards/toogoodtogo/jobs -> 404",
    "greenhouse/ibanfirst: GET https://boards-api.greenhouse.io/v1/boards/ibanfirst/jobs -> 404"
