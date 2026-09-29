@@ -345,19 +345,59 @@ def _split_parts(raw: str) -> list[str]:
     return [p.strip() for p in parts if p and p.strip()]
 
 
+# Place names that are both a foreign country and a US state. Only Georgia,
+# but it is a real US job market and the collision cost real postings.
+_AMBIGUOUS_FOREIGN = frozenset({"georgia"})
+
+
 def _classify(part: str) -> str:
-    """Return 'us', 'foreign', or 'unknown' for one location fragment."""
+    """Return 'us', 'foreign', or 'unknown' for one location fragment.
+
+    Order matters here, and getting it wrong is expensive in one direction
+    only: a US role classified foreign is dropped with drop_reason
+    "location:non-us" and Alli never sees it. Two orderings did exactly that.
+
+    The foreign-name check used to run first and return immediately, so
+    "Melbourne, Florida, United States" was Australia and "Vancouver,
+    Washington, United States of America" was Canada. An explicit US marker in
+    the same fragment now settles it before any country name is considered.
+
+    The ISO tail check came next, and 24 of the 50 US state codes are also ISO
+    country codes: GA is Gabon, CA is Canada, MD is Moldova, VA is the Vatican.
+    "Atlanta, GA" was Gabon and anything ending ", CA" was Canada, which is most
+    of the roles she wants. A two-letter tail is only read as a country when it
+    is not also a US state code.
+    """
     low = part.lower().strip().strip(",.")
     if not low or _UNINFORMATIVE.match(low):
         return "unknown"
-    for marker in _FOREIGN:
-        if re.search(rf"(?<![a-z]){re.escape(marker)}(?![a-z])", low):
-            return "foreign"
-    tail = low.rsplit(",", 1)[-1].strip()
-    if tail in _ISO_COUNTRY:
-        return "foreign"
+
+    # 1. An explicit US marker settles the fragment, whatever else is in it.
     if _US_MARKER_RE.search(low):
         return "us"
+
+    # 2. A foreign name, unless the only match is ambiguous with a US state and
+    #    something else in the fragment is recognisably American. That is what
+    #    separates "Georgia - Atlanta" from "Tbilisi, Georgia".
+    matched = {m for m in _FOREIGN
+               if re.search(rf"(?<![a-z]){re.escape(m)}(?![a-z])", low)}
+    if matched:
+        if not matched <= _AMBIGUOUS_FOREIGN:
+            return "foreign"
+        american = any(
+            re.search(rf"(?<![a-z]){re.escape(c)}(?![a-z])", low) for c in _US_CITIES
+        ) or any(
+            re.search(rf"(?<![A-Za-z]){code}(?![A-Za-z])", part) for code in _STATE_CODES
+        )
+        if not american:
+            return "foreign"
+        return "us"
+
+    # 3. A two-letter tail is a country only when it is not a US state code.
+    tail = low.rsplit(",", 1)[-1].strip()
+    if tail in _ISO_COUNTRY and tail.upper() not in _STATE_CODES:
+        return "foreign"
+
     for name, code in _STATES.items():
         if re.search(rf"(?<![a-z]){re.escape(name)}(?![a-z])", low):
             return "us"

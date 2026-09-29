@@ -138,3 +138,51 @@ def test_bare_us_city_without_a_state(raw, primary):
     parsed = parse_locations(raw)
     assert parsed.is_us is True
     assert parsed.primary == primary
+
+
+# --- US roles misread as foreign ---------------------------------------------
+# The expensive direction: a US role classified foreign is dropped with
+# drop_reason "location:non-us" and never reaches the page. Two separate
+# orderings in _classify did that to 186 open postings, including roles at
+# Twitch, SpaceX and Vanguard in San Francisco, Hawthorne and Malvern.
+
+@pytest.mark.parametrize("raw", [
+    # An explicit US marker must beat a place name that is also somewhere abroad.
+    "Melbourne, Florida, United States",
+    "Vancouver, Washington, United States of America",
+    "Remote, Georgia, United States, AMER",
+    "Atlanta, Georgia, United States",
+    "USA - Mountain View, CA",
+    "USA - Denver, CO",
+    # 24 of the 50 state codes are also ISO country codes. A bare two-letter
+    # tail is a state before it is a country.
+    "San Francisco, CA",   # CA: Canada
+    "Atlanta, GA",         # GA: Gabon
+    "Boston, MA",          # MA: Morocco
+    "Richmond, VA",        # VA: Vatican City
+    "Philadelphia, PA",    # PA: Panama
+    "Chicago, IL",         # IL: Israel
+    "Baltimore, MD",       # MD: Moldova
+    "Phoenix, AZ",         # AZ: Azerbaijan
+    "Indianapolis, IN",    # IN: India
+    # Ambiguous alone, disambiguated by a US city in the same fragment.
+    "Georgia - Atlanta",
+])
+def test_a_us_posting_is_not_classified_foreign(raw):
+    assert parse_locations(raw).is_us, raw
+
+
+@pytest.mark.parametrize("raw", [
+    "Tbilisi, Georgia",      # the country, with no American signal anywhere
+    "London, United Kingdom",
+    "Toronto, Ontario, Canada",
+    "Vancouver, British Columbia, Canada",
+    "Melbourne, Victoria, Australia",
+    "Bengaluru, India",
+    "Sao Paulo, Brazil",
+    "Dublin, Ireland",
+    "Remote - Canada",
+])
+def test_a_foreign_posting_is_still_foreign(raw):
+    """The fix must not buy US coverage by letting everything through."""
+    assert not parse_locations(raw).is_us, raw
