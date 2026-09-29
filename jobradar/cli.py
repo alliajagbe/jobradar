@@ -172,15 +172,22 @@ def cmd_crawl(args: argparse.Namespace) -> int:
              f"{config.CC_TOKENS_CSV.name}")
         return _validate(candidates, args)
 
-    index_id = args.index or crawl.latest_index()
-    _log(f"reading board tokens from Common Crawl index {index_id}")
+    # Several indexes, not one. Which ATS hosts a given monthly crawl contains
+    # varies enormously, and reading only the newest is why whole sources came
+    # back nearly empty.
+    if args.index:
+        index_ids = [args.index]
+    else:
+        index_ids = crawl.recent_indexes(args.cc_indexes)
+    _log(f"reading board tokens from {len(index_ids)} Common Crawl index(es): "
+         f"{', '.join(index_ids)}")
     sources = [s for s in (args.sources.split(",") if args.sources
                            else crawl.DEFAULT_SOURCES) if s.strip()]
     candidates = {}
     for source in sources:
         try:
             candidates[source] = crawl.tokens_for(
-                source, index_id, progress=_log if args.verbose else None)
+                source, index_ids, progress=_log if args.verbose else None)
         except crawl.CrawlError as exc:
             # One throttled source must not end the run, but it must not look
             # like a clean zero either.
@@ -331,7 +338,9 @@ def main(argv: list[str] | None = None) -> int:
     _add_tailor(sub)
 
     p = sub.add_parser("crawl", help="find every board via the Common Crawl index")
-    p.add_argument("--index", help="Common Crawl index id (default: newest)")
+    p.add_argument("--index", help="a single Common Crawl index id")
+    p.add_argument("--cc-indexes", type=int, default=6,
+                   help="how many recent Common Crawl indexes to union (default 6)")
     p.add_argument("--sources", help="comma separated, default all crawlable")
     p.add_argument("--limit", type=int, help="only the first N tokens per source")
     p.add_argument("--workers", type=int, default=8)

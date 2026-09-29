@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from jobradar.normalize import employer_norm
 from jobradar.refresh import load_profile
 
@@ -84,3 +86,48 @@ def test_the_feed_is_ordered_newest_first():
     assert order[:2] == ["new-strong", "new-weak"], order
     assert order.index("old-strong") < order.index("undated"), order
     assert order[-1] == "undated", "a card with no date sorts last, not first"
+
+
+# --- board harvesting ---------------------------------------------------------
+# The search can only ever find roles at companies whose boards are seeded, so
+# coverage of the employer set IS coverage of the job market. Two defaults were
+# quietly capping it.
+
+def test_every_path_based_ats_is_harvested_by_default():
+    """Lever and SmartRecruiters were not in DEFAULT_SOURCES, so they were never
+    asked for: 5 and 8 boards seeded against 957 for Greenhouse."""
+    from jobradar.crawl import DEFAULT_SOURCES, CC_HOSTS
+    for source in ("greenhouse", "ashby", "lever", "smartrecruiters"):
+        assert source in DEFAULT_SOURCES, source
+        assert source in CC_HOSTS, source
+
+
+def test_tokens_are_unioned_across_indexes(monkeypatch):
+    """One index is one monthly snapshot. Measured on jobs.lever.co, two 2026
+    crawls carry zero Lever URLs while a 2025 one carries 1613, so reading only
+    the newest returns almost nothing for a source that has thousands."""
+    from jobradar import crawl
+    seen = []
+
+    def fake(source, index_id, found, failures, progress):
+        seen.append(index_id)
+        found.add({"a": "one", "b": "two", "c": "three"}[index_id])
+
+    monkeypatch.setattr(crawl, "_tokens_from_index", fake)
+    got = crawl.tokens_for("lever", ["a", "b", "c"])
+    assert seen == ["a", "b", "c"], "every index must be read"
+    assert got == {"one", "two", "three"}, "tokens must be unioned, not replaced"
+
+
+def test_a_single_index_string_still_works(monkeypatch):
+    from jobradar import crawl
+    monkeypatch.setattr(crawl, "_tokens_from_index",
+                        lambda s, i, found, f, p: found.add("only"))
+    assert crawl.tokens_for("lever", "CC-MAIN-2026-39") == {"only"}
+
+
+def test_reading_nothing_anywhere_is_an_error_not_an_empty_answer(monkeypatch):
+    from jobradar import crawl
+    monkeypatch.setattr(crawl, "_tokens_from_index", lambda s, i, found, f, p: None)
+    with pytest.raises(crawl.CrawlError):
+        crawl.tokens_for("lever", ["a", "b"])

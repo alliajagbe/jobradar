@@ -80,12 +80,20 @@ def _get(url: str, params: dict) -> httpx.Response:
 # Lever publishes at jobs.lever.co/{company}, but Common Crawl barely indexes
 # it: a full sweep returns a single token where Greenhouse returns thousands.
 # It stays supported for an explicit --sources lever, and out of the default.
-DEFAULT_SOURCES = ("greenhouse", "ashby")
+# Lever and SmartRecruiters were excluded here, which is the other half of why
+# 5 Lever boards were seeded against 957 Greenhouse ones: not only was a single
+# index read, the source was never asked for at all.
+DEFAULT_SOURCES = ("greenhouse", "ashby", "lever", "smartrecruiters")
 
 CC_HOSTS = {
     "greenhouse": ("job-boards.greenhouse.io", "boards.greenhouse.io"),
     "ashby": ("jobs.ashbyhq.com",),
     "lever": ("jobs.lever.co",),
+    # SmartRecruiters was never harvested, which is why 8 of its boards were
+    # seeded against 957 for Greenhouse. Workday is deliberately absent: its
+    # company lives in the subdomain (tenant.wdN.myworkdayjobs.com), not the
+    # path, so it needs a different extractor than this one.
+    "smartrecruiters": ("jobs.smartrecruiters.com", "careers.smartrecruiters.com"),
 }
 
 # Board tokens are slugs. Anything else on these hosts is a static asset or an
@@ -102,11 +110,50 @@ def latest_index() -> str:
     return _get(CC_COLLINFO, {}).json()[0]["id"]
 
 
-def tokens_for(source: str, index_id: str, *, progress=None) -> set[str]:
-    """Board tokens for one ATS, read out of the Common Crawl URL index."""
-    base = f"http://index.commoncrawl.org/{index_id}-index"
+def recent_indexes(count: int = 6) -> list[str]:
+    """The newest `count` Common Crawl index ids, newest first.
+
+    One index is one monthly snapshot, and which ATS hosts it happens to contain
+    varies wildly. Measured on jobs.lever.co: CC-MAIN-2026-25 and CC-MAIN-2026-04
+    carry zero Lever URLs, CC-MAIN-2025-21 carries 1613 and CC-MAIN-2024-10 adds
+    458 more. Reading only the latest index is why 5 Lever boards were seeded
+    when a union across two older ones reaches 2071. A board seen in an older
+    crawl has almost certainly not disappeared, and live_boards checks anyway.
+    """
+    ids = [c["id"] for c in _get(CC_COLLINFO, {}).json()]
+    return ids[:count]
+
+
+def tokens_for(source: str, index_id: str | list[str], *, progress=None) -> set[str]:
+    """Board tokens for one ATS, read out of the Common Crawl URL index.
+
+    `index_id` may be a single index or several, in which case the tokens are
+    unioned. An index that throttles or returns nothing is skipped rather than
+    failing the harvest, since coverage varies by crawl and a miss on one is
+    normal.
+    """
+    index_ids = [index_id] if isinstance(index_id, str) else list(index_id)
     found: set[str] = set()
     failures: list[str] = []
+    for idx in index_ids:
+        before = len(found)
+        _tokens_from_index(source, idx, found, failures, progress)
+        if progress and len(found) > before:
+            progress(f"  {idx}: +{len(found) - before} ({len(found)} total)")
+
+    # Reading zero tokens across every index for a host that certainly has
+    # thousands means we were refused, not that the boards vanished.
+    if not found:
+        raise CrawlError(
+            f"{source}: no tokens read from {', '.join(CC_HOSTS[source])} across "
+            f"{len(index_ids)} index(es). "
+            + ("; ".join(failures[:4]) if failures else "index returned no records")
+        )
+    return found
+
+
+def _tokens_from_index(source, index_id, found, failures, progress) -> None:
+    base = f"http://index.commoncrawl.org/{index_id}-index"
     for host in CC_HOSTS[source]:
         params = {"url": f"{host}/*", "output": "json"}
         try:
@@ -136,16 +183,7 @@ def tokens_for(source: str, index_id: str, *, progress=None) -> set[str]:
                     continue
                 found.add(token if source == "ashby" else token.lower())
         if progress:
-            progress(f"  {host}: {len(found)} tokens so far")
-    # Reading zero tokens from a host that certainly has thousands means the
-    # index refused us, not that the boards vanished. Say so rather than
-    # returning an empty set that looks like a legitimate answer.
-    if not found:
-        raise CrawlError(
-            f"{source}: no tokens read from {', '.join(CC_HOSTS[source])}. "
-            + ("; ".join(failures) if failures else "index returned no records")
-        )
-    return found
+            progress(f"    {index_id} {host}: {len(found)} tokens so far")
 
 
 def live_boards(
