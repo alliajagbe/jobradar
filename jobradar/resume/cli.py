@@ -145,7 +145,9 @@ def _job_from_posting(posting) -> dict:
     title_n = normalize.title_norm(posting.title)
     match = taxonomy.title_tier(title_n)
     location = normalize.parse_locations(
-        getattr(posting, "location", "") or None, None, posting.text, preferred)
+        getattr(posting, "location", "") or None,
+        list(getattr(posting, "locations", ()) or ()) or None,
+        posting.text, preferred)
     verdict = taxonomy.sponsorship_text_verdict(normalize.sentences(posting.text))
 
     employers = sponsorship.employer_table()
@@ -161,7 +163,8 @@ def _job_from_posting(posting) -> dict:
     penalty, level = normalize.title_level_penalty(posting.title)
     scored = scoring.score_job(
         title_tier=match.tier, title_term=match.term, description_text=posting.text,
-        location=location, posted_at=None, sponsorship_signal=signal.signal,
+        location=location, posted_at=getattr(posting, "posted_at", None),
+        sponsorship_signal=signal.signal,
         sponsorship_detail=signal.detail, level_penalty=penalty, level_label=level,
         profile_skills=set(profile.get("skills_i_have") or []))
     return {

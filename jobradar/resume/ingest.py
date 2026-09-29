@@ -82,6 +82,12 @@ class Posting:
     location: str = ""
     board_key: str | None = None
     external_id: str | None = None
+    # The board already knows both of these and they were being thrown away, so
+    # a brief scored the same posting lower than the feed did: no date cost it
+    # recency points, and no structured locations left the raw string to be
+    # parsed alone, which is where "Atlanta, GA" became Gabon.
+    locations: tuple[str, ...] = ()
+    posted_at: str | None = None
 
 
 _PATTERNS = (
@@ -214,6 +220,8 @@ def _from_ats(spec: dict, url: str, progress=None) -> Posting:
         source=spec["source"],
         board_key=board.key,
         external_id=str(spec["external_id"]),
+        locations=tuple(hit.locations or ()),
+        posted_at=hit.posted_at,
     )
 
 
