@@ -1,34 +1,235 @@
 source,slug,company,verdict,job_count,reported_name,probed_at
+ashby,a-t-kearney,"A.T. Kearney, Inc.",notfound,,,2026-09-29
+ashby,abbvie,AbbVie Inc.,notfound,,,2026-09-29
+ashby,accenture,Accenture LLP,notfound,,,2026-09-29
+ashby,ace-american,ACE American Insurance Company,notfound,,,2026-09-29
+ashby,ace-american-insurance,ACE American Insurance Company,notfound,,,2026-09-29
+ashby,aceamerican,ACE American Insurance Company,notfound,,,2026-09-29
+ashby,aceamericaninsurance,ACE American Insurance Company,notfound,,,2026-09-29
+ashby,adobe,Adobe Inc.,notfound,,,2026-09-29
+ashby,aetna,Aetna Resources LLC,notfound,,,2026-09-29
+ashby,aetna-resources,Aetna Resources LLC,notfound,,,2026-09-29
+ashby,aetnaresources,Aetna Resources LLC,notfound,,,2026-09-29
 ashby,airwallex,Airwallex,confirmed,579,,2026-09-14
 ashby,aledade,Aledade,notfound,,,2026-09-14
 ashby,allbirds,Allbirds,notfound,,,2026-09-14
 ashby,amazon,Amazon.com Services LLC,notfound,,,2026-09-29
+ashby,amazon-advertising,Amazon Advertising LLC,notfound,,,2026-09-29
+ashby,amazon-data,"Amazon Data Services, Inc",notfound,,,2026-09-29
+ashby,amazon-development,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+ashby,amazon-development-center-u-s,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+ashby,amazon-web,"Amazon Web Services, Inc.",notfound,,,2026-09-29
+ashby,amazonadvertising,Amazon Advertising LLC,notfound,,,2026-09-29
+ashby,amazondata,"Amazon Data Services, Inc",notfound,,,2026-09-29
+ashby,amazondevelopment,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+ashby,amazondevelopmentcenterus,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+ashby,amazonweb,"Amazon Web Services, Inc.",notfound,,,2026-09-29
+ashby,american-airlines,"American Airlines, Inc.",notfound,,,2026-09-29
+ashby,american-express,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+ashby,american-express-travel-related,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+ashby,americanairlines,"American Airlines, Inc.",notfound,,,2026-09-29
+ashby,americanexpress,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+ashby,americanexpresstravelrelated,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+ashby,amgen,Amgen Inc.,notfound,,,2026-09-29
 ashby,anduril,Anduril,notfound,,,2026-09-14
 ashby,angellist,AngelList,notfound,,,2026-09-14
 ashby,angi,Angi,confirmed,50,,2026-09-14
 ashby,apollo,Apollo,notfound,,,2026-09-14
+ashby,apollo-management,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+ashby,apollo-management-holdings-l-p,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+ashby,apollomanagement,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+ashby,apollomanagementholdingslp,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+ashby,apple,Apple Inc.,notfound,,,2026-09-29
 ashby,applied,Applied,confirmed,289,,2026-09-14
+ashby,applied-materials,"Applied Materials, Inc",notfound,,,2026-09-29
+ashby,appliedmaterials,"Applied Materials, Inc",notfound,,,2026-09-29
+ashby,artifint,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,artifint-technologies,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,artifinttechnologies,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,asta,"Asta CRS, Inc.",notfound,,,2026-09-29
+ashby,asta-crs,"Asta CRS, Inc.",notfound,,,2026-09-29
+ashby,astacrs,"Asta CRS, Inc.",notfound,,,2026-09-29
+ashby,at-and,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+ashby,at-and-t,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+ashby,atand,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+ashby,atandt,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+ashby,atkearney,"A.T. Kearney, Inc.",notfound,,,2026-09-29
+ashby,atlassian,"Atlassian US, Inc.",notfound,,,2026-09-29
+ashby,axtria,Axtria INC,notfound,,,2026-09-29
+ashby,bain,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+ashby,bain-and,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+ashby,bainand,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+ashby,balyasny,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+ashby,balyasny-asset,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+ashby,balyasny-asset-management-l-p,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+ashby,balyasnyasset,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+ashby,balyasnyassetmanagementlp,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+ashby,bank,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+ashby,bank-of,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+ashby,bank-of-america-n-a,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+ashby,bank-of-new-york-mellon,The Bank of New York Mellon,notfound,,,2026-09-29
+ashby,bank-of-nova-scotia,THE BANK OF NOVA SCOTIA,notfound,,,2026-09-29
+ashby,bankof,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+ashby,bankofamericana,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+ashby,bankofnewyorkmellon,The Bank of New York Mellon,notfound,,,2026-09-29
+ashby,bankofnovascotia,THE BANK OF NOVA SCOTIA,notfound,,,2026-09-29
+ashby,barclays,Barclays Services Corp.,notfound,,,2026-09-29
+ashby,barclays-capital,Barclays Capital Inc.,notfound,,,2026-09-29
+ashby,barclays-services,Barclays Services Corp.,notfound,,,2026-09-29
+ashby,barclayscapital,Barclays Capital Inc.,notfound,,,2026-09-29
+ashby,barclaysservices,Barclays Services Corp.,notfound,,,2026-09-29
+ashby,bayer,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+ashby,bayer-research,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+ashby,bayer-research-and-development,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+ashby,bayerresearch,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+ashby,bayerresearchanddevelopment,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+ashby,blackrock,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+ashby,blackrock-financial,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+ashby,blackrock-financial-management,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+ashby,blackrockfinancial,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+ashby,blackrockfinancialmanagement,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+ashby,blackstone,"Blackstone, Inc.",notfound,,,2026-09-29
+ashby,bloomberg,Bloomberg L.P.,notfound,,,2026-09-29
+ashby,bloomberg-l,Bloomberg L.P.,notfound,,,2026-09-29
+ashby,bloomberg-l-p,Bloomberg L.P.,notfound,,,2026-09-29
+ashby,bloombergl,Bloomberg L.P.,notfound,,,2026-09-29
+ashby,bloomberglp,Bloomberg L.P.,notfound,,,2026-09-29
+ashby,bnp-paribas,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+ashby,bnp-paribas-securities,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+ashby,bnpparibas,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+ashby,bnpparibassecurities,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+ashby,bofa,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
+ashby,bofa-securities,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
+ashby,bofasecurities,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
 ashby,booksy,Booksy,notfound,,,2026-09-14
+ashby,boston,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
+ashby,boston-consulting,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
+ashby,bostonconsulting,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
 ashby,braintree,Braintree,notfound,,,2026-09-14
+ashby,bridgewater,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+ashby,bridgewater-associates,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+ashby,bridgewaterassociates,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+ashby,brillio,"Brillio, LLC",notfound,,,2026-09-29
+ashby,bristol,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+ashby,bristol-myers,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+ashby,bristol-myers-squibb,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+ashby,bristolmyers,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+ashby,bristolmyerssquibb,Bristol-Myers Squibb Company,notfound,,,2026-09-29
 ashby,bumble,Bumble,empty,,,2026-09-14
+ashby,bytedance,BYTEDANCE INC.,notfound,,,2026-09-29
+ashby,capgemini,Capgemini America Inc,notfound,,,2026-09-29
+ashby,capital,"Capital One, National Association",notfound,,,2026-09-29
+ashby,capital-one,"Capital One, National Association",notfound,,,2026-09-29
+ashby,capital-one-national-association,"Capital One, National Association",notfound,,,2026-09-29
+ashby,capitalone,"Capital One, National Association",notfound,,,2026-09-29
+ashby,capitalonenationalassociation,"Capital One, National Association",notfound,,,2026-09-29
+ashby,caremark,Caremark LLC,notfound,,,2026-09-29
+ashby,cbre,"CBRE, INC.",notfound,,,2026-09-29
 ashby,cedar,Cedar,confirmed,3,,2026-09-14
 ashby,census,Census,notfound,,,2026-09-14
+ashby,cgi-technologies,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+ashby,cgi-technologies-and,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+ashby,cgitechnologies,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+ashby,cgitechnologiesand,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
 ashby,chainalysis,Chainalysis,notfound,,,2026-09-14
+ashby,charter,"Charter Communications, Inc.",notfound,,,2026-09-29
+ashby,charter-communications,"Charter Communications, Inc.",notfound,,,2026-09-29
+ashby,chartercommunications,"Charter Communications, Inc.",notfound,,,2026-09-29
 ashby,chewy,Chewy,notfound,,,2026-09-14
+ashby,cigna,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+ashby,cigna-evernorth,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+ashby,cignaevernorth,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
 ashby,circle,Circle,confirmed,10,,2026-09-14
+ashby,cisco,"Cisco Systems, Inc.",notfound,,,2026-09-29
+ashby,cisco-systems,"Cisco Systems, Inc.",notfound,,,2026-09-29
+ashby,ciscosystems,"Cisco Systems, Inc.",notfound,,,2026-09-29
+ashby,citadel,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citadel-americas,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citadel-securities,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citadel-securities-americas,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citadelamericas,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citadelsecurities,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citadelsecuritiesamericas,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+ashby,citibank,"Citibank, N.A.",notfound,,,2026-09-29
+ashby,citibank-n,"Citibank, N.A.",notfound,,,2026-09-29
+ashby,citibank-n-a,"Citibank, N.A.",notfound,,,2026-09-29
+ashby,citibankn,"Citibank, N.A.",notfound,,,2026-09-29
+ashby,citibankna,"Citibank, N.A.",notfound,,,2026-09-29
+ashby,citigroup,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+ashby,citigroup-global,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+ashby,citigroup-global-markets,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+ashby,citigroupglobal,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+ashby,citigroupglobalmarkets,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+ashby,citiustech,CitiusTech Inc.,notfound,,,2026-09-29
+ashby,citizensfinancial,"Citizens Financial Group, Inc.",notfound,,,2026-09-29
 ashby,clari,Clari,notfound,,,2026-09-14
 ashby,clay,Clay,notfound,,,2026-09-14
 ashby,clio,Clio,notfound,,,2026-09-14
 ashby,codecademy,Codecademy,notfound,,,2026-09-14
+ashby,coforge,Coforge Limited,notfound,,,2026-09-29
+ashby,cognizant,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
+ashby,cognizant-technology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
+ashby,cognizanttechnology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
 ashby,cohere,Cohere,confirmed,144,,2026-09-14
 ashby,color,Color,notfound,,,2026-09-14
+ashby,comcast,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+ashby,comcast-cable,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+ashby,comcast-cable-communications,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+ashby,comcastcable,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+ashby,comcastcablecommunications,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
 ashby,compass,Compass,notfound,,,2026-09-14
+ashby,compunnel,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
+ashby,compunnel-software,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
+ashby,compunnelsoftware,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
 ashby,confluent,Confluent,confirmed,21,,2026-09-14
 ashby,convoy,Convoy,notfound,,,2026-09-14
+ashby,cotiviti,"Cotiviti, Inc.",notfound,,,2026-09-29
+ashby,cummins,Cummins Inc.,notfound,,,2026-09-29
+ashby,cvs-pharmacy,CVS Pharmacy Inc.,notfound,,,2026-09-29
+ashby,cvs-shared,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+ashby,cvs-shared-services-resources,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+ashby,cvspharmacy,CVS Pharmacy Inc.,notfound,,,2026-09-29
+ashby,cvsshared,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+ashby,cvssharedservicesresources,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+ashby,dataeconomy,"DATAECONOMY, INC.",notfound,,,2026-09-29
 ashby,dave,Dave,confirmed,4,,2026-09-14
+ashby,db-usa,DB USA Core Corporation,notfound,,,2026-09-29
+ashby,db-usa-core,DB USA Core Corporation,notfound,,,2026-09-29
+ashby,dbusa,DB USA Core Corporation,notfound,,,2026-09-29
+ashby,dbusacore,DB USA Core Corporation,notfound,,,2026-09-29
+ashby,dell,Dell USA L.P.,notfound,,,2026-09-29
+ashby,dell-usa,Dell USA L.P.,notfound,,,2026-09-29
+ashby,dell-usa-l-p,Dell USA L.P.,notfound,,,2026-09-29
+ashby,dellusa,Dell USA L.P.,notfound,,,2026-09-29
+ashby,dellusalp,Dell USA L.P.,notfound,,,2026-09-29
+ashby,deloitte,Deloitte Consulting LLP,notfound,,,2026-09-29
+ashby,deloitte-and,Deloitte & Touche LLP,notfound,,,2026-09-29
+ashby,deloitte-and-touche,Deloitte & Touche LLP,notfound,,,2026-09-29
+ashby,deloitte-consulting,Deloitte Consulting LLP,notfound,,,2026-09-29
+ashby,deloitte-tax,Deloitte Tax LLP,notfound,,,2026-09-29
+ashby,deloitteand,Deloitte & Touche LLP,notfound,,,2026-09-29
+ashby,deloitteandtouche,Deloitte & Touche LLP,notfound,,,2026-09-29
+ashby,deloitteconsulting,Deloitte Consulting LLP,notfound,,,2026-09-29
+ashby,deloittetax,Deloitte Tax LLP,notfound,,,2026-09-29
+ashby,deutsche,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+ashby,deutsche-bank,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+ashby,deutsche-bank-securities,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+ashby,deutschebank,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+ashby,deutschebanksecurities,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
 ashby,devoted,Devoted,notfound,,,2026-09-14
+ashby,dish,Dish Wireless LLC,notfound,,,2026-09-29
+ashby,dish-wireless,Dish Wireless LLC,notfound,,,2026-09-29
+ashby,dishwireless,Dish Wireless LLC,notfound,,,2026-09-29
 ashby,doordash,DoorDash,notfound,,,2026-09-14
+ashby,ebay,eBay Inc.,notfound,,,2026-09-29
+ashby,elevance,"Elevance Health, Inc.",notfound,,,2026-09-29
+ashby,elevance-health,"Elevance Health, Inc.",notfound,,,2026-09-29
+ashby,elevancehealth,"Elevance Health, Inc.",notfound,,,2026-09-29
 ashby,elevenlabs,ElevenLabs,confirmed,246,,2026-09-14
+ashby,eli-lilly,Eli Lilly and Company,notfound,,,2026-09-29
+ashby,eli-lilly-and,Eli Lilly and Company,notfound,,,2026-09-29
+ashby,elililly,Eli Lilly and Company,notfound,,,2026-09-29
+ashby,elilillyand,Eli Lilly and Company,notfound,,,2026-09-29
 ashby,empower,Empower,notfound,,,2026-09-14
 ashby,ernst,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 ashby,ernst-and,Ernst & Young U.S. LLP,notfound,,,2026-09-29
@@ -36,122 +237,680 @@ ashby,ernst-and-young-u-s,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 ashby,ernstand,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 ashby,ernstandyoungus,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 ashby,etsy,Etsy,notfound,,,2026-09-14
+ashby,evercore,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+ashby,evercore-partners,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+ashby,evercore-partners-services-east,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+ashby,evercorepartners,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+ashby,evercorepartnersserviceseast,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+ashby,exlservice,"ExlService.com, LLC",notfound,,,2026-09-29
+ashby,expedia,"Expedia, Inc.",notfound,,,2026-09-29
+ashby,experis,"Experis US, LLC",notfound,,,2026-09-29
+ashby,federal,Federal Express Corporation,notfound,,,2026-09-29
+ashby,federal-express,Federal Express Corporation,notfound,,,2026-09-29
+ashby,federalexpress,Federal Express Corporation,notfound,,,2026-09-29
+ashby,fidelity,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+ashby,fidelity-brokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+ashby,fidelity-brokerage-services-llc-d-b-a-fidelity-investments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+ashby,fidelity-technology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+ashby,fidelity-technology-group-llc-d-b-a-fidelity-investments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+ashby,fidelitybrokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+ashby,fidelitybrokerageservicesllcdbafidelityinvestments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+ashby,fidelitytechnology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+ashby,fidelitytechnologygroupllcdbafidelityinvestments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+ashby,first-citizens,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+ashby,first-citizens-bank-and-trust,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+ashby,firstcitizens,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+ashby,firstcitizensbankandtrust,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+ashby,fis-management,"FIS Management Services, LLC",notfound,,,2026-09-29
+ashby,fiserv,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+ashby,fiserv-solutions,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+ashby,fiservsolutions,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+ashby,fismanagement,"FIS Management Services, LLC",notfound,,,2026-09-29
 ashby,flatiron,Flatiron,notfound,,,2026-09-14
+ashby,food,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+ashby,food-and,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+ashby,food-and-drug-administration,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+ashby,foodand,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+ashby,foodanddrugadministration,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+ashby,ford,FORD MOTOR COMPANY,notfound,,,2026-09-29
+ashby,ford-motor,FORD MOTOR COMPANY,notfound,,,2026-09-29
+ashby,fordmotor,FORD MOTOR COMPANY,notfound,,,2026-09-29
 ashby,fresha,Fresha,notfound,,,2026-09-14
+ashby,genentech,"Genentech, Inc.",notfound,,,2026-09-29
+ashby,genpact,Genpact LLC,notfound,,,2026-09-29
+ashby,gilead,"Gilead Sciences, Inc.",notfound,,,2026-09-29
+ashby,gilead-sciences,"Gilead Sciences, Inc.",notfound,,,2026-09-29
+ashby,gileadsciences,"Gilead Sciences, Inc.",notfound,,,2026-09-29
 ashby,glean,Glean,notfound,,,2026-09-14
+ashby,goldman,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+ashby,goldman-sachs,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+ashby,goldman-sachs-and,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+ashby,goldman-sachs-bank,Goldman Sachs Bank USA,notfound,,,2026-09-29
+ashby,goldmansachs,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+ashby,goldmansachsand,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+ashby,goldmansachsbank,Goldman Sachs Bank USA,notfound,,,2026-09-29
 ashby,gong,Gong,notfound,,,2026-09-14
+ashby,google,Google LLC,notfound,,,2026-09-29
 ashby,grafana,Grafana,notfound,,,2026-09-14
+ashby,groupm,"GroupM Worldwide, LLC",notfound,,,2026-09-29
 ashby,guardant,Guardant,notfound,,,2026-09-14
 ashby,harvey,Harvey,confirmed,320,,2026-09-14
 ashby,hashicorp,HashiCorp,notfound,,,2026-09-14
 ashby,headspace,Headspace,notfound,,,2026-09-14
+ashby,health,HEALTH CARE SERVICE CORPORATION,notfound,,,2026-09-29
+ashby,health-care,HEALTH CARE SERVICE CORPORATION,notfound,,,2026-09-29
+ashby,healthcare,HEALTH CARE SERVICE CORPORATION,notfound,,,2026-09-29
+ashby,hexaware,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+ashby,hexaware-technologies,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+ashby,hexawaretechnologies,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+ashby,home,Home Depot Management Company LLC,notfound,,,2026-09-29
+ashby,home-depot,Home Depot Management Company LLC,notfound,,,2026-09-29
+ashby,home-depot-management,Home Depot Management Company LLC,notfound,,,2026-09-29
+ashby,homedepot,Home Depot Management Company LLC,notfound,,,2026-09-29
+ashby,homedepotmanagement,Home Depot Management Company LLC,notfound,,,2026-09-29
+ashby,humana,Humana Inc.,notfound,,,2026-09-29
 ashby,included,Included,notfound,,,2026-09-14
+ashby,indeed,"Indeed, Inc.",notfound,,,2026-09-29
+ashby,infinite,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+ashby,infinite-computer,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+ashby,infinitecomputer,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+ashby,infosys,INFOSYS LIMITED,notfound,,,2026-09-29
+ashby,innova,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+ashby,innova-solutions,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+ashby,innovasolutions,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+ashby,insight,"Insight Global, LLC",notfound,,,2026-09-29
+ashby,intel,Intel Corporation,notfound,,,2026-09-29
+ashby,intuit,Intuit Inc.,notfound,,,2026-09-29
+ashby,intuitive,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+ashby,intuitive-surgical,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+ashby,intuitive-surgical-operations,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+ashby,intuitivesurgical,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+ashby,intuitivesurgicaloperations,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
 ashby,invitae,Invitae,notfound,,,2026-09-14
+ashby,iqvia,IQVIA Inc.,notfound,,,2026-09-29
+ashby,iqvia-rds,IQVIA RDS Inc.,notfound,,,2026-09-29
+ashby,iqviards,IQVIA RDS Inc.,notfound,,,2026-09-29
 ashby,ironclad,Ironclad,notfound,,,2026-09-14
 ashby,jasper,Jasper,notfound,,,2026-09-14
+ashby,jefferies,Jefferies LLC,notfound,,,2026-09-29
 ashby,jpmorgan,JPMorgan Chase & Co.,notfound,,,2026-09-29
 ashby,jpmorgan-chase,JPMorgan Chase & Co.,notfound,,,2026-09-29
 ashby,jpmorgan-chase-and,JPMorgan Chase & Co.,notfound,,,2026-09-29
 ashby,jpmorganchase,JPMorgan Chase & Co.,notfound,,,2026-09-29
 ashby,jpmorganchaseand,JPMorgan Chase & Co.,notfound,,,2026-09-29
+ashby,kforce,KFORCE INC.,notfound,,,2026-09-29
 ashby,khan,Khan,notfound,,,2026-09-14
+ashby,kian,Kian Corp,notfound,,,2026-09-29
 ashby,komodo,Komodo,notfound,,,2026-09-14
+ashby,kpmg,KPMG LLP,notfound,,,2026-09-29
 ashby,kraken,Kraken,empty,,,2026-09-14
+ashby,latentview,LatentView Analytics Corporation,notfound,,,2026-09-29
+ashby,latentview-analytics,LatentView Analytics Corporation,notfound,,,2026-09-29
+ashby,latentviewanalytics,LatentView Analytics Corporation,notfound,,,2026-09-29
 ashby,legalzoom,LegalZoom,notfound,,,2026-09-14
+ashby,lexisnexis,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+ashby,lexisnexis-risk,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+ashby,lexisnexisrisk,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+ashby,linkedin,LINKEDIN CORPORATION,notfound,,,2026-09-29
 ashby,loom,Loom,empty,,,2026-09-14
+ashby,lowe,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+ashby,lowe-s,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+ashby,lowe-s-companies,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+ashby,lowes,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+ashby,lowescompanies,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+ashby,ltimindtree,LTIMindtree Limited,notfound,,,2026-09-29
 ashby,lucid,Lucid,notfound,,,2026-09-14
+ashby,macquarie,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+ashby,macquarie-holdings,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+ashby,macquarieholdings,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+ashby,maplebear,Maplebear Inc.,notfound,,,2026-09-29
 ashby,marqeta,Marqeta,notfound,,,2026-09-14
+ashby,mastercard,Mastercard International Incorporated,notfound,,,2026-09-29
+ashby,mckinsey,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+ashby,mckinsey-and,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+ashby,mckinsey-and-company-inc-united-states,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+ashby,mckinseyand,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+ashby,mckinseyandcompanyincunitedstates,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+ashby,medline,"Medline Industries, LP.",notfound,,,2026-09-29
+ashby,medline-industries,"Medline Industries, LP.",notfound,,,2026-09-29
+ashby,medlineindustries,"Medline Industries, LP.",notfound,,,2026-09-29
+ashby,merck,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+ashby,merck-sharp,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+ashby,merck-sharp-and-dohme,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+ashby,mercksharp,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+ashby,mercksharpanddohme,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
 ashby,meta,"Meta Platforms, Inc",notfound,,,2026-09-29
 ashby,meta-platforms,"Meta Platforms, Inc",notfound,,,2026-09-29
 ashby,metaplatforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+ashby,micron,"Micron Technology, Inc.",notfound,,,2026-09-29
+ashby,micron-technology,"Micron Technology, Inc.",notfound,,,2026-09-29
+ashby,microntechnology,"Micron Technology, Inc.",notfound,,,2026-09-29
 ashby,microsoft,Microsoft Corporation,notfound,,,2026-09-29
 ashby,miro,Miro,confirmed,39,,2026-09-14
+ashby,moelis,Moelis & Company Group LP,notfound,,,2026-09-29
+ashby,moelis-and,Moelis & Company Group LP,notfound,,,2026-09-29
+ashby,moelisand,Moelis & Company Group LP,notfound,,,2026-09-29
+ashby,moody,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+ashby,moody-s,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+ashby,moody-s-analytics,"Moody's Analytics, Inc.",notfound,,,2026-09-29
+ashby,moody-s-investors,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+ashby,moodys,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+ashby,moodysanalytics,"Moody's Analytics, Inc.",notfound,,,2026-09-29
+ashby,moodysinvestors,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+ashby,morgan,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+ashby,morgan-stanley,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+ashby,morgan-stanley-and,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+ashby,morgan-stanley-services,Morgan Stanley Services Group Inc.,notfound,,,2026-09-29
+ashby,morganstanley,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+ashby,morganstanleyand,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+ashby,morganstanleyservices,Morgan Stanley Services Group Inc.,notfound,,,2026-09-29
+ashby,mpg-operations,MPG Operations LLC,notfound,,,2026-09-29
+ashby,mpgoperations,MPG Operations LLC,notfound,,,2026-09-29
+ashby,mphasis,Mphasis Corporation,notfound,,,2026-09-29
 ashby,navan,Navan,notfound,,,2026-09-14
+ashby,navy,Navy Federal Credit Union,notfound,,,2026-09-29
+ashby,navy-federal,Navy Federal Credit Union,notfound,,,2026-09-29
+ashby,navy-federal-credit-union,Navy Federal Credit Union,notfound,,,2026-09-29
+ashby,navyfederal,Navy Federal Credit Union,notfound,,,2026-09-29
+ashby,navyfederalcreditunion,Navy Federal Credit Union,notfound,,,2026-09-29
+ashby,netflix,"Netflix, Inc.",notfound,,,2026-09-29
+ashby,nomura,"Nomura Securities International, Inc.",notfound,,,2026-09-29
+ashby,nomura-securities,"Nomura Securities International, Inc.",notfound,,,2026-09-29
+ashby,nomurasecurities,"Nomura Securities International, Inc.",notfound,,,2026-09-29
 ashby,noom,Noom,notfound,,,2026-09-14
+ashby,novartis,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+ashby,novartis-pharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+ashby,novartispharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+ashby,ntt-data,"NTT DATA Americas, Inc.",notfound,,,2026-09-29
+ashby,nttdata,"NTT DATA Americas, Inc.",notfound,,,2026-09-29
 ashby,nubank,Nubank,confirmed,120,,2026-09-14
+ashby,nvidia,NVIDIA Corporation,notfound,,,2026-09-29
+ashby,onemain,OneMain General Services Corporation,notfound,,,2026-09-29
+ashby,onemain-general,OneMain General Services Corporation,notfound,,,2026-09-29
+ashby,onemaingeneral,OneMain General Services Corporation,notfound,,,2026-09-29
+ashby,open,Open Avenues Foundation,notfound,,,2026-09-29
+ashby,open-avenues,Open Avenues Foundation,notfound,,,2026-09-29
+ashby,open-avenues-foundation,Open Avenues Foundation,notfound,,,2026-09-29
+ashby,openai,"OpenAI OpCo, LLC",confirmed,831,,2026-09-29
+ashby,openai-opco,"OpenAI OpCo, LLC",notfound,,,2026-09-29
+ashby,openaiopco,"OpenAI OpCo, LLC",notfound,,,2026-09-29
+ashby,openavenues,Open Avenues Foundation,notfound,,,2026-09-29
+ashby,openavenuesfoundation,Open Avenues Foundation,notfound,,,2026-09-29
 ashby,opendoor,Opendoor,notfound,,,2026-09-14
+ashby,optum,"Optum Services, Inc.",notfound,,,2026-09-29
+ashby,optum-services,"Optum Services, Inc.",notfound,,,2026-09-29
+ashby,optumservices,"Optum Services, Inc.",notfound,,,2026-09-29
+ashby,oracle,"Oracle America, Inc.",notfound,,,2026-09-29
 ashby,outreach,Outreach,notfound,,,2026-09-14
+ashby,pacific,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+ashby,pacific-investment,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+ashby,pacific-investment-management,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+ashby,pacificinvestment,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+ashby,pacificinvestmentmanagement,Pacific Investment Management Company LLC,notfound,,,2026-09-29
 ashby,palantir,Palantir,notfound,,,2026-09-14
+ashby,palantir-technologies,PALANTIR TECHNOLOGIES INC.,notfound,,,2026-09-29
+ashby,palantirtechnologies,PALANTIR TECHNOLOGIES INC.,notfound,,,2026-09-29
 ashby,pave,Pave,empty,,,2026-09-14
+ashby,paypal,"PayPal, Inc.",notfound,,,2026-09-29
 ashby,perplexity,Perplexity,confirmed,117,,2026-09-14
+ashby,photon,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+ashby,photon-infotech,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+ashby,photoninfotech,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+ashby,pjt-partners,PJT Partners Holdings LP,notfound,,,2026-09-29
+ashby,pjtpartners,PJT Partners Holdings LP,notfound,,,2026-09-29
 ashby,pluralsight,Pluralsight,notfound,,,2026-09-14
+ashby,populus,Populus Group LLC,notfound,,,2026-09-29
+ashby,populus-group,Populus Group LLC,notfound,,,2026-09-29
+ashby,populusgroup,Populus Group LLC,notfound,,,2026-09-29
+ashby,pricewaterhousecoopers,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+ashby,pricewaterhousecoopers-advisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+ashby,pricewaterhousecoopersadvisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+ashby,prime,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+ashby,prime-healthcare,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+ashby,prime-healthcare-management,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+ashby,primehealthcare,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+ashby,primehealthcaremanagement,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
 ashby,primer,Primer,confirmed,26,,2026-09-14
 ashby,procore,Procore,notfound,,,2026-09-14
+ashby,prudential,The Prudential Insurance Company of America,notfound,,,2026-09-29
+ashby,prudential-insurance,The Prudential Insurance Company of America,notfound,,,2026-09-29
+ashby,prudential-insurance-company-of,The Prudential Insurance Company of America,notfound,,,2026-09-29
+ashby,prudentialinsurance,The Prudential Insurance Company of America,notfound,,,2026-09-29
+ashby,prudentialinsurancecompanyof,The Prudential Insurance Company of America,notfound,,,2026-09-29
+ashby,pwc-us,PwC US Business Advisory LLP,notfound,,,2026-09-29
+ashby,pwc-us-business-advisory,PwC US Business Advisory LLP,notfound,,,2026-09-29
+ashby,pwcus,PwC US Business Advisory LLP,notfound,,,2026-09-29
+ashby,pwcusbusinessadvisory,PwC US Business Advisory LLP,notfound,,,2026-09-29
+ashby,pyramid,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+ashby,pyramid-consulting,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+ashby,pyramidconsulting,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+ashby,quadrant,Quadrant Technologies LLC,notfound,,,2026-09-29
+ashby,quadrant-technologies,Quadrant Technologies LLC,notfound,,,2026-09-29
+ashby,quadranttechnologies,Quadrant Technologies LLC,notfound,,,2026-09-29
+ashby,randstad,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+ashby,randstad-digital,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+ashby,randstaddigital,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+ashby,rbc-capital,RBC Capital Markets LLC,notfound,,,2026-09-29
+ashby,rbc-capital-markets,RBC Capital Markets LLC,notfound,,,2026-09-29
+ashby,rbccapital,RBC Capital Markets LLC,notfound,,,2026-09-29
+ashby,rbccapitalmarkets,RBC Capital Markets LLC,notfound,,,2026-09-29
 ashby,recursion,Recursion,notfound,,,2026-09-14
 ashby,redfin,Redfin,notfound,,,2026-09-14
+ashby,regeneron,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+ashby,regeneron-pharmaceuticals,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+ashby,regeneronpharmaceuticals,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+ashby,relx,"RELX, Inc.",notfound,,,2026-09-29
 ashby,remitly,Remitly,notfound,,,2026-09-14
 ashby,render,Render,confirmed,36,,2026-09-14
 ashby,retool,Retool,notfound,,,2026-09-14
 ashby,rippling,Rippling,notfound,,,2026-09-14
 ashby,rivian,Rivian,notfound,,,2026-09-14
+ashby,rivian-automotive,"Rivian Automotive, LLC",notfound,,,2026-09-29
+ashby,rivianautomotive,"Rivian Automotive, LLC",notfound,,,2026-09-29
+ashby,robotics,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,robotics-technologies,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,roboticstechnologies,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,rocket,Rocket Limited Partnership,notfound,,,2026-09-29
+ashby,rocket-limited,Rocket Limited Partnership,notfound,,,2026-09-29
+ashby,rocket-limited-partnership,Rocket Limited Partnership,notfound,,,2026-09-29
+ashby,rocketlimited,Rocket Limited Partnership,notfound,,,2026-09-29
+ashby,rocketlimitedpartnership,Rocket Limited Partnership,notfound,,,2026-09-29
 ashby,runway,Runway,confirmed,4,,2026-09-14
+ashby,salesforce,"Salesforce, Inc.",notfound,,,2026-09-29
 ashby,scale,Scale,notfound,,,2026-09-14
+ashby,scotia,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
+ashby,scotia-capital,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
+ashby,scotiacapital,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
 ashby,segment,Segment,notfound,,,2026-09-14
 ashby,sentry,Sentry,confirmed,44,,2026-09-14
+ashby,servicenow,"ServiceNow, Inc.",notfound,,,2026-09-29
 ashby,shield,Shield,notfound,,,2026-09-14
 ashby,shopify,Shopify,notfound,,,2026-09-14
 ashby,sierra,Sierra,confirmed,209,,2026-09-14
 ashby,sigma,Sigma,notfound,,,2026-09-14
+ashby,slalom,"Slalom, Inc.",notfound,,,2026-09-29
+ashby,snap,SNAP INC.,notfound,,,2026-09-29
 ashby,snowflake,Snowflake,confirmed,362,,2026-09-14
+ashby,starbucks,Starbucks Coffee Company,notfound,,,2026-09-29
+ashby,starbucks-coffee,Starbucks Coffee Company,notfound,,,2026-09-29
+ashby,starbuckscoffee,Starbucks Coffee Company,notfound,,,2026-09-29
+ashby,state,State Street Bank and Trust Company,notfound,,,2026-09-29
+ashby,state-street,State Street Bank and Trust Company,notfound,,,2026-09-29
+ashby,state-street-bank-and-trust,State Street Bank and Trust Company,notfound,,,2026-09-29
+ashby,statestreet,State Street Bank and Trust Company,notfound,,,2026-09-29
+ashby,statestreetbankandtrust,State Street Bank and Trust Company,notfound,,,2026-09-29
 ashby,strava,Strava,confirmed,27,,2026-09-14
+ashby,sumeru,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,sumeru-technologies,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,sumerutechnologies,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+ashby,sumitomo,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+ashby,sumitomo-mitsui,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+ashby,sumitomo-mitsui-banking,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+ashby,sumitomomitsui,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+ashby,sumitomomitsuibanking,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+ashby,synechron,"Synechron, Inc.",notfound,,,2026-09-29
 ashby,synthesia,Synthesia,confirmed,56,,2026-09-14
+ashby,sysintelli,Sysintelli Inc.,notfound,,,2026-09-29
+ashby,t-mobile,"T-Mobile USA, Inc.",notfound,,,2026-09-29
+ashby,target,"Target Enterprise, Inc.",notfound,,,2026-09-29
+ashby,target-enterprise,"Target Enterprise, Inc.",notfound,,,2026-09-29
+ashby,targetenterprise,"Target Enterprise, Inc.",notfound,,,2026-09-29
+ashby,tata,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+ashby,tata-consultancy,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+ashby,tataconsultancy,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+ashby,td-securities,TD Securities (USA) LLC,notfound,,,2026-09-29
+ashby,tdsecurities,TD Securities (USA) LLC,notfound,,,2026-09-29
+ashby,tech-mahindra,"TECH MAHINDRA (AMERICAS), INC",notfound,,,2026-09-29
+ashby,techdata,TechData Service Company LLC,notfound,,,2026-09-29
+ashby,techdata-service,TechData Service Company LLC,notfound,,,2026-09-29
+ashby,techdataservice,TechData Service Company LLC,notfound,,,2026-09-29
+ashby,techmahindra,"TECH MAHINDRA (AMERICAS), INC",notfound,,,2026-09-29
 ashby,tempus,Tempus,notfound,,,2026-09-14
+ashby,tesla,"Tesla, Inc.",notfound,,,2026-09-29
+ashby,themathcompany,TheMathCompany Inc.,notfound,,,2026-09-29
+ashby,tiger,"Tiger Analytics, Inc.",confirmed,4,,2026-09-29
+ashby,tiger-analytics,"Tiger Analytics, Inc.",notfound,,,2026-09-29
+ashby,tigeranalytics,"Tiger Analytics, Inc.",notfound,,,2026-09-29
+ashby,tiktok,TikTok Inc.,notfound,,,2026-09-29
+ashby,tiktok-u,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+ashby,tiktok-u-s-data-security,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+ashby,tiktok-usds,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+ashby,tiktok-usds-joint-venture,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+ashby,tiktoku,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+ashby,tiktokusdatasecurity,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+ashby,tiktokusds,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+ashby,tiktokusdsjointventure,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+ashby,tmobile,"T-Mobile USA, Inc.",notfound,,,2026-09-29
+ashby,transunion,TransUnion LLC,notfound,,,2026-09-29
+ashby,tredence,Tredence Inc.,notfound,,,2026-09-29
+ashby,truist,Truist Bank,notfound,,,2026-09-29
+ashby,truist-bank,Truist Bank,notfound,,,2026-09-29
+ashby,truistbank,Truist Bank,notfound,,,2026-09-29
+ashby,trustees,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+ashby,trustees-of,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+ashby,trustees-of-the-university-of-pennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+ashby,trusteesof,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+ashby,trusteesoftheuniversityofpennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+ashby,tt-commerce,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+ashby,tt-commerce-and-global,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+ashby,ttcommerce,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+ashby,ttcommerceandglobal,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+ashby,two-sigma,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+ashby,two-sigma-investments,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+ashby,twosigma,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+ashby,twosigmainvestments,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+ashby,u-s-bank-national-association,U.S. Bank National Association,notfound,,,2026-09-29
 ashby,uber,Uber,notfound,,,2026-09-14
+ashby,uber-technologies,"Uber Technologies, Inc.",notfound,,,2026-09-29
+ashby,ubertechnologies,"Uber Technologies, Inc.",notfound,,,2026-09-29
+ashby,ubs-business,UBS Business Solutions US LLC,notfound,,,2026-09-29
+ashby,ubs-securities,UBS SECURITIES LLC,notfound,,,2026-09-29
+ashby,ubsbusiness,UBS Business Solutions US LLC,notfound,,,2026-09-29
+ashby,ubssecurities,UBS SECURITIES LLC,notfound,,,2026-09-29
+ashby,university,University of Michigan,notfound,,,2026-09-29
+ashby,university-of,University of Michigan,notfound,,,2026-09-29
+ashby,university-of-florida,UNIVERSITY OF FLORIDA,notfound,,,2026-09-29
+ashby,university-of-michigan,University of Michigan,notfound,,,2026-09-29
+ashby,universityof,University of Michigan,notfound,,,2026-09-29
+ashby,universityofflorida,UNIVERSITY OF FLORIDA,notfound,,,2026-09-29
+ashby,universityofmichigan,University of Michigan,notfound,,,2026-09-29
+ashby,usbanknationalassociation,U.S. Bank National Association,notfound,,,2026-09-29
+ashby,v-soft,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+ashby,v-soft-consulting,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+ashby,vanguard,"The Vanguard Group, Inc.",notfound,,,2026-09-29
+ashby,vanguard-group,"The Vanguard Group, Inc.",notfound,,,2026-09-29
+ashby,vanguardgroup,"The Vanguard Group, Inc.",notfound,,,2026-09-29
 ashby,vannevar,Vannevar,notfound,,,2026-09-14
 ashby,varo,Varo,notfound,,,2026-09-14
+ashby,ventois,"Ventois, Inc",notfound,,,2026-09-29
 ashby,verily,Verily,notfound,,,2026-09-14
+ashby,vertex,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+ashby,vertex-pharmaceuticals,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+ashby,vertexpharmaceuticals,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+ashby,virtusa,VIRTUSA CORPORATION,notfound,,,2026-09-29
+ashby,virtusa-consulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",notfound,,,2026-09-29
+ashby,virtusaconsulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",notfound,,,2026-09-29
+ashby,visa,Visa U.S.A. Inc.,notfound,,,2026-09-29
+ashby,visa-u,Visa U.S.A. Inc.,notfound,,,2026-09-29
+ashby,visa-u-s-a,Visa U.S.A. Inc.,notfound,,,2026-09-29
+ashby,visau,Visa U.S.A. Inc.,notfound,,,2026-09-29
+ashby,visausa,Visa U.S.A. Inc.,notfound,,,2026-09-29
+ashby,vsoft,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+ashby,vsoftconsulting,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+ashby,wal-mart,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+ashby,wal-mart-associates,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+ashby,walmart,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+ashby,walmartassociates,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
 ashby,warby,Warby,notfound,,,2026-09-14
+ashby,wayfair,Wayfair LLC,notfound,,,2026-09-29
+ashby,wells,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+ashby,wells-fargo,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+ashby,wells-fargo-bank-n-a,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+ashby,wellsfargo,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+ashby,wellsfargobankna,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
 ashby,whoop,Whoop,confirmed,155,,2026-09-14
+ashby,wipro,WIPRO LIMITED,notfound,,,2026-09-29
+ashby,workday,"Workday, Inc.",notfound,,,2026-09-29
 ashby,writer,Writer,confirmed,49,,2026-09-14
 ashby,yelp,Yelp,notfound,,,2026-09-14
 ashby,zapier,Zapier,confirmed,6,,2026-09-14
+ashby,zensar,"Zensar Technologies, Inc.",notfound,,,2026-09-29
+ashby,zensar-technologies,"Zensar Technologies, Inc.",notfound,,,2026-09-29
+ashby,zensartechnologies,"Zensar Technologies, Inc.",notfound,,,2026-09-29
 ashby,zoox,Zoox,notfound,,,2026-09-14
+ashby,zs-associates,"ZS Associates, Inc.",notfound,,,2026-09-29
+ashby,zsassociates,"ZS Associates, Inc.",notfound,,,2026-09-29
+greenhouse,a-t-kearney,"A.T. Kearney, Inc.",notfound,,,2026-09-29
+greenhouse,abbvie,AbbVie Inc.,notfound,,,2026-09-29
+greenhouse,accenture,Accenture LLP,notfound,,,2026-09-29
+greenhouse,ace-american,ACE American Insurance Company,notfound,,,2026-09-29
+greenhouse,ace-american-insurance,ACE American Insurance Company,notfound,,,2026-09-29
+greenhouse,aceamerican,ACE American Insurance Company,notfound,,,2026-09-29
+greenhouse,aceamericaninsurance,ACE American Insurance Company,notfound,,,2026-09-29
+greenhouse,adobe,Adobe Inc.,notfound,,,2026-09-29
+greenhouse,aetna,Aetna Resources LLC,notfound,,,2026-09-29
+greenhouse,aetna-resources,Aetna Resources LLC,notfound,,,2026-09-29
+greenhouse,aetnaresources,Aetna Resources LLC,notfound,,,2026-09-29
 greenhouse,airbnb,Airbnb,confirmed,164,Airbnb,2026-09-14
 greenhouse,airwallex,Airwallex,notfound,,,2026-09-14
 greenhouse,aledade,Aledade,notfound,,,2026-09-14
+greenhouse,alixpartners,"AlixPartners, LLP",confirmed,114,AlixPartners,2026-09-29
 greenhouse,allbirds,Allbirds,notfound,,,2026-09-14
 greenhouse,amazon,Amazon.com Services LLC,notfound,,,2026-09-29
+greenhouse,amazon-advertising,Amazon Advertising LLC,notfound,,,2026-09-29
+greenhouse,amazon-data,"Amazon Data Services, Inc",notfound,,,2026-09-29
+greenhouse,amazon-development,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+greenhouse,amazon-development-center-u-s,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+greenhouse,amazon-web,"Amazon Web Services, Inc.",notfound,,,2026-09-29
+greenhouse,amazonadvertising,Amazon Advertising LLC,notfound,,,2026-09-29
+greenhouse,amazondata,"Amazon Data Services, Inc",notfound,,,2026-09-29
+greenhouse,amazondevelopment,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+greenhouse,amazondevelopmentcenterus,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+greenhouse,amazonweb,"Amazon Web Services, Inc.",notfound,,,2026-09-29
+greenhouse,american-airlines,"American Airlines, Inc.",notfound,,,2026-09-29
+greenhouse,american-express,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+greenhouse,american-express-travel-related,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+greenhouse,americanairlines,"American Airlines, Inc.",notfound,,,2026-09-29
+greenhouse,americanexpress,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+greenhouse,americanexpresstravelrelated,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+greenhouse,amgen,Amgen Inc.,notfound,,,2026-09-29
 greenhouse,amplitude,Amplitude,confirmed,35,Amplitude ,2026-09-14
 greenhouse,anduril,Anduril,notfound,,,2026-09-14
 greenhouse,angellist,AngelList,notfound,,,2026-09-14
 greenhouse,angi,Angi,notfound,,,2026-09-14
+greenhouse,anthropic,"Anthropic, PBC",confirmed,631,Anthropic,2026-09-29
 greenhouse,apollo,Apollo,empty,,,2026-09-14
+greenhouse,apollo-management,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+greenhouse,apollo-management-holdings-l-p,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+greenhouse,apollomanagement,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+greenhouse,apollomanagementholdingslp,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+greenhouse,apple,Apple Inc.,notfound,,,2026-09-29
 greenhouse,applied,Applied,notfound,,,2026-09-14
+greenhouse,applied-materials,"Applied Materials, Inc",notfound,,,2026-09-29
+greenhouse,appliedmaterials,"Applied Materials, Inc",notfound,,,2026-09-29
+greenhouse,artifint,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,artifint-technologies,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,artifinttechnologies,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,asta,"Asta CRS, Inc.",notfound,,,2026-09-29
+greenhouse,asta-crs,"Asta CRS, Inc.",notfound,,,2026-09-29
+greenhouse,astacrs,"Asta CRS, Inc.",notfound,,,2026-09-29
+greenhouse,at-and,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+greenhouse,at-and-t,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+greenhouse,atand,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+greenhouse,atandt,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+greenhouse,atkearney,"A.T. Kearney, Inc.",notfound,,,2026-09-29
+greenhouse,atlassian,"Atlassian US, Inc.",notfound,,,2026-09-29
 greenhouse,attentive,Attentive,confirmed,37,Attentive,2026-09-14
+greenhouse,axtria,Axtria INC,notfound,,,2026-09-29
+greenhouse,bain,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+greenhouse,bain-and,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+greenhouse,bainand,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+greenhouse,balyasny,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+greenhouse,balyasny-asset,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+greenhouse,balyasny-asset-management-l-p,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+greenhouse,balyasnyasset,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+greenhouse,balyasnyassetmanagementlp,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+greenhouse,bank,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+greenhouse,bank-of,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+greenhouse,bank-of-america-n-a,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+greenhouse,bank-of-new-york-mellon,The Bank of New York Mellon,notfound,,,2026-09-29
+greenhouse,bank-of-nova-scotia,THE BANK OF NOVA SCOTIA,notfound,,,2026-09-29
+greenhouse,bankof,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+greenhouse,bankofamericana,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+greenhouse,bankofnewyorkmellon,The Bank of New York Mellon,notfound,,,2026-09-29
+greenhouse,bankofnovascotia,THE BANK OF NOVA SCOTIA,notfound,,,2026-09-29
+greenhouse,barclays,Barclays Services Corp.,notfound,,,2026-09-29
+greenhouse,barclays-capital,Barclays Capital Inc.,notfound,,,2026-09-29
+greenhouse,barclays-services,Barclays Services Corp.,notfound,,,2026-09-29
+greenhouse,barclayscapital,Barclays Capital Inc.,notfound,,,2026-09-29
+greenhouse,barclaysservices,Barclays Services Corp.,notfound,,,2026-09-29
+greenhouse,bayer,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+greenhouse,bayer-research,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+greenhouse,bayer-research-and-development,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+greenhouse,bayerresearch,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+greenhouse,bayerresearchanddevelopment,Bayer Research and Development Services LLC,notfound,,,2026-09-29
 greenhouse,betterment,Betterment,confirmed,26,Betterment,2026-09-14
+greenhouse,blackrock,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+greenhouse,blackrock-financial,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+greenhouse,blackrock-financial-management,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+greenhouse,blackrockfinancial,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+greenhouse,blackrockfinancialmanagement,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+greenhouse,blackstone,"Blackstone, Inc.",notfound,,,2026-09-29
 greenhouse,block,Block,confirmed,208,Block,2026-09-14
+greenhouse,bloomberg,Bloomberg L.P.,notfound,,,2026-09-29
+greenhouse,bloomberg-l,Bloomberg L.P.,notfound,,,2026-09-29
+greenhouse,bloomberg-l-p,Bloomberg L.P.,notfound,,,2026-09-29
+greenhouse,bloombergl,Bloomberg L.P.,notfound,,,2026-09-29
+greenhouse,bloomberglp,Bloomberg L.P.,notfound,,,2026-09-29
+greenhouse,bnp-paribas,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+greenhouse,bnp-paribas-securities,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+greenhouse,bnpparibas,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+greenhouse,bnpparibassecurities,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+greenhouse,bofa,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
+greenhouse,bofa-securities,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
+greenhouse,bofasecurities,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
 greenhouse,booksy,Booksy,notfound,,,2026-09-14
+greenhouse,boston,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
+greenhouse,boston-consulting,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
+greenhouse,bostonconsulting,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
 greenhouse,braintree,Braintree,notfound,,,2026-09-14
 greenhouse,braze,Braze,confirmed,286,Braze,2026-09-14
 greenhouse,brex,Brex,confirmed,269,Brex,2026-09-14
+greenhouse,bridgewater,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+greenhouse,bridgewater-associates,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+greenhouse,bridgewaterassociates,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+greenhouse,brillio,"Brillio, LLC",notfound,,,2026-09-29
+greenhouse,bristol,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+greenhouse,bristol-myers,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+greenhouse,bristol-myers-squibb,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+greenhouse,bristolmyers,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+greenhouse,bristolmyerssquibb,Bristol-Myers Squibb Company,notfound,,,2026-09-29
 greenhouse,bumble,Bumble,notfound,,,2026-09-14
+greenhouse,bytedance,BYTEDANCE INC.,notfound,,,2026-09-29
 greenhouse,calm,Calm,confirmed,1,Calm.com,2026-09-14
+greenhouse,capgemini,Capgemini America Inc,notfound,,,2026-09-29
+greenhouse,capital,"Capital One, National Association",notfound,,,2026-09-29
+greenhouse,capital-one,"Capital One, National Association",notfound,,,2026-09-29
+greenhouse,capital-one-national-association,"Capital One, National Association",notfound,,,2026-09-29
+greenhouse,capitalone,"Capital One, National Association",notfound,,,2026-09-29
+greenhouse,capitalonenationalassociation,"Capital One, National Association",notfound,,,2026-09-29
+greenhouse,caremark,Caremark LLC,notfound,,,2026-09-29
 greenhouse,carvana,Carvana,confirmed,1727,Carvana,2026-09-14
+greenhouse,cbre,"CBRE, INC.",notfound,,,2026-09-29
 greenhouse,cedar,Cedar,notfound,,,2026-09-14
 greenhouse,census,Census,notfound,,,2026-09-14
+greenhouse,cgi-technologies,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+greenhouse,cgi-technologies-and,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+greenhouse,cgitechnologies,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+greenhouse,cgitechnologiesand,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
 greenhouse,chainalysis,Chainalysis,notfound,,,2026-09-14
+greenhouse,charter,"Charter Communications, Inc.",notfound,,,2026-09-29
+greenhouse,charter-communications,"Charter Communications, Inc.",notfound,,,2026-09-29
+greenhouse,chartercommunications,"Charter Communications, Inc.",notfound,,,2026-09-29
 greenhouse,checkr,Checkr,confirmed,49,Checkr,2026-09-14
 greenhouse,chewy,Chewy,notfound,,,2026-09-14
 greenhouse,chime,Chime,confirmed,70,"Chime Financial, Inc",2026-09-14
+greenhouse,cigna,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+greenhouse,cigna-evernorth,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+greenhouse,cignaevernorth,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
 greenhouse,circle,Circle,notfound,,,2026-09-14
+greenhouse,cisco,"Cisco Systems, Inc.",notfound,,,2026-09-29
+greenhouse,cisco-systems,"Cisco Systems, Inc.",notfound,,,2026-09-29
+greenhouse,ciscosystems,"Cisco Systems, Inc.",notfound,,,2026-09-29
+greenhouse,citadel,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citadel-americas,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citadel-securities,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citadel-securities-americas,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citadelamericas,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citadelsecurities,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citadelsecuritiesamericas,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+greenhouse,citibank,"Citibank, N.A.",notfound,,,2026-09-29
+greenhouse,citibank-n,"Citibank, N.A.",notfound,,,2026-09-29
+greenhouse,citibank-n-a,"Citibank, N.A.",notfound,,,2026-09-29
+greenhouse,citibankn,"Citibank, N.A.",notfound,,,2026-09-29
+greenhouse,citibankna,"Citibank, N.A.",notfound,,,2026-09-29
+greenhouse,citigroup,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+greenhouse,citigroup-global,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+greenhouse,citigroup-global-markets,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+greenhouse,citigroupglobal,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+greenhouse,citigroupglobalmarkets,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+greenhouse,citiustech,CitiusTech Inc.,notfound,,,2026-09-29
+greenhouse,citizens,"Citizens Financial Group, Inc.",notfound,,,2026-09-29
+greenhouse,citizens-financial,"Citizens Financial Group, Inc.",notfound,,,2026-09-29
+greenhouse,citizensfinancial,"Citizens Financial Group, Inc.",notfound,,,2026-09-29
 greenhouse,clari,Clari,notfound,,,2026-09-14
 greenhouse,classpass,Classpass,confirmed,37,ClassPass,2026-09-14
 greenhouse,clay,Clay,notfound,,,2026-09-14
 greenhouse,clio,Clio,notfound,,,2026-09-14
 greenhouse,codecademy,Codecademy,notfound,,,2026-09-14
+greenhouse,coforge,Coforge Limited,notfound,,,2026-09-29
+greenhouse,cognizant,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
+greenhouse,cognizant-technology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
+greenhouse,cognizanttechnology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
 greenhouse,cohere,Cohere,notfound,,,2026-09-14
 greenhouse,color,Color,notfound,,,2026-09-14
+greenhouse,comcast,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+greenhouse,comcast-cable,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+greenhouse,comcast-cable-communications,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+greenhouse,comcastcable,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+greenhouse,comcastcablecommunications,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
 greenhouse,compass,Compass,notfound,,,2026-09-14
+greenhouse,compunnel,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
+greenhouse,compunnel-software,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
+greenhouse,compunnelsoftware,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
 greenhouse,confluent,Confluent,notfound,,,2026-09-14
 greenhouse,convoy,Convoy,notfound,,,2026-09-14
+greenhouse,cotiviti,"Cotiviti, Inc.",notfound,,,2026-09-29
 greenhouse,coursera,Coursera,confirmed,21,Coursera,2026-09-14
+greenhouse,cummins,Cummins Inc.,notfound,,,2026-09-29
+greenhouse,cvs-pharmacy,CVS Pharmacy Inc.,notfound,,,2026-09-29
+greenhouse,cvs-shared,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+greenhouse,cvs-shared-services-resources,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+greenhouse,cvspharmacy,CVS Pharmacy Inc.,notfound,,,2026-09-29
+greenhouse,cvsshared,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+greenhouse,cvssharedservicesresources,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+greenhouse,dataeconomy,"DATAECONOMY, INC.",notfound,,,2026-09-29
 greenhouse,dave,Dave,notfound,,,2026-09-14
+greenhouse,db-usa,DB USA Core Corporation,notfound,,,2026-09-29
+greenhouse,db-usa-core,DB USA Core Corporation,notfound,,,2026-09-29
+greenhouse,dbusa,DB USA Core Corporation,notfound,,,2026-09-29
+greenhouse,dbusacore,DB USA Core Corporation,notfound,,,2026-09-29
 greenhouse,degreed,Degreed,confirmed,3,Degreed,2026-09-14
+greenhouse,dell,Dell USA L.P.,notfound,,,2026-09-29
+greenhouse,dell-usa,Dell USA L.P.,notfound,,,2026-09-29
+greenhouse,dell-usa-l-p,Dell USA L.P.,notfound,,,2026-09-29
+greenhouse,dellusa,Dell USA L.P.,notfound,,,2026-09-29
+greenhouse,dellusalp,Dell USA L.P.,notfound,,,2026-09-29
+greenhouse,deloitte,Deloitte Consulting LLP,notfound,,,2026-09-29
+greenhouse,deloitte-and,Deloitte & Touche LLP,notfound,,,2026-09-29
+greenhouse,deloitte-and-touche,Deloitte & Touche LLP,notfound,,,2026-09-29
+greenhouse,deloitte-consulting,Deloitte Consulting LLP,notfound,,,2026-09-29
+greenhouse,deloitte-tax,Deloitte Tax LLP,notfound,,,2026-09-29
+greenhouse,deloitteand,Deloitte & Touche LLP,notfound,,,2026-09-29
+greenhouse,deloitteandtouche,Deloitte & Touche LLP,notfound,,,2026-09-29
+greenhouse,deloitteconsulting,Deloitte Consulting LLP,notfound,,,2026-09-29
+greenhouse,deloittetax,Deloitte Tax LLP,notfound,,,2026-09-29
+greenhouse,deutsche,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+greenhouse,deutsche-bank,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+greenhouse,deutsche-bank-securities,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+greenhouse,deutschebank,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+greenhouse,deutschebanksecurities,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
 greenhouse,devoted,Devoted,notfound,,,2026-09-14
+greenhouse,dish,Dish Wireless LLC,notfound,,,2026-09-29
+greenhouse,dish-wireless,Dish Wireless LLC,notfound,,,2026-09-29
+greenhouse,dishwireless,Dish Wireless LLC,notfound,,,2026-09-29
 greenhouse,doordash,DoorDash,notfound,,,2026-09-14
 greenhouse,duolingo,Duolingo,confirmed,80,Duolingo,2026-09-14
+greenhouse,ebay,eBay Inc.,notfound,,,2026-09-29
 greenhouse,elastic,Elastic,confirmed,359,Elastic,2026-09-14
+greenhouse,elevance,"Elevance Health, Inc.",notfound,,,2026-09-29
+greenhouse,elevance-health,"Elevance Health, Inc.",notfound,,,2026-09-29
+greenhouse,elevancehealth,"Elevance Health, Inc.",notfound,,,2026-09-29
 greenhouse,elevenlabs,ElevenLabs,notfound,,,2026-09-14
+greenhouse,eli-lilly,Eli Lilly and Company,notfound,,,2026-09-29
+greenhouse,eli-lilly-and,Eli Lilly and Company,notfound,,,2026-09-29
+greenhouse,elililly,Eli Lilly and Company,notfound,,,2026-09-29
+greenhouse,elilillyand,Eli Lilly and Company,notfound,,,2026-09-29
 greenhouse,empower,Empower,notfound,,,2026-09-14
 greenhouse,ernst,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 greenhouse,ernst-and,Ernst & Young U.S. LLP,notfound,,,2026-09-29
@@ -159,134 +918,700 @@ greenhouse,ernst-and-young-u-s,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 greenhouse,ernstand,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 greenhouse,ernstandyoungus,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 greenhouse,etsy,Etsy,notfound,,,2026-09-14
+greenhouse,evercore,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+greenhouse,evercore-partners,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+greenhouse,evercore-partners-services-east,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+greenhouse,evercorepartners,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+greenhouse,evercorepartnersserviceseast,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
 greenhouse,everlaw,Everlaw,confirmed,35,Everlaw,2026-09-14
+greenhouse,exlservice,"ExlService.com, LLC",notfound,,,2026-09-29
+greenhouse,expedia,"Expedia, Inc.",notfound,,,2026-09-29
+greenhouse,experis,"Experis US, LLC",notfound,,,2026-09-29
+greenhouse,federal,Federal Express Corporation,notfound,,,2026-09-29
+greenhouse,federal-express,Federal Express Corporation,notfound,,,2026-09-29
+greenhouse,federalexpress,Federal Express Corporation,notfound,,,2026-09-29
+greenhouse,fidelity,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+greenhouse,fidelity-brokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+greenhouse,fidelity-brokerage-services-llc-d-b-a-fidelity-investments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+greenhouse,fidelity-technology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+greenhouse,fidelity-technology-group-llc-d-b-a-fidelity-investments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+greenhouse,fidelitybrokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+greenhouse,fidelitybrokerageservicesllcdbafidelityinvestments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+greenhouse,fidelitytechnology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+greenhouse,fidelitytechnologygroupllcdbafidelityinvestments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+greenhouse,first-citizens,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+greenhouse,first-citizens-bank-and-trust,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+greenhouse,firstcitizens,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+greenhouse,firstcitizensbankandtrust,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+greenhouse,fis-management,"FIS Management Services, LLC",notfound,,,2026-09-29
+greenhouse,fiserv,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+greenhouse,fiserv-solutions,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+greenhouse,fiservsolutions,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+greenhouse,fismanagement,"FIS Management Services, LLC",notfound,,,2026-09-29
 greenhouse,fivetran,Fivetran,confirmed,198,Fivetran ,2026-09-14
 greenhouse,flatiron,Flatiron,notfound,,,2026-09-14
+greenhouse,food,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+greenhouse,food-and,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+greenhouse,food-and-drug-administration,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+greenhouse,foodand,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+greenhouse,foodanddrugadministration,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+greenhouse,ford,FORD MOTOR COMPANY,notfound,,,2026-09-29
+greenhouse,ford-motor,FORD MOTOR COMPANY,notfound,,,2026-09-29
+greenhouse,fordmotor,FORD MOTOR COMPANY,notfound,,,2026-09-29
 greenhouse,fresha,Fresha,notfound,,,2026-09-14
 greenhouse,gemini,Gemini,confirmed,32,Gemini,2026-09-14
+greenhouse,genentech,"Genentech, Inc.",notfound,,,2026-09-29
+greenhouse,genpact,Genpact LLC,notfound,,,2026-09-29
+greenhouse,gilead,"Gilead Sciences, Inc.",notfound,,,2026-09-29
+greenhouse,gilead-sciences,"Gilead Sciences, Inc.",notfound,,,2026-09-29
+greenhouse,gileadsciences,"Gilead Sciences, Inc.",notfound,,,2026-09-29
 greenhouse,glean,Glean,notfound,,,2026-09-14
 greenhouse,glossier,Glossier,confirmed,25,Glossier,2026-09-14
+greenhouse,goldman,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+greenhouse,goldman-sachs,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+greenhouse,goldman-sachs-and,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+greenhouse,goldman-sachs-bank,Goldman Sachs Bank USA,notfound,,,2026-09-29
+greenhouse,goldmansachs,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+greenhouse,goldmansachsand,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+greenhouse,goldmansachsbank,Goldman Sachs Bank USA,notfound,,,2026-09-29
 greenhouse,gong,Gong,notfound,,,2026-09-14
+greenhouse,google,Google LLC,notfound,,,2026-09-29
 greenhouse,grafana,Grafana,notfound,,,2026-09-14
+greenhouse,groupm,"GroupM Worldwide, LLC",notfound,,,2026-09-29
 greenhouse,guardant,Guardant,notfound,,,2026-09-14
 greenhouse,guild,Guild,confirmed,5,Guild,2026-09-14
 greenhouse,handshake,Handshake,confirmed,4,Handshake,2026-09-14
 greenhouse,harvey,Harvey,notfound,,,2026-09-14
 greenhouse,hashicorp,HashiCorp,notfound,,,2026-09-14
 greenhouse,headspace,Headspace,notfound,,,2026-09-14
+greenhouse,health,HEALTH CARE SERVICE CORPORATION,notfound,,,2026-09-29
+greenhouse,health-care,HEALTH CARE SERVICE CORPORATION,notfound,,,2026-09-29
+greenhouse,healthcare,HEALTH CARE SERVICE CORPORATION,notfound,,,2026-09-29
+greenhouse,hexaware,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+greenhouse,hexaware-technologies,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+greenhouse,hexawaretechnologies,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
 greenhouse,hightouch,Hightouch,confirmed,83,Hightouch,2026-09-14
+greenhouse,home,Home Depot Management Company LLC,notfound,,,2026-09-29
+greenhouse,home-depot,Home Depot Management Company LLC,notfound,,,2026-09-29
+greenhouse,home-depot-management,Home Depot Management Company LLC,notfound,,,2026-09-29
+greenhouse,homedepot,Home Depot Management Company LLC,notfound,,,2026-09-29
+greenhouse,homedepotmanagement,Home Depot Management Company LLC,notfound,,,2026-09-29
+greenhouse,humana,Humana Inc.,notfound,,,2026-09-29
 greenhouse,included,Included,notfound,,,2026-09-14
+greenhouse,indeed,"Indeed, Inc.",empty,,,2026-09-29
+greenhouse,infinite,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+greenhouse,infinite-computer,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+greenhouse,infinitecomputer,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+greenhouse,infosys,INFOSYS LIMITED,notfound,,,2026-09-29
+greenhouse,innova,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+greenhouse,innova-solutions,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+greenhouse,innovasolutions,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+greenhouse,insight,"Insight Global, LLC",notfound,,,2026-09-29
 greenhouse,instabase,Instabase,confirmed,4,Instabase,2026-09-14
+greenhouse,intel,Intel Corporation,notfound,,,2026-09-29
+greenhouse,intuit,Intuit Inc.,notfound,,,2026-09-29
+greenhouse,intuitive,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+greenhouse,intuitive-surgical,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+greenhouse,intuitive-surgical-operations,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+greenhouse,intuitivesurgical,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+greenhouse,intuitivesurgicaloperations,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
 greenhouse,invitae,Invitae,notfound,,,2026-09-14
+greenhouse,iqvia,IQVIA Inc.,notfound,,,2026-09-29
+greenhouse,iqvia-rds,IQVIA RDS Inc.,notfound,,,2026-09-29
+greenhouse,iqviards,IQVIA RDS Inc.,notfound,,,2026-09-29
 greenhouse,ironclad,Ironclad,notfound,,,2026-09-14
 greenhouse,iterable,Iterable,confirmed,15,Iterable,2026-09-14
 greenhouse,jasper,Jasper,notfound,,,2026-09-14
+greenhouse,jefferies,Jefferies LLC,notfound,,,2026-09-29
 greenhouse,jpmorgan,JPMorgan Chase & Co.,notfound,,,2026-09-29
 greenhouse,jpmorgan-chase,JPMorgan Chase & Co.,notfound,,,2026-09-29
 greenhouse,jpmorgan-chase-and,JPMorgan Chase & Co.,notfound,,,2026-09-29
 greenhouse,jpmorganchase,JPMorgan Chase & Co.,notfound,,,2026-09-29
 greenhouse,jpmorganchaseand,JPMorgan Chase & Co.,notfound,,,2026-09-29
 greenhouse,justworks,Justworks,confirmed,97,Justworks,2026-09-14
+greenhouse,kforce,KFORCE INC.,notfound,,,2026-09-29
 greenhouse,khan,Khan,notfound,,,2026-09-14
+greenhouse,kian,Kian Corp,notfound,,,2026-09-29
 greenhouse,klaviyo,Klaviyo,confirmed,139,Klaviyo,2026-09-14
 greenhouse,komodo,Komodo,notfound,,,2026-09-14
+greenhouse,kpmg,KPMG LLP,notfound,,,2026-09-29
 greenhouse,kraken,Kraken,notfound,,,2026-09-14
+greenhouse,latentview,LatentView Analytics Corporation,notfound,,,2026-09-29
+greenhouse,latentview-analytics,LatentView Analytics Corporation,notfound,,,2026-09-29
+greenhouse,latentviewanalytics,LatentView Analytics Corporation,notfound,,,2026-09-29
 greenhouse,lattice,Lattice,confirmed,8,Lattice,2026-09-14
 greenhouse,legalzoom,LegalZoom,notfound,,,2026-09-14
+greenhouse,lexisnexis,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+greenhouse,lexisnexis-risk,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+greenhouse,lexisnexisrisk,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+greenhouse,linkedin,LINKEDIN CORPORATION,name-mismatch,53,LI Test Company,2026-09-29
 greenhouse,loom,Loom,notfound,,,2026-09-14
+greenhouse,lowe,"Lowe's Companies, Inc.",empty,,,2026-09-29
+greenhouse,lowe-s,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+greenhouse,lowe-s-companies,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+greenhouse,lowes,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+greenhouse,lowescompanies,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+greenhouse,ltimindtree,LTIMindtree Limited,notfound,,,2026-09-29
 greenhouse,lucid,Lucid,notfound,,,2026-09-14
+greenhouse,macquarie,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+greenhouse,macquarie-holdings,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+greenhouse,macquarieholdings,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+greenhouse,maplebear,Maplebear Inc.,notfound,,,2026-09-29
 greenhouse,marqeta,Marqeta,notfound,,,2026-09-14
+greenhouse,mastercard,Mastercard International Incorporated,notfound,,,2026-09-29
+greenhouse,mckinsey,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+greenhouse,mckinsey-and,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+greenhouse,mckinsey-and-company-inc-united-states,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+greenhouse,mckinseyand,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+greenhouse,mckinseyandcompanyincunitedstates,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+greenhouse,medline,"Medline Industries, LP.",notfound,,,2026-09-29
+greenhouse,medline-industries,"Medline Industries, LP.",notfound,,,2026-09-29
+greenhouse,medlineindustries,"Medline Industries, LP.",notfound,,,2026-09-29
+greenhouse,merck,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+greenhouse,merck-sharp,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+greenhouse,merck-sharp-and-dohme,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+greenhouse,mercksharp,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+greenhouse,mercksharpanddohme,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
 greenhouse,meta,"Meta Platforms, Inc",notfound,,,2026-09-29
 greenhouse,meta-platforms,"Meta Platforms, Inc",notfound,,,2026-09-29
 greenhouse,metaplatforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+greenhouse,micron,"Micron Technology, Inc.",notfound,,,2026-09-29
+greenhouse,micron-technology,"Micron Technology, Inc.",notfound,,,2026-09-29
+greenhouse,microntechnology,"Micron Technology, Inc.",notfound,,,2026-09-29
 greenhouse,microsoft,Microsoft Corporation,notfound,,,2026-09-29
 greenhouse,mindbody,Mindbody,confirmed,16,Mindbody,2026-09-14
 greenhouse,miro,Miro,notfound,,,2026-09-14
 greenhouse,mixpanel,Mixpanel,confirmed,86,Mixpanel,2026-09-14
+greenhouse,moelis,Moelis & Company Group LP,notfound,,,2026-09-29
+greenhouse,moelis-and,Moelis & Company Group LP,notfound,,,2026-09-29
+greenhouse,moelisand,Moelis & Company Group LP,notfound,,,2026-09-29
 greenhouse,mongodb,MongoDB,confirmed,403,MongoDB,2026-09-14
+greenhouse,moody,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+greenhouse,moody-s,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+greenhouse,moody-s-analytics,"Moody's Analytics, Inc.",notfound,,,2026-09-29
+greenhouse,moody-s-investors,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+greenhouse,moodys,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+greenhouse,moodysanalytics,"Moody's Analytics, Inc.",notfound,,,2026-09-29
+greenhouse,moodysinvestors,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+greenhouse,morgan,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+greenhouse,morgan-stanley,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+greenhouse,morgan-stanley-and,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+greenhouse,morgan-stanley-services,Morgan Stanley Services Group Inc.,notfound,,,2026-09-29
+greenhouse,morganstanley,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+greenhouse,morganstanleyand,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+greenhouse,morganstanleyservices,Morgan Stanley Services Group Inc.,notfound,,,2026-09-29
 greenhouse,motive,Motive,confirmed,4,Motive,2026-09-14
+greenhouse,mpg-operations,MPG Operations LLC,notfound,,,2026-09-29
+greenhouse,mpgoperations,MPG Operations LLC,notfound,,,2026-09-29
+greenhouse,mphasis,Mphasis Corporation,notfound,,,2026-09-29
 greenhouse,navan,Navan,notfound,,,2026-09-14
+greenhouse,navy,Navy Federal Credit Union,notfound,,,2026-09-29
+greenhouse,navy-federal,Navy Federal Credit Union,notfound,,,2026-09-29
+greenhouse,navy-federal-credit-union,Navy Federal Credit Union,notfound,,,2026-09-29
+greenhouse,navyfederal,Navy Federal Credit Union,notfound,,,2026-09-29
+greenhouse,navyfederalcreditunion,Navy Federal Credit Union,notfound,,,2026-09-29
+greenhouse,netflix,"Netflix, Inc.",notfound,,,2026-09-29
 greenhouse,netlify,Netlify,confirmed,1,Netlify,2026-09-14
 greenhouse,nextdoor,Nextdoor,confirmed,23,Nextdoor,2026-09-14
+greenhouse,nomura,"Nomura Securities International, Inc.",notfound,,,2026-09-29
+greenhouse,nomura-securities,"Nomura Securities International, Inc.",notfound,,,2026-09-29
+greenhouse,nomurasecurities,"Nomura Securities International, Inc.",notfound,,,2026-09-29
 greenhouse,noom,Noom,notfound,,,2026-09-14
+greenhouse,novartis,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+greenhouse,novartis-pharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+greenhouse,novartispharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+greenhouse,ntt-data,"NTT DATA Americas, Inc.",notfound,,,2026-09-29
+greenhouse,nttdata,"NTT DATA Americas, Inc.",notfound,,,2026-09-29
 greenhouse,nubank,Nubank,empty,,,2026-09-14
 greenhouse,nuro,Nuro,confirmed,105,Nuro,2026-09-14
+greenhouse,nvidia,NVIDIA Corporation,notfound,,,2026-09-29
 greenhouse,olipop,Olipop,confirmed,9,OLIPOP,2026-09-14
+greenhouse,onemain,OneMain General Services Corporation,notfound,,,2026-09-29
+greenhouse,onemain-general,OneMain General Services Corporation,notfound,,,2026-09-29
+greenhouse,onemaingeneral,OneMain General Services Corporation,notfound,,,2026-09-29
+greenhouse,open,Open Avenues Foundation,notfound,,,2026-09-29
+greenhouse,open-avenues,Open Avenues Foundation,notfound,,,2026-09-29
+greenhouse,open-avenues-foundation,Open Avenues Foundation,notfound,,,2026-09-29
+greenhouse,openai,"OpenAI OpCo, LLC",notfound,,,2026-09-29
+greenhouse,openai-opco,"OpenAI OpCo, LLC",notfound,,,2026-09-29
+greenhouse,openaiopco,"OpenAI OpCo, LLC",notfound,,,2026-09-29
+greenhouse,openavenues,Open Avenues Foundation,notfound,,,2026-09-29
+greenhouse,openavenuesfoundation,Open Avenues Foundation,notfound,,,2026-09-29
 greenhouse,opendoor,Opendoor,notfound,,,2026-09-14
+greenhouse,optum,"Optum Services, Inc.",notfound,,,2026-09-29
+greenhouse,optum-services,"Optum Services, Inc.",notfound,,,2026-09-29
+greenhouse,optumservices,"Optum Services, Inc.",notfound,,,2026-09-29
+greenhouse,oracle,"Oracle America, Inc.",notfound,,,2026-09-29
 greenhouse,outreach,Outreach,notfound,,,2026-09-14
+greenhouse,pacific,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+greenhouse,pacific-investment,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+greenhouse,pacific-investment-management,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+greenhouse,pacificinvestment,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+greenhouse,pacificinvestmentmanagement,Pacific Investment Management Company LLC,notfound,,,2026-09-29
 greenhouse,pagerduty,PagerDuty,confirmed,48,PagerDuty,2026-09-14
 greenhouse,palantir,Palantir,notfound,,,2026-09-14
+greenhouse,palantir-technologies,PALANTIR TECHNOLOGIES INC.,notfound,,,2026-09-29
+greenhouse,palantirtechnologies,PALANTIR TECHNOLOGIES INC.,notfound,,,2026-09-29
 greenhouse,pave,Pave,notfound,,,2026-09-14
 greenhouse,payoneer,Payoneer,confirmed,124,Payoneer,2026-09-14
+greenhouse,paypal,"PayPal, Inc.",notfound,,,2026-09-29
 greenhouse,peloton,Peloton,confirmed,55,Peloton,2026-09-14
+greenhouse,peopletech,"People Tech Group, Inc",confirmed,5,People Tech,2026-09-29
 greenhouse,perplexity,Perplexity,notfound,,,2026-09-14
+greenhouse,photon,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+greenhouse,photon-infotech,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+greenhouse,photoninfotech,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+greenhouse,pinterest,"Pinterest, Inc.",confirmed,151,Pinterest,2026-09-29
+greenhouse,pjt-partners,PJT Partners Holdings LP,notfound,,,2026-09-29
+greenhouse,pjtpartners,PJT Partners Holdings LP,notfound,,,2026-09-29
 greenhouse,pluralsight,Pluralsight,notfound,,,2026-09-14
+greenhouse,point72,"Point72, L.P.",confirmed,218,Point72 ,2026-09-29
+greenhouse,point72-l,"Point72, L.P.",notfound,,,2026-09-29
+greenhouse,point72-l-p,"Point72, L.P.",notfound,,,2026-09-29
+greenhouse,point72l,"Point72, L.P.",notfound,,,2026-09-29
+greenhouse,point72lp,"Point72, L.P.",notfound,,,2026-09-29
+greenhouse,populus,Populus Group LLC,notfound,,,2026-09-29
+greenhouse,populus-group,Populus Group LLC,notfound,,,2026-09-29
+greenhouse,populusgroup,Populus Group LLC,notfound,,,2026-09-29
+greenhouse,pricewaterhousecoopers,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+greenhouse,pricewaterhousecoopers-advisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+greenhouse,pricewaterhousecoopersadvisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+greenhouse,prime,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+greenhouse,prime-healthcare,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+greenhouse,prime-healthcare-management,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+greenhouse,primehealthcare,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+greenhouse,primehealthcaremanagement,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
 greenhouse,primer,Primer,notfound,,,2026-09-14
 greenhouse,procore,Procore,notfound,,,2026-09-14
+greenhouse,prudential,The Prudential Insurance Company of America,notfound,,,2026-09-29
+greenhouse,prudential-insurance,The Prudential Insurance Company of America,notfound,,,2026-09-29
+greenhouse,prudential-insurance-company-of,The Prudential Insurance Company of America,notfound,,,2026-09-29
+greenhouse,prudentialinsurance,The Prudential Insurance Company of America,notfound,,,2026-09-29
+greenhouse,prudentialinsurancecompanyof,The Prudential Insurance Company of America,notfound,,,2026-09-29
+greenhouse,pwc-us,PwC US Business Advisory LLP,notfound,,,2026-09-29
+greenhouse,pwc-us-business-advisory,PwC US Business Advisory LLP,notfound,,,2026-09-29
+greenhouse,pwcus,PwC US Business Advisory LLP,notfound,,,2026-09-29
+greenhouse,pwcusbusinessadvisory,PwC US Business Advisory LLP,notfound,,,2026-09-29
+greenhouse,pyramid,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+greenhouse,pyramid-consulting,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+greenhouse,pyramidconsulting,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+greenhouse,quadrant,Quadrant Technologies LLC,notfound,,,2026-09-29
+greenhouse,quadrant-technologies,Quadrant Technologies LLC,notfound,,,2026-09-29
+greenhouse,quadranttechnologies,Quadrant Technologies LLC,notfound,,,2026-09-29
+greenhouse,randstad,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+greenhouse,randstad-digital,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+greenhouse,randstaddigital,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+greenhouse,rbc-capital,RBC Capital Markets LLC,notfound,,,2026-09-29
+greenhouse,rbc-capital-markets,RBC Capital Markets LLC,notfound,,,2026-09-29
+greenhouse,rbccapital,RBC Capital Markets LLC,notfound,,,2026-09-29
+greenhouse,rbccapitalmarkets,RBC Capital Markets LLC,notfound,,,2026-09-29
 greenhouse,recursion,Recursion,notfound,,,2026-09-14
 greenhouse,redfin,Redfin,notfound,,,2026-09-14
+greenhouse,regeneron,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+greenhouse,regeneron-pharmaceuticals,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+greenhouse,regeneronpharmaceuticals,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
 greenhouse,relativity,Relativity,confirmed,340,Relativity Space,2026-09-14
+greenhouse,relx,"RELX, Inc.",notfound,,,2026-09-29
 greenhouse,remitly,Remitly,notfound,,,2026-09-14
 greenhouse,render,Render,notfound,,,2026-09-14
 greenhouse,retool,Retool,notfound,,,2026-09-14
 greenhouse,rippling,Rippling,notfound,,,2026-09-14
 greenhouse,rivian,Rivian,notfound,,,2026-09-14
+greenhouse,rivian-automotive,"Rivian Automotive, LLC",notfound,,,2026-09-29
+greenhouse,rivianautomotive,"Rivian Automotive, LLC",notfound,,,2026-09-29
+greenhouse,robinhood,"ROBINHOOD MARKETS, INC",confirmed,161,Robinhood,2026-09-29
+greenhouse,robinhood-markets,"ROBINHOOD MARKETS, INC",notfound,,,2026-09-29
+greenhouse,robinhoodmarkets,"ROBINHOOD MARKETS, INC",notfound,,,2026-09-29
 greenhouse,roblox,Roblox,confirmed,235,Roblox,2026-09-14
+greenhouse,robotics,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,robotics-technologies,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,roboticstechnologies,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,rocket,Rocket Limited Partnership,notfound,,,2026-09-29
+greenhouse,rocket-limited,Rocket Limited Partnership,notfound,,,2026-09-29
+greenhouse,rocket-limited-partnership,Rocket Limited Partnership,notfound,,,2026-09-29
+greenhouse,rocketlimited,Rocket Limited Partnership,notfound,,,2026-09-29
+greenhouse,rocketlimitedpartnership,Rocket Limited Partnership,notfound,,,2026-09-29
 greenhouse,runway,Runway,notfound,,,2026-09-14
+greenhouse,salesforce,"Salesforce, Inc.",notfound,,,2026-09-29
 greenhouse,salesloft,Salesloft,confirmed,32,Salesloft,2026-09-14
 greenhouse,scale,Scale,notfound,,,2026-09-14
+greenhouse,scotia,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
+greenhouse,scotia-capital,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
+greenhouse,scotiacapital,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
 greenhouse,segment,Segment,notfound,,,2026-09-14
 greenhouse,sentry,Sentry,notfound,,,2026-09-14
+greenhouse,servicenow,"ServiceNow, Inc.",notfound,,,2026-09-29
 greenhouse,shield,Shield,name-mismatch,1,S.H.I.E.L.D.,2026-09-14
 greenhouse,shopify,Shopify,notfound,,,2026-09-14
 greenhouse,sierra,Sierra,notfound,,,2026-09-14
 greenhouse,sigma,Sigma,notfound,,,2026-09-14
+greenhouse,slalom,"Slalom, Inc.",notfound,,,2026-09-29
+greenhouse,snap,SNAP INC.,notfound,,,2026-09-29
 greenhouse,snowflake,Snowflake,notfound,,,2026-09-14
+greenhouse,socialfinance,"Social Finance, LLC",confirmed,3,Social Finance,2026-09-29
 greenhouse,sofi,SoFi,confirmed,57,SoFi,2026-09-14
+greenhouse,squad,Squad Software Inc,confirmed,30,SQUAD,2026-09-29
+greenhouse,squad-software,Squad Software Inc,notfound,,,2026-09-29
+greenhouse,squadsoftware,Squad Software Inc,notfound,,,2026-09-29
+greenhouse,starbucks,Starbucks Coffee Company,notfound,,,2026-09-29
+greenhouse,starbucks-coffee,Starbucks Coffee Company,notfound,,,2026-09-29
+greenhouse,starbuckscoffee,Starbucks Coffee Company,notfound,,,2026-09-29
+greenhouse,state,State Street Bank and Trust Company,notfound,,,2026-09-29
+greenhouse,state-street,State Street Bank and Trust Company,notfound,,,2026-09-29
+greenhouse,state-street-bank-and-trust,State Street Bank and Trust Company,notfound,,,2026-09-29
+greenhouse,statestreet,State Street Bank and Trust Company,notfound,,,2026-09-29
+greenhouse,statestreetbankandtrust,State Street Bank and Trust Company,notfound,,,2026-09-29
 greenhouse,strava,Strava,notfound,,,2026-09-14
+greenhouse,stripe,"Stripe, Inc.",confirmed,711,Stripe,2026-09-29
+greenhouse,sumeru,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,sumeru-technologies,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,sumerutechnologies,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+greenhouse,sumitomo,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+greenhouse,sumitomo-mitsui,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+greenhouse,sumitomo-mitsui-banking,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+greenhouse,sumitomomitsui,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+greenhouse,sumitomomitsuibanking,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+greenhouse,synechron,"Synechron, Inc.",notfound,,,2026-09-29
 greenhouse,synthesia,Synthesia,notfound,,,2026-09-14
+greenhouse,sysintelli,Sysintelli Inc.,notfound,,,2026-09-29
+greenhouse,t-mobile,"T-Mobile USA, Inc.",notfound,,,2026-09-29
+greenhouse,target,"Target Enterprise, Inc.",notfound,,,2026-09-29
+greenhouse,target-enterprise,"Target Enterprise, Inc.",notfound,,,2026-09-29
+greenhouse,targetenterprise,"Target Enterprise, Inc.",notfound,,,2026-09-29
+greenhouse,tata,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+greenhouse,tata-consultancy,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+greenhouse,tataconsultancy,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+greenhouse,td-securities,TD Securities (USA) LLC,notfound,,,2026-09-29
+greenhouse,tdsecurities,TD Securities (USA) LLC,notfound,,,2026-09-29
+greenhouse,tech-mahindra,"TECH MAHINDRA (AMERICAS), INC",notfound,,,2026-09-29
+greenhouse,techdata,TechData Service Company LLC,notfound,,,2026-09-29
+greenhouse,techdata-service,TechData Service Company LLC,notfound,,,2026-09-29
+greenhouse,techdataservice,TechData Service Company LLC,notfound,,,2026-09-29
+greenhouse,techmahindra,"TECH MAHINDRA (AMERICAS), INC",notfound,,,2026-09-29
 greenhouse,tempus,Tempus,notfound,,,2026-09-14
+greenhouse,tesla,"Tesla, Inc.",notfound,,,2026-09-29
+greenhouse,themathcompany,TheMathCompany Inc.,notfound,,,2026-09-29
+greenhouse,tiger,"Tiger Analytics, Inc.",notfound,,,2026-09-29
+greenhouse,tiger-analytics,"Tiger Analytics, Inc.",notfound,,,2026-09-29
+greenhouse,tigeranalytics,"Tiger Analytics, Inc.",notfound,,,2026-09-29
+greenhouse,tiktok,TikTok Inc.,notfound,,,2026-09-29
+greenhouse,tiktok-u,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+greenhouse,tiktok-u-s-data-security,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+greenhouse,tiktok-usds,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+greenhouse,tiktok-usds-joint-venture,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+greenhouse,tiktoku,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+greenhouse,tiktokusdatasecurity,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+greenhouse,tiktokusds,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+greenhouse,tiktokusdsjointventure,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+greenhouse,tmobile,"T-Mobile USA, Inc.",notfound,,,2026-09-29
 greenhouse,toast,Toast,confirmed,328,Toast,2026-09-14
+greenhouse,transunion,TransUnion LLC,notfound,,,2026-09-29
+greenhouse,tredence,Tredence Inc.,notfound,,,2026-09-29
+greenhouse,truist,Truist Bank,notfound,,,2026-09-29
+greenhouse,truist-bank,Truist Bank,notfound,,,2026-09-29
+greenhouse,truistbank,Truist Bank,notfound,,,2026-09-29
+greenhouse,trustees,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+greenhouse,trustees-of,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+greenhouse,trustees-of-the-university-of-pennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+greenhouse,trusteesof,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+greenhouse,trusteesoftheuniversityofpennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
 greenhouse,truveta,Truveta,confirmed,41,Truveta,2026-09-14
+greenhouse,tt-commerce,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+greenhouse,tt-commerce-and-global,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+greenhouse,ttcommerce,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+greenhouse,ttcommerceandglobal,TT Commerce & Global Services LLC,notfound,,,2026-09-29
 greenhouse,twitch,Twitch,confirmed,53,Twitch,2026-09-14
+greenhouse,two-sigma,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+greenhouse,two-sigma-investments,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+greenhouse,twosigma,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+greenhouse,twosigmainvestments,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
 greenhouse,typeface,Typeface,confirmed,16,Typeface,2026-09-14
+greenhouse,u-s-bank-national-association,U.S. Bank National Association,notfound,,,2026-09-29
 greenhouse,uber,Uber,notfound,,,2026-09-14
+greenhouse,uber-technologies,"Uber Technologies, Inc.",notfound,,,2026-09-29
+greenhouse,ubertechnologies,"Uber Technologies, Inc.",notfound,,,2026-09-29
+greenhouse,ubs-business,UBS Business Solutions US LLC,notfound,,,2026-09-29
+greenhouse,ubs-securities,UBS SECURITIES LLC,notfound,,,2026-09-29
+greenhouse,ubsbusiness,UBS Business Solutions US LLC,notfound,,,2026-09-29
+greenhouse,ubssecurities,UBS SECURITIES LLC,notfound,,,2026-09-29
 greenhouse,udemy,Udemy,confirmed,10,Udemy,2026-09-14
+greenhouse,university,University of Michigan,empty,,,2026-09-29
+greenhouse,university-of,University of Michigan,notfound,,,2026-09-29
+greenhouse,university-of-florida,UNIVERSITY OF FLORIDA,notfound,,,2026-09-29
+greenhouse,university-of-michigan,University of Michigan,notfound,,,2026-09-29
+greenhouse,universityof,University of Michigan,notfound,,,2026-09-29
+greenhouse,universityofflorida,UNIVERSITY OF FLORIDA,notfound,,,2026-09-29
+greenhouse,universityofmichigan,University of Michigan,notfound,,,2026-09-29
 greenhouse,upstart,Upstart,confirmed,87,Upstart,2026-09-14
+greenhouse,usbanknationalassociation,U.S. Bank National Association,notfound,,,2026-09-29
+greenhouse,v-soft,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+greenhouse,v-soft-consulting,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+greenhouse,vanguard,"The Vanguard Group, Inc.",notfound,,,2026-09-29
+greenhouse,vanguard-group,"The Vanguard Group, Inc.",notfound,,,2026-09-29
+greenhouse,vanguardgroup,"The Vanguard Group, Inc.",notfound,,,2026-09-29
 greenhouse,vannevar,Vannevar,notfound,,,2026-09-14
 greenhouse,varo,Varo,notfound,,,2026-09-14
+greenhouse,ventois,"Ventois, Inc",notfound,,,2026-09-29
 greenhouse,vercel,Vercel,confirmed,86,Vercel,2026-09-14
 greenhouse,verily,Verily,notfound,,,2026-09-14
+greenhouse,vertex,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+greenhouse,vertex-pharmaceuticals,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+greenhouse,vertexpharmaceuticals,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+greenhouse,virtusa,VIRTUSA CORPORATION,notfound,,,2026-09-29
+greenhouse,virtusa-consulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",notfound,,,2026-09-29
+greenhouse,virtusaconsulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",notfound,,,2026-09-29
+greenhouse,visa,Visa U.S.A. Inc.,notfound,,,2026-09-29
+greenhouse,visa-u,Visa U.S.A. Inc.,notfound,,,2026-09-29
+greenhouse,visa-u-s-a,Visa U.S.A. Inc.,notfound,,,2026-09-29
+greenhouse,visau,Visa U.S.A. Inc.,notfound,,,2026-09-29
+greenhouse,visausa,Visa U.S.A. Inc.,notfound,,,2026-09-29
+greenhouse,vsoft,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+greenhouse,vsoftconsulting,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+greenhouse,wal-mart,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+greenhouse,wal-mart-associates,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+greenhouse,walmart,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+greenhouse,walmartassociates,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
 greenhouse,warby,Warby,notfound,,,2026-09-14
+greenhouse,wayfair,Wayfair LLC,notfound,,,2026-09-29
+greenhouse,wells,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+greenhouse,wells-fargo,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+greenhouse,wells-fargo-bank-n-a,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+greenhouse,wellsfargo,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+greenhouse,wellsfargobankna,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
 greenhouse,whoop,Whoop,notfound,,,2026-09-14
+greenhouse,wipro,WIPRO LIMITED,notfound,,,2026-09-29
 greenhouse,wise,Wise,confirmed,18,Wise Worksite Field Sales ,2026-09-14
+greenhouse,workday,"Workday, Inc.",notfound,,,2026-09-29
 greenhouse,writer,Writer,notfound,,,2026-09-14
 greenhouse,yelp,Yelp,notfound,,,2026-09-14
 greenhouse,zapier,Zapier,notfound,,,2026-09-14
+greenhouse,zensar,"Zensar Technologies, Inc.",notfound,,,2026-09-29
+greenhouse,zensar-technologies,"Zensar Technologies, Inc.",notfound,,,2026-09-29
+greenhouse,zensartechnologies,"Zensar Technologies, Inc.",notfound,,,2026-09-29
 greenhouse,zocdoc,Zocdoc,confirmed,52,Zocdoc,2026-09-14
 greenhouse,zoominfo,ZoomInfo,confirmed,110,ZoomInfo Technologies LLC,2026-09-14
 greenhouse,zoox,Zoox,notfound,,,2026-09-14
+greenhouse,zs-associates,"ZS Associates, Inc.",notfound,,,2026-09-29
+greenhouse,zsassociates,"ZS Associates, Inc.",notfound,,,2026-09-29
+lever,a-t-kearney,"A.T. Kearney, Inc.",notfound,,,2026-09-29
+lever,abbvie,AbbVie Inc.,notfound,,,2026-09-29
+lever,accenture,Accenture LLP,notfound,,,2026-09-29
+lever,ace-american,ACE American Insurance Company,notfound,,,2026-09-29
+lever,ace-american-insurance,ACE American Insurance Company,notfound,,,2026-09-29
+lever,aceamerican,ACE American Insurance Company,notfound,,,2026-09-29
+lever,aceamericaninsurance,ACE American Insurance Company,notfound,,,2026-09-29
+lever,adobe,Adobe Inc.,notfound,,,2026-09-29
+lever,aetna,Aetna Resources LLC,notfound,,,2026-09-29
+lever,aetna-resources,Aetna Resources LLC,notfound,,,2026-09-29
+lever,aetnaresources,Aetna Resources LLC,notfound,,,2026-09-29
 lever,aledade,Aledade,confirmed,35,,2026-09-14
 lever,allbirds,Allbirds,notfound,,,2026-09-14
 lever,amazon,Amazon.com Services LLC,notfound,,,2026-09-29
+lever,amazon-advertising,Amazon Advertising LLC,notfound,,,2026-09-29
+lever,amazon-data,"Amazon Data Services, Inc",notfound,,,2026-09-29
+lever,amazon-development,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+lever,amazon-development-center-u-s,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+lever,amazon-web,"Amazon Web Services, Inc.",notfound,,,2026-09-29
+lever,amazonadvertising,Amazon Advertising LLC,notfound,,,2026-09-29
+lever,amazondata,"Amazon Data Services, Inc",notfound,,,2026-09-29
+lever,amazondevelopment,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+lever,amazondevelopmentcenterus,"Amazon Development Center U.S., Inc.",notfound,,,2026-09-29
+lever,amazonweb,"Amazon Web Services, Inc.",notfound,,,2026-09-29
+lever,american-airlines,"American Airlines, Inc.",notfound,,,2026-09-29
+lever,american-express,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+lever,american-express-travel-related,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+lever,americanairlines,"American Airlines, Inc.",notfound,,,2026-09-29
+lever,americanexpress,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+lever,americanexpresstravelrelated,"American Express Travel Related Services Company, Inc.",notfound,,,2026-09-29
+lever,amgen,Amgen Inc.,notfound,,,2026-09-29
 lever,anduril,Anduril,notfound,,,2026-09-14
 lever,angellist,AngelList,confirmed,25,,2026-09-14
 lever,apollo,Apollo,notfound,,,2026-09-14
+lever,apollo-management,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+lever,apollo-management-holdings-l-p,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+lever,apollomanagement,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+lever,apollomanagementholdingslp,"Apollo Management Holdings, L.P.",notfound,,,2026-09-29
+lever,apple,Apple Inc.,notfound,,,2026-09-29
+lever,artifint,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,artifint-technologies,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,artifinttechnologies,ARTIFINT TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,asta,"Asta CRS, Inc.",notfound,,,2026-09-29
+lever,asta-crs,"Asta CRS, Inc.",notfound,,,2026-09-29
+lever,astacrs,"Asta CRS, Inc.",notfound,,,2026-09-29
+lever,at-and,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+lever,at-and-t,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+lever,atand,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+lever,atandt,"AT&T SERVICES, INC.",notfound,,,2026-09-29
+lever,atkearney,"A.T. Kearney, Inc.",notfound,,,2026-09-29
+lever,atlassian,"Atlassian US, Inc.",notfound,,,2026-09-29
+lever,axtria,Axtria INC,notfound,,,2026-09-29
+lever,bain,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+lever,bain-and,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+lever,bainand,"BAIN & COMPANY, INC.",notfound,,,2026-09-29
+lever,balyasny,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+lever,balyasny-asset,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+lever,balyasny-asset-management-l-p,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+lever,balyasnyasset,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+lever,balyasnyassetmanagementlp,"Balyasny Asset Management, L.P.",notfound,,,2026-09-29
+lever,bank,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+lever,bank-of,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+lever,bank-of-america-n-a,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+lever,bank-of-new-york-mellon,The Bank of New York Mellon,notfound,,,2026-09-29
+lever,bank-of-nova-scotia,THE BANK OF NOVA SCOTIA,notfound,,,2026-09-29
+lever,bankof,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+lever,bankofamericana,BANK OF AMERICA N.A.,notfound,,,2026-09-29
+lever,bankofnewyorkmellon,The Bank of New York Mellon,notfound,,,2026-09-29
+lever,bankofnovascotia,THE BANK OF NOVA SCOTIA,notfound,,,2026-09-29
+lever,barclays,Barclays Services Corp.,notfound,,,2026-09-29
+lever,barclays-capital,Barclays Capital Inc.,notfound,,,2026-09-29
+lever,barclays-services,Barclays Services Corp.,notfound,,,2026-09-29
+lever,barclayscapital,Barclays Capital Inc.,notfound,,,2026-09-29
+lever,barclaysservices,Barclays Services Corp.,notfound,,,2026-09-29
+lever,bayer,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+lever,bayer-research,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+lever,bayer-research-and-development,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+lever,bayerresearch,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+lever,bayerresearchanddevelopment,Bayer Research and Development Services LLC,notfound,,,2026-09-29
+lever,blackrock,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+lever,blackrock-financial,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+lever,blackrock-financial-management,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+lever,blackrockfinancial,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+lever,blackrockfinancialmanagement,"BlackRock Financial Management, Inc.",notfound,,,2026-09-29
+lever,blackstone,"Blackstone, Inc.",notfound,,,2026-09-29
+lever,bloomberg,Bloomberg L.P.,notfound,,,2026-09-29
+lever,bloomberg-l,Bloomberg L.P.,notfound,,,2026-09-29
+lever,bloomberg-l-p,Bloomberg L.P.,notfound,,,2026-09-29
+lever,bloombergl,Bloomberg L.P.,notfound,,,2026-09-29
+lever,bloomberglp,Bloomberg L.P.,notfound,,,2026-09-29
+lever,bnp-paribas,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+lever,bnp-paribas-securities,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+lever,bnpparibas,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+lever,bnpparibassecurities,BNP Paribas Securities Corp.,notfound,,,2026-09-29
+lever,bofa,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
+lever,bofa-securities,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
+lever,bofasecurities,"BOFA SECURITIES, INC.",notfound,,,2026-09-29
 lever,booksy,Booksy,notfound,,,2026-09-14
+lever,boston,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
+lever,boston-consulting,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
+lever,bostonconsulting,"Boston Consulting Group, Inc.",notfound,,,2026-09-29
 lever,braintree,Braintree,notfound,,,2026-09-14
+lever,bridgewater,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+lever,bridgewater-associates,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+lever,bridgewaterassociates,"BRIDGEWATER ASSOCIATES, LP",notfound,,,2026-09-29
+lever,brillio,"Brillio, LLC",notfound,,,2026-09-29
+lever,bristol,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+lever,bristol-myers,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+lever,bristol-myers-squibb,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+lever,bristolmyers,Bristol-Myers Squibb Company,notfound,,,2026-09-29
+lever,bristolmyerssquibb,Bristol-Myers Squibb Company,notfound,,,2026-09-29
 lever,bumble,Bumble,notfound,,,2026-09-14
+lever,bytedance,BYTEDANCE INC.,notfound,,,2026-09-29
+lever,capgemini,Capgemini America Inc,notfound,,,2026-09-29
+lever,capital,"Capital One, National Association",confirmed,53,,2026-09-29
+lever,capital-one,"Capital One, National Association",notfound,,,2026-09-29
+lever,capital-one-national-association,"Capital One, National Association",notfound,,,2026-09-29
+lever,capitalone,"Capital One, National Association",notfound,,,2026-09-29
+lever,capitalonenationalassociation,"Capital One, National Association",notfound,,,2026-09-29
+lever,caremark,Caremark LLC,notfound,,,2026-09-29
+lever,cbre,"CBRE, INC.",notfound,,,2026-09-29
 lever,census,Census,notfound,,,2026-09-14
+lever,cgi-technologies,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+lever,cgi-technologies-and,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+lever,cgitechnologies,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
+lever,cgitechnologiesand,CGI Technologies and Solutions Inc.,notfound,,,2026-09-29
 lever,chainalysis,Chainalysis,notfound,,,2026-09-14
+lever,charter,"Charter Communications, Inc.",notfound,,,2026-09-29
+lever,charter-communications,"Charter Communications, Inc.",notfound,,,2026-09-29
+lever,chartercommunications,"Charter Communications, Inc.",notfound,,,2026-09-29
 lever,chewy,Chewy,notfound,,,2026-09-14
+lever,cigna,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+lever,cigna-evernorth,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+lever,cignaevernorth,Cigna-Evernorth Services Inc.,notfound,,,2026-09-29
+lever,cisco,"Cisco Systems, Inc.",notfound,,,2026-09-29
+lever,cisco-systems,"Cisco Systems, Inc.",notfound,,,2026-09-29
+lever,ciscosystems,"Cisco Systems, Inc.",notfound,,,2026-09-29
+lever,citadel,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citadel-americas,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citadel-securities,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citadel-securities-americas,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citadelamericas,CITADEL AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citadelsecurities,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citadelsecuritiesamericas,CITADEL SECURITIES AMERICAS SERVICES LLC,notfound,,,2026-09-29
+lever,citibank,"Citibank, N.A.",notfound,,,2026-09-29
+lever,citibank-n,"Citibank, N.A.",notfound,,,2026-09-29
+lever,citibank-n-a,"Citibank, N.A.",notfound,,,2026-09-29
+lever,citibankn,"Citibank, N.A.",notfound,,,2026-09-29
+lever,citibankna,"Citibank, N.A.",notfound,,,2026-09-29
+lever,citigroup,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+lever,citigroup-global,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+lever,citigroup-global-markets,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+lever,citigroupglobal,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+lever,citigroupglobalmarkets,Citigroup Global Markets Inc.,notfound,,,2026-09-29
+lever,citiustech,CitiusTech Inc.,notfound,,,2026-09-29
 lever,clari,Clari,empty,,,2026-09-14
 lever,clay,Clay,notfound,,,2026-09-14
 lever,clio,Clio,notfound,,,2026-09-14
 lever,codecademy,Codecademy,notfound,,,2026-09-14
+lever,coforge,Coforge Limited,notfound,,,2026-09-29
+lever,cognizant,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
+lever,cognizant-technology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
+lever,cognizanttechnology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,notfound,,,2026-09-29
 lever,color,Color,notfound,,,2026-09-14
+lever,comcast,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+lever,comcast-cable,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+lever,comcast-cable-communications,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+lever,comcastcable,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
+lever,comcastcablecommunications,"Comcast Cable Communications, LLC",notfound,,,2026-09-29
 lever,compass,Compass,notfound,,,2026-09-14
+lever,compunnel,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
+lever,compunnel-software,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
+lever,compunnelsoftware,"COMPUNNEL SOFTWARE GROUP, INC",notfound,,,2026-09-29
 lever,convoy,Convoy,notfound,,,2026-09-14
+lever,cotiviti,"Cotiviti, Inc.",notfound,,,2026-09-29
+lever,cummins,Cummins Inc.,notfound,,,2026-09-29
+lever,cvs-pharmacy,CVS Pharmacy Inc.,notfound,,,2026-09-29
+lever,cvs-shared,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+lever,cvs-shared-services-resources,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+lever,cvspharmacy,CVS Pharmacy Inc.,notfound,,,2026-09-29
+lever,cvsshared,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+lever,cvssharedservicesresources,CVS Shared Services Resources LLC,notfound,,,2026-09-29
+lever,dataeconomy,"DATAECONOMY, INC.",notfound,,,2026-09-29
+lever,db-usa,DB USA Core Corporation,notfound,,,2026-09-29
+lever,db-usa-core,DB USA Core Corporation,notfound,,,2026-09-29
+lever,dbusa,DB USA Core Corporation,notfound,,,2026-09-29
+lever,dbusacore,DB USA Core Corporation,notfound,,,2026-09-29
+lever,dell,Dell USA L.P.,notfound,,,2026-09-29
+lever,dell-usa,Dell USA L.P.,notfound,,,2026-09-29
+lever,dell-usa-l-p,Dell USA L.P.,notfound,,,2026-09-29
+lever,dellusa,Dell USA L.P.,notfound,,,2026-09-29
+lever,dellusalp,Dell USA L.P.,notfound,,,2026-09-29
+lever,deloitte,Deloitte Consulting LLP,notfound,,,2026-09-29
+lever,deloitte-and,Deloitte & Touche LLP,notfound,,,2026-09-29
+lever,deloitte-and-touche,Deloitte & Touche LLP,notfound,,,2026-09-29
+lever,deloitte-consulting,Deloitte Consulting LLP,notfound,,,2026-09-29
+lever,deloitte-tax,Deloitte Tax LLP,notfound,,,2026-09-29
+lever,deloitteand,Deloitte & Touche LLP,notfound,,,2026-09-29
+lever,deloitteandtouche,Deloitte & Touche LLP,notfound,,,2026-09-29
+lever,deloitteconsulting,Deloitte Consulting LLP,notfound,,,2026-09-29
+lever,deloittetax,Deloitte Tax LLP,notfound,,,2026-09-29
+lever,deutsche,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+lever,deutsche-bank,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+lever,deutsche-bank-securities,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+lever,deutschebank,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
+lever,deutschebanksecurities,"Deutsche Bank Securities, Inc.",notfound,,,2026-09-29
 lever,devoted,Devoted,notfound,,,2026-09-14
+lever,dish,Dish Wireless LLC,notfound,,,2026-09-29
+lever,dish-wireless,Dish Wireless LLC,notfound,,,2026-09-29
+lever,dishwireless,Dish Wireless LLC,notfound,,,2026-09-29
 lever,doordash,DoorDash,notfound,,,2026-09-14
+lever,ebay,eBay Inc.,notfound,,,2026-09-29
+lever,elevance,"Elevance Health, Inc.",notfound,,,2026-09-29
+lever,elevance-health,"Elevance Health, Inc.",notfound,,,2026-09-29
+lever,elevancehealth,"Elevance Health, Inc.",notfound,,,2026-09-29
+lever,eli-lilly,Eli Lilly and Company,notfound,,,2026-09-29
+lever,eli-lilly-and,Eli Lilly and Company,notfound,,,2026-09-29
+lever,elililly,Eli Lilly and Company,notfound,,,2026-09-29
+lever,elilillyand,Eli Lilly and Company,notfound,,,2026-09-29
 lever,empower,Empower,notfound,,,2026-09-14
 lever,ernst,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 lever,ernst-and,Ernst & Young U.S. LLP,notfound,,,2026-09-29
@@ -294,80 +1619,614 @@ lever,ernst-and-young-u-s,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 lever,ernstand,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 lever,ernstandyoungus,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 lever,etsy,Etsy,notfound,,,2026-09-14
+lever,evercore,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+lever,evercore-partners,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+lever,evercore-partners-services-east,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+lever,evercorepartners,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+lever,evercorepartnersserviceseast,EVERCORE PARTNERS SERVICES EAST LLC,notfound,,,2026-09-29
+lever,exlservice,"ExlService.com, LLC",notfound,,,2026-09-29
+lever,expedia,"Expedia, Inc.",notfound,,,2026-09-29
+lever,experis,"Experis US, LLC",notfound,,,2026-09-29
+lever,federal,Federal Express Corporation,notfound,,,2026-09-29
+lever,federal-express,Federal Express Corporation,notfound,,,2026-09-29
+lever,federalexpress,Federal Express Corporation,notfound,,,2026-09-29
+lever,fidelity,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+lever,fidelity-brokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+lever,fidelity-brokerage-services-llc-d-b-a-fidelity-investments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+lever,fidelity-technology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+lever,fidelity-technology-group-llc-d-b-a-fidelity-investments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+lever,fidelitybrokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+lever,fidelitybrokerageservicesllcdbafidelityinvestments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,notfound,,,2026-09-29
+lever,fidelitytechnology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+lever,fidelitytechnologygroupllcdbafidelityinvestments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",notfound,,,2026-09-29
+lever,first-citizens,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+lever,first-citizens-bank-and-trust,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+lever,firstcitizens,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+lever,firstcitizensbankandtrust,First Citizens Bank and Trust Co.,notfound,,,2026-09-29
+lever,fis-management,"FIS Management Services, LLC",notfound,,,2026-09-29
+lever,fiserv,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+lever,fiserv-solutions,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+lever,fiservsolutions,"Fiserv Solutions, LLC",notfound,,,2026-09-29
+lever,fismanagement,"FIS Management Services, LLC",notfound,,,2026-09-29
 lever,flatiron,Flatiron,notfound,,,2026-09-14
+lever,food,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+lever,food-and,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+lever,food-and-drug-administration,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+lever,foodand,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+lever,foodanddrugadministration,FOOD AND DRUG ADMINISTRATION,notfound,,,2026-09-29
+lever,ford,FORD MOTOR COMPANY,notfound,,,2026-09-29
+lever,ford-motor,FORD MOTOR COMPANY,notfound,,,2026-09-29
+lever,fordmotor,FORD MOTOR COMPANY,notfound,,,2026-09-29
 lever,fresha,Fresha,confirmed,153,,2026-09-14
+lever,genentech,"Genentech, Inc.",notfound,,,2026-09-29
+lever,genpact,Genpact LLC,notfound,,,2026-09-29
+lever,gilead,"Gilead Sciences, Inc.",notfound,,,2026-09-29
+lever,gilead-sciences,"Gilead Sciences, Inc.",notfound,,,2026-09-29
+lever,gileadsciences,"Gilead Sciences, Inc.",notfound,,,2026-09-29
 lever,glean,Glean,notfound,,,2026-09-14
+lever,goldman,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+lever,goldman-sachs,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+lever,goldman-sachs-and,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+lever,goldman-sachs-bank,Goldman Sachs Bank USA,notfound,,,2026-09-29
+lever,goldmansachs,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+lever,goldmansachsand,GOLDMAN SACHS & CO. LLC,notfound,,,2026-09-29
+lever,goldmansachsbank,Goldman Sachs Bank USA,notfound,,,2026-09-29
 lever,gong,Gong,notfound,,,2026-09-14
+lever,google,Google LLC,notfound,,,2026-09-29
 lever,grafana,Grafana,notfound,,,2026-09-14
+lever,groupm,"GroupM Worldwide, LLC",notfound,,,2026-09-29
 lever,guardant,Guardant,notfound,,,2026-09-14
 lever,hashicorp,HashiCorp,notfound,,,2026-09-14
 lever,headspace,Headspace,notfound,,,2026-09-14
+lever,healthcare,HEALTH CARE SERVICE CORPORATION,confirmed,6,,2026-09-29
+lever,hexaware,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+lever,hexaware-technologies,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+lever,hexawaretechnologies,"Hexaware Technologies, Inc.",notfound,,,2026-09-29
+lever,home,Home Depot Management Company LLC,notfound,,,2026-09-29
+lever,home-depot,Home Depot Management Company LLC,notfound,,,2026-09-29
+lever,home-depot-management,Home Depot Management Company LLC,notfound,,,2026-09-29
+lever,homedepot,Home Depot Management Company LLC,notfound,,,2026-09-29
+lever,homedepotmanagement,Home Depot Management Company LLC,notfound,,,2026-09-29
+lever,humana,Humana Inc.,notfound,,,2026-09-29
 lever,included,Included,notfound,,,2026-09-14
+lever,indeed,"Indeed, Inc.",notfound,,,2026-09-29
+lever,infinite,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+lever,infinite-computer,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+lever,infinitecomputer,"Infinite Computer Solutions, Inc.",notfound,,,2026-09-29
+lever,infosys,INFOSYS LIMITED,notfound,,,2026-09-29
+lever,innova,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+lever,innova-solutions,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+lever,innovasolutions,"INNOVA SOLUTIONS, INC.",notfound,,,2026-09-29
+lever,insight,"Insight Global, LLC",notfound,,,2026-09-29
+lever,intel,Intel Corporation,notfound,,,2026-09-29
+lever,intuit,Intuit Inc.,notfound,,,2026-09-29
+lever,intuitive,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+lever,intuitive-surgical,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+lever,intuitive-surgical-operations,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+lever,intuitivesurgical,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
+lever,intuitivesurgicaloperations,"Intuitive Surgical Operations, Inc.",notfound,,,2026-09-29
 lever,invitae,Invitae,notfound,,,2026-09-14
+lever,iqvia,IQVIA Inc.,notfound,,,2026-09-29
+lever,iqvia-rds,IQVIA RDS Inc.,notfound,,,2026-09-29
+lever,iqviards,IQVIA RDS Inc.,notfound,,,2026-09-29
 lever,ironclad,Ironclad,notfound,,,2026-09-14
 lever,jasper,Jasper,notfound,,,2026-09-14
+lever,jefferies,Jefferies LLC,notfound,,,2026-09-29
 lever,jpmorgan,JPMorgan Chase & Co.,notfound,,,2026-09-29
 lever,jpmorgan-chase,JPMorgan Chase & Co.,notfound,,,2026-09-29
 lever,jpmorgan-chase-and,JPMorgan Chase & Co.,notfound,,,2026-09-29
 lever,jpmorganchase,JPMorgan Chase & Co.,notfound,,,2026-09-29
 lever,jpmorganchaseand,JPMorgan Chase & Co.,notfound,,,2026-09-29
+lever,kforce,KFORCE INC.,notfound,,,2026-09-29
 lever,khan,Khan,notfound,,,2026-09-14
+lever,kian,Kian Corp,notfound,,,2026-09-29
 lever,komodo,Komodo,notfound,,,2026-09-14
+lever,kpmg,KPMG LLP,empty,,,2026-09-29
 lever,kraken,Kraken,empty,,,2026-09-14
+lever,latentview,LatentView Analytics Corporation,notfound,,,2026-09-29
+lever,latentview-analytics,LatentView Analytics Corporation,notfound,,,2026-09-29
+lever,latentviewanalytics,LatentView Analytics Corporation,notfound,,,2026-09-29
 lever,legalzoom,LegalZoom,notfound,,,2026-09-14
+lever,lexisnexis,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+lever,lexisnexis-risk,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+lever,lexisnexisrisk,"LexisNexis Risk Solutions, Inc.",notfound,,,2026-09-29
+lever,linkedin,LINKEDIN CORPORATION,confirmed,23,,2026-09-29
 lever,loom,Loom,notfound,,,2026-09-14
+lever,lowe,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+lever,lowe-s,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+lever,lowe-s-companies,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+lever,lowes,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+lever,lowescompanies,"Lowe's Companies, Inc.",notfound,,,2026-09-29
+lever,ltimindtree,LTIMindtree Limited,notfound,,,2026-09-29
 lever,lucid,Lucid,notfound,,,2026-09-14
+lever,macquarie,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+lever,macquarie-holdings,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+lever,macquarieholdings,Macquarie Holdings (USA) Inc.,notfound,,,2026-09-29
+lever,maplebear,Maplebear Inc.,notfound,,,2026-09-29
 lever,marqeta,Marqeta,notfound,,,2026-09-14
+lever,mastercard,Mastercard International Incorporated,notfound,,,2026-09-29
+lever,mckinsey,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+lever,mckinsey-and,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+lever,mckinsey-and-company-inc-united-states,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+lever,mckinseyand,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+lever,mckinseyandcompanyincunitedstates,"McKinsey & Company, Inc. United States",notfound,,,2026-09-29
+lever,medline,"Medline Industries, LP.",notfound,,,2026-09-29
+lever,medline-industries,"Medline Industries, LP.",notfound,,,2026-09-29
+lever,medlineindustries,"Medline Industries, LP.",notfound,,,2026-09-29
+lever,merck,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+lever,merck-sharp,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+lever,merck-sharp-and-dohme,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+lever,mercksharp,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
+lever,mercksharpanddohme,MERCK SHARP & DOHME LLC,notfound,,,2026-09-29
 lever,meta,"Meta Platforms, Inc",notfound,,,2026-09-29
 lever,meta-platforms,"Meta Platforms, Inc",notfound,,,2026-09-29
 lever,metaplatforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+lever,micron,"Micron Technology, Inc.",notfound,,,2026-09-29
+lever,micron-technology,"Micron Technology, Inc.",notfound,,,2026-09-29
+lever,microntechnology,"Micron Technology, Inc.",notfound,,,2026-09-29
 lever,microsoft,Microsoft Corporation,notfound,,,2026-09-29
+lever,moelis,Moelis & Company Group LP,notfound,,,2026-09-29
+lever,moelis-and,Moelis & Company Group LP,notfound,,,2026-09-29
+lever,moelisand,Moelis & Company Group LP,notfound,,,2026-09-29
+lever,moody,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+lever,moody-s,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+lever,moody-s-analytics,"Moody's Analytics, Inc.",notfound,,,2026-09-29
+lever,moody-s-investors,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+lever,moodys,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+lever,moodysanalytics,"Moody's Analytics, Inc.",notfound,,,2026-09-29
+lever,moodysinvestors,"Moody's Investors Service, Inc.",notfound,,,2026-09-29
+lever,morgan,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+lever,morgan-stanley,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+lever,morgan-stanley-and,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+lever,morgan-stanley-services,Morgan Stanley Services Group Inc.,notfound,,,2026-09-29
+lever,morganstanley,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+lever,morganstanleyand,"Morgan Stanley & Co., LLC",notfound,,,2026-09-29
+lever,morganstanleyservices,Morgan Stanley Services Group Inc.,notfound,,,2026-09-29
+lever,mpg-operations,MPG Operations LLC,notfound,,,2026-09-29
+lever,mpgoperations,MPG Operations LLC,notfound,,,2026-09-29
+lever,mphasis,Mphasis Corporation,notfound,,,2026-09-29
 lever,navan,Navan,notfound,,,2026-09-14
+lever,navy,Navy Federal Credit Union,notfound,,,2026-09-29
+lever,navy-federal,Navy Federal Credit Union,notfound,,,2026-09-29
+lever,navy-federal-credit-union,Navy Federal Credit Union,notfound,,,2026-09-29
+lever,navyfederal,Navy Federal Credit Union,notfound,,,2026-09-29
+lever,navyfederalcreditunion,Navy Federal Credit Union,notfound,,,2026-09-29
+lever,netflix,"Netflix, Inc.",notfound,,,2026-09-29
+lever,nomura,"Nomura Securities International, Inc.",notfound,,,2026-09-29
+lever,nomura-securities,"Nomura Securities International, Inc.",notfound,,,2026-09-29
+lever,nomurasecurities,"Nomura Securities International, Inc.",notfound,,,2026-09-29
 lever,noom,Noom,notfound,,,2026-09-14
+lever,novartis,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+lever,novartis-pharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+lever,novartispharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,notfound,,,2026-09-29
+lever,ntt-data,"NTT DATA Americas, Inc.",notfound,,,2026-09-29
+lever,nttdata,"NTT DATA Americas, Inc.",notfound,,,2026-09-29
+lever,nvidia,NVIDIA Corporation,notfound,,,2026-09-29
+lever,onemain,OneMain General Services Corporation,notfound,,,2026-09-29
+lever,onemain-general,OneMain General Services Corporation,notfound,,,2026-09-29
+lever,onemaingeneral,OneMain General Services Corporation,notfound,,,2026-09-29
+lever,open,Open Avenues Foundation,notfound,,,2026-09-29
+lever,open-avenues,Open Avenues Foundation,notfound,,,2026-09-29
+lever,open-avenues-foundation,Open Avenues Foundation,notfound,,,2026-09-29
+lever,openavenues,Open Avenues Foundation,notfound,,,2026-09-29
+lever,openavenuesfoundation,Open Avenues Foundation,notfound,,,2026-09-29
 lever,opendoor,Opendoor,notfound,,,2026-09-14
+lever,optum,"Optum Services, Inc.",notfound,,,2026-09-29
+lever,optum-services,"Optum Services, Inc.",notfound,,,2026-09-29
+lever,optumservices,"Optum Services, Inc.",notfound,,,2026-09-29
+lever,oracle,"Oracle America, Inc.",notfound,,,2026-09-29
 lever,outreach,Outreach,confirmed,30,,2026-09-14
+lever,pacific,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+lever,pacific-investment,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+lever,pacific-investment-management,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+lever,pacificinvestment,Pacific Investment Management Company LLC,notfound,,,2026-09-29
+lever,pacificinvestmentmanagement,Pacific Investment Management Company LLC,notfound,,,2026-09-29
 lever,palantir,Palantir,confirmed,314,,2026-09-14
+lever,palantir-technologies,PALANTIR TECHNOLOGIES INC.,notfound,,,2026-09-29
+lever,palantirtechnologies,PALANTIR TECHNOLOGIES INC.,notfound,,,2026-09-29
 lever,pave,Pave,notfound,,,2026-09-14
+lever,paypal,"PayPal, Inc.",notfound,,,2026-09-29
+lever,photon,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+lever,photon-infotech,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+lever,photoninfotech,"PHOTON INFOTECH, INC.",notfound,,,2026-09-29
+lever,pjt-partners,PJT Partners Holdings LP,notfound,,,2026-09-29
+lever,pjtpartners,PJT Partners Holdings LP,notfound,,,2026-09-29
 lever,pluralsight,Pluralsight,notfound,,,2026-09-14
+lever,populus,Populus Group LLC,notfound,,,2026-09-29
+lever,populus-group,Populus Group LLC,notfound,,,2026-09-29
+lever,populusgroup,Populus Group LLC,notfound,,,2026-09-29
+lever,pricewaterhousecoopers,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+lever,pricewaterhousecoopers-advisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+lever,pricewaterhousecoopersadvisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,notfound,,,2026-09-29
+lever,prime,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+lever,prime-healthcare,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+lever,prime-healthcare-management,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+lever,primehealthcare,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
+lever,primehealthcaremanagement,"Prime Healthcare Management, Inc",notfound,,,2026-09-29
 lever,procore,Procore,notfound,,,2026-09-14
+lever,prudential,The Prudential Insurance Company of America,notfound,,,2026-09-29
+lever,prudential-insurance,The Prudential Insurance Company of America,notfound,,,2026-09-29
+lever,prudential-insurance-company-of,The Prudential Insurance Company of America,notfound,,,2026-09-29
+lever,prudentialinsurance,The Prudential Insurance Company of America,notfound,,,2026-09-29
+lever,prudentialinsurancecompanyof,The Prudential Insurance Company of America,notfound,,,2026-09-29
+lever,pwc-us,PwC US Business Advisory LLP,notfound,,,2026-09-29
+lever,pwc-us-business-advisory,PwC US Business Advisory LLP,notfound,,,2026-09-29
+lever,pwcus,PwC US Business Advisory LLP,notfound,,,2026-09-29
+lever,pwcusbusinessadvisory,PwC US Business Advisory LLP,notfound,,,2026-09-29
+lever,pyramid,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+lever,pyramid-consulting,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+lever,pyramidconsulting,"Pyramid Consulting, Inc.",notfound,,,2026-09-29
+lever,quadrant,Quadrant Technologies LLC,notfound,,,2026-09-29
+lever,quadrant-technologies,Quadrant Technologies LLC,notfound,,,2026-09-29
+lever,quadranttechnologies,Quadrant Technologies LLC,notfound,,,2026-09-29
+lever,randstad,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+lever,randstad-digital,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+lever,randstaddigital,"RANDSTAD DIGITAL, LLC",notfound,,,2026-09-29
+lever,rbc-capital,RBC Capital Markets LLC,notfound,,,2026-09-29
+lever,rbc-capital-markets,RBC Capital Markets LLC,notfound,,,2026-09-29
+lever,rbccapital,RBC Capital Markets LLC,notfound,,,2026-09-29
+lever,rbccapitalmarkets,RBC Capital Markets LLC,notfound,,,2026-09-29
 lever,recursion,Recursion,notfound,,,2026-09-14
 lever,redfin,Redfin,notfound,,,2026-09-14
+lever,regeneron,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+lever,regeneron-pharmaceuticals,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+lever,regeneronpharmaceuticals,"Regeneron Pharmaceuticals, Inc.",notfound,,,2026-09-29
+lever,relx,"RELX, Inc.",notfound,,,2026-09-29
 lever,remitly,Remitly,notfound,,,2026-09-14
 lever,retool,Retool,notfound,,,2026-09-14
 lever,rippling,Rippling,notfound,,,2026-09-14
 lever,rivian,Rivian,notfound,,,2026-09-14
+lever,rivian-automotive,"Rivian Automotive, LLC",notfound,,,2026-09-29
+lever,rivianautomotive,"Rivian Automotive, LLC",notfound,,,2026-09-29
+lever,robotics,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,robotics-technologies,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,roboticstechnologies,ROBOTICS TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,rocket,Rocket Limited Partnership,notfound,,,2026-09-29
+lever,rocket-limited,Rocket Limited Partnership,notfound,,,2026-09-29
+lever,rocket-limited-partnership,Rocket Limited Partnership,notfound,,,2026-09-29
+lever,rocketlimited,Rocket Limited Partnership,notfound,,,2026-09-29
+lever,rocketlimitedpartnership,Rocket Limited Partnership,notfound,,,2026-09-29
+lever,salesforce,"Salesforce, Inc.",notfound,,,2026-09-29
 lever,scale,Scale,notfound,,,2026-09-14
+lever,scotia,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
+lever,scotia-capital,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
+lever,scotiacapital,"SCOTIA CAPITAL (USA), INC.",notfound,,,2026-09-29
 lever,segment,Segment,notfound,,,2026-09-14
+lever,servicenow,"ServiceNow, Inc.",notfound,,,2026-09-29
 lever,shield,Shield,notfound,,,2026-09-14
 lever,shopify,Shopify,notfound,,,2026-09-14
 lever,sigma,Sigma,notfound,,,2026-09-14
+lever,slalom,"Slalom, Inc.",notfound,,,2026-09-29
+lever,snap,SNAP INC.,notfound,,,2026-09-29
+lever,starbucks,Starbucks Coffee Company,notfound,,,2026-09-29
+lever,starbucks-coffee,Starbucks Coffee Company,notfound,,,2026-09-29
+lever,starbuckscoffee,Starbucks Coffee Company,notfound,,,2026-09-29
+lever,state,State Street Bank and Trust Company,notfound,,,2026-09-29
+lever,state-street,State Street Bank and Trust Company,notfound,,,2026-09-29
+lever,state-street-bank-and-trust,State Street Bank and Trust Company,notfound,,,2026-09-29
+lever,statestreet,State Street Bank and Trust Company,notfound,,,2026-09-29
+lever,statestreetbankandtrust,State Street Bank and Trust Company,notfound,,,2026-09-29
+lever,sumeru,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,sumeru-technologies,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,sumerutechnologies,SUMERU TECHNOLOGIES LLC,notfound,,,2026-09-29
+lever,sumitomo,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+lever,sumitomo-mitsui,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+lever,sumitomo-mitsui-banking,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+lever,sumitomomitsui,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+lever,sumitomomitsuibanking,SUMITOMO MITSUI BANKING CORPORATION,notfound,,,2026-09-29
+lever,synechron,"Synechron, Inc.",notfound,,,2026-09-29
+lever,sysintelli,Sysintelli Inc.,notfound,,,2026-09-29
+lever,t-mobile,"T-Mobile USA, Inc.",notfound,,,2026-09-29
+lever,target,"Target Enterprise, Inc.",notfound,,,2026-09-29
+lever,target-enterprise,"Target Enterprise, Inc.",notfound,,,2026-09-29
+lever,targetenterprise,"Target Enterprise, Inc.",notfound,,,2026-09-29
+lever,tata,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+lever,tata-consultancy,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+lever,tataconsultancy,TATA CONSULTANCY SERVICES LIMITED,notfound,,,2026-09-29
+lever,td-securities,TD Securities (USA) LLC,notfound,,,2026-09-29
+lever,tdsecurities,TD Securities (USA) LLC,notfound,,,2026-09-29
+lever,tech-mahindra,"TECH MAHINDRA (AMERICAS), INC",notfound,,,2026-09-29
+lever,techdata,TechData Service Company LLC,notfound,,,2026-09-29
+lever,techdata-service,TechData Service Company LLC,notfound,,,2026-09-29
+lever,techdataservice,TechData Service Company LLC,notfound,,,2026-09-29
+lever,techmahindra,"TECH MAHINDRA (AMERICAS), INC",notfound,,,2026-09-29
 lever,tempus,Tempus,notfound,,,2026-09-14
+lever,tesla,"Tesla, Inc.",notfound,,,2026-09-29
+lever,themathcompany,TheMathCompany Inc.,notfound,,,2026-09-29
+lever,tiktok,TikTok Inc.,notfound,,,2026-09-29
+lever,tiktok-u,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+lever,tiktok-u-s-data-security,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+lever,tiktok-usds,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+lever,tiktok-usds-joint-venture,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+lever,tiktoku,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+lever,tiktokusdatasecurity,TikTok U.S. Data Security Inc.,notfound,,,2026-09-29
+lever,tiktokusds,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+lever,tiktokusdsjointventure,TikTok USDS Joint Venture LLC,notfound,,,2026-09-29
+lever,tmobile,"T-Mobile USA, Inc.",notfound,,,2026-09-29
+lever,transunion,TransUnion LLC,notfound,,,2026-09-29
+lever,tredence,Tredence Inc.,notfound,,,2026-09-29
+lever,truist,Truist Bank,notfound,,,2026-09-29
+lever,truist-bank,Truist Bank,notfound,,,2026-09-29
+lever,truistbank,Truist Bank,notfound,,,2026-09-29
+lever,trustees,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+lever,trustees-of,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+lever,trustees-of-the-university-of-pennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+lever,trusteesof,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+lever,trusteesoftheuniversityofpennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,notfound,,,2026-09-29
+lever,tt-commerce,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+lever,tt-commerce-and-global,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+lever,ttcommerce,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+lever,ttcommerceandglobal,TT Commerce & Global Services LLC,notfound,,,2026-09-29
+lever,two-sigma,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+lever,two-sigma-investments,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+lever,twosigma,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+lever,twosigmainvestments,"TWO SIGMA INVESTMENTS, LP",notfound,,,2026-09-29
+lever,u-s-bank-national-association,U.S. Bank National Association,notfound,,,2026-09-29
 lever,uber,Uber,notfound,,,2026-09-14
+lever,uber-technologies,"Uber Technologies, Inc.",notfound,,,2026-09-29
+lever,ubertechnologies,"Uber Technologies, Inc.",notfound,,,2026-09-29
+lever,ubs-business,UBS Business Solutions US LLC,notfound,,,2026-09-29
+lever,ubs-securities,UBS SECURITIES LLC,notfound,,,2026-09-29
+lever,ubsbusiness,UBS Business Solutions US LLC,notfound,,,2026-09-29
+lever,ubssecurities,UBS SECURITIES LLC,notfound,,,2026-09-29
+lever,university,University of Michigan,notfound,,,2026-09-29
+lever,university-of,University of Michigan,notfound,,,2026-09-29
+lever,university-of-florida,UNIVERSITY OF FLORIDA,notfound,,,2026-09-29
+lever,university-of-michigan,University of Michigan,notfound,,,2026-09-29
+lever,universityof,University of Michigan,notfound,,,2026-09-29
+lever,universityofflorida,UNIVERSITY OF FLORIDA,notfound,,,2026-09-29
+lever,universityofmichigan,University of Michigan,notfound,,,2026-09-29
+lever,usbanknationalassociation,U.S. Bank National Association,notfound,,,2026-09-29
+lever,v-soft,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+lever,v-soft-consulting,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+lever,vanguard,"The Vanguard Group, Inc.",notfound,,,2026-09-29
+lever,vanguard-group,"The Vanguard Group, Inc.",notfound,,,2026-09-29
+lever,vanguardgroup,"The Vanguard Group, Inc.",notfound,,,2026-09-29
 lever,vannevar,Vannevar,notfound,,,2026-09-14
 lever,varo,Varo,notfound,,,2026-09-14
+lever,ventois,"Ventois, Inc",notfound,,,2026-09-29
 lever,verily,Verily,notfound,,,2026-09-14
+lever,vertex,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+lever,vertex-pharmaceuticals,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+lever,vertexpharmaceuticals,Vertex Pharmaceuticals Incorporated,notfound,,,2026-09-29
+lever,virtusa,VIRTUSA CORPORATION,notfound,,,2026-09-29
+lever,virtusa-consulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",notfound,,,2026-09-29
+lever,virtusaconsulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",notfound,,,2026-09-29
+lever,visa,Visa U.S.A. Inc.,notfound,,,2026-09-29
+lever,visa-u,Visa U.S.A. Inc.,notfound,,,2026-09-29
+lever,visa-u-s-a,Visa U.S.A. Inc.,notfound,,,2026-09-29
+lever,visau,Visa U.S.A. Inc.,notfound,,,2026-09-29
+lever,visausa,Visa U.S.A. Inc.,notfound,,,2026-09-29
+lever,vsoft,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+lever,vsoftconsulting,"V-Soft Consulting Group, INC",notfound,,,2026-09-29
+lever,wal-mart,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+lever,wal-mart-associates,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+lever,walmart,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
+lever,walmartassociates,"WAL-MART ASSOCIATES, INC.",notfound,,,2026-09-29
 lever,warby,Warby,notfound,,,2026-09-14
+lever,wayfair,Wayfair LLC,notfound,,,2026-09-29
+lever,wells,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+lever,wells-fargo,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+lever,wells-fargo-bank-n-a,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+lever,wellsfargo,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+lever,wellsfargobankna,"Wells Fargo Bank, N.A.",notfound,,,2026-09-29
+lever,wipro,WIPRO LIMITED,notfound,,,2026-09-29
+lever,workday,"Workday, Inc.",notfound,,,2026-09-29
 lever,yelp,Yelp,notfound,,,2026-09-14
+lever,zensar,"Zensar Technologies, Inc.",notfound,,,2026-09-29
+lever,zensar-technologies,"Zensar Technologies, Inc.",notfound,,,2026-09-29
+lever,zensartechnologies,"Zensar Technologies, Inc.",notfound,,,2026-09-29
 lever,zoox,Zoox,confirmed,243,,2026-09-14
+lever,zs-associates,"ZS Associates, Inc.",notfound,,,2026-09-29
+lever,zsassociates,"ZS Associates, Inc.",notfound,,,2026-09-29
+smartrecruiters,a-t-kearney,"A.T. Kearney, Inc.",empty,,,2026-09-29
+smartrecruiters,abbvie,AbbVie Inc.,confirmed,1816,AbbVie,2026-09-29
+smartrecruiters,accenture,Accenture LLP,empty,,,2026-09-29
+smartrecruiters,ace-american,ACE American Insurance Company,empty,,,2026-09-29
+smartrecruiters,ace-american-insurance,ACE American Insurance Company,empty,,,2026-09-29
+smartrecruiters,aceamerican,ACE American Insurance Company,empty,,,2026-09-29
+smartrecruiters,aceamericaninsurance,ACE American Insurance Company,empty,,,2026-09-29
+smartrecruiters,adobe,Adobe Inc.,empty,,,2026-09-29
+smartrecruiters,aetna,Aetna Resources LLC,empty,,,2026-09-29
+smartrecruiters,aetna-resources,Aetna Resources LLC,empty,,,2026-09-29
+smartrecruiters,aetnaresources,Aetna Resources LLC,empty,,,2026-09-29
 smartrecruiters,allbirds,Allbirds,empty,,,2026-09-14
 smartrecruiters,amazon,Amazon.com Services LLC,empty,,,2026-09-29
+smartrecruiters,amazon-advertising,Amazon Advertising LLC,empty,,,2026-09-29
+smartrecruiters,amazon-data,"Amazon Data Services, Inc",empty,,,2026-09-29
+smartrecruiters,amazon-development,"Amazon Development Center U.S., Inc.",empty,,,2026-09-29
+smartrecruiters,amazon-development-center-u-s,"Amazon Development Center U.S., Inc.",empty,,,2026-09-29
+smartrecruiters,amazon-web,"Amazon Web Services, Inc.",empty,,,2026-09-29
+smartrecruiters,amazonadvertising,Amazon Advertising LLC,empty,,,2026-09-29
+smartrecruiters,amazondata,"Amazon Data Services, Inc",empty,,,2026-09-29
+smartrecruiters,amazondevelopment,"Amazon Development Center U.S., Inc.",empty,,,2026-09-29
+smartrecruiters,amazondevelopmentcenterus,"Amazon Development Center U.S., Inc.",empty,,,2026-09-29
+smartrecruiters,amazonweb,"Amazon Web Services, Inc.",empty,,,2026-09-29
+smartrecruiters,american-airlines,"American Airlines, Inc.",empty,,,2026-09-29
+smartrecruiters,american-express,"American Express Travel Related Services Company, Inc.",empty,,,2026-09-29
+smartrecruiters,american-express-travel-related,"American Express Travel Related Services Company, Inc.",empty,,,2026-09-29
+smartrecruiters,americanairlines,"American Airlines, Inc.",empty,,,2026-09-29
+smartrecruiters,americanexpress,"American Express Travel Related Services Company, Inc.",empty,,,2026-09-29
+smartrecruiters,americanexpresstravelrelated,"American Express Travel Related Services Company, Inc.",empty,,,2026-09-29
+smartrecruiters,amgen,Amgen Inc.,empty,,,2026-09-29
 smartrecruiters,anduril,Anduril,empty,,,2026-09-14
 smartrecruiters,apollo,Apollo,empty,,,2026-09-14
+smartrecruiters,apollo-management,"Apollo Management Holdings, L.P.",empty,,,2026-09-29
+smartrecruiters,apollo-management-holdings-l-p,"Apollo Management Holdings, L.P.",empty,,,2026-09-29
+smartrecruiters,apollomanagement,"Apollo Management Holdings, L.P.",empty,,,2026-09-29
+smartrecruiters,apollomanagementholdingslp,"Apollo Management Holdings, L.P.",empty,,,2026-09-29
+smartrecruiters,apple,Apple Inc.,empty,,,2026-09-29
+smartrecruiters,artifint,ARTIFINT TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,artifint-technologies,ARTIFINT TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,artifinttechnologies,ARTIFINT TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,asta,"Asta CRS, Inc.",empty,,,2026-09-29
+smartrecruiters,asta-crs,"Asta CRS, Inc.",empty,,,2026-09-29
+smartrecruiters,astacrs,"Asta CRS, Inc.",empty,,,2026-09-29
+smartrecruiters,at-and,"AT&T SERVICES, INC.",empty,,,2026-09-29
+smartrecruiters,at-and-t,"AT&T SERVICES, INC.",empty,,,2026-09-29
+smartrecruiters,atand,"AT&T SERVICES, INC.",empty,,,2026-09-29
+smartrecruiters,atandt,"AT&T SERVICES, INC.",empty,,,2026-09-29
+smartrecruiters,atkearney,"A.T. Kearney, Inc.",empty,,,2026-09-29
+smartrecruiters,atlassian,"Atlassian US, Inc.",empty,,,2026-09-29
+smartrecruiters,axtria,Axtria INC,empty,,,2026-09-29
+smartrecruiters,bain,"BAIN & COMPANY, INC.",empty,,,2026-09-29
+smartrecruiters,bain-and,"BAIN & COMPANY, INC.",empty,,,2026-09-29
+smartrecruiters,bainand,"BAIN & COMPANY, INC.",empty,,,2026-09-29
+smartrecruiters,balyasny,"Balyasny Asset Management, L.P.",empty,,,2026-09-29
+smartrecruiters,balyasny-asset,"Balyasny Asset Management, L.P.",empty,,,2026-09-29
+smartrecruiters,balyasny-asset-management-l-p,"Balyasny Asset Management, L.P.",empty,,,2026-09-29
+smartrecruiters,balyasnyasset,"Balyasny Asset Management, L.P.",empty,,,2026-09-29
+smartrecruiters,balyasnyassetmanagementlp,"Balyasny Asset Management, L.P.",empty,,,2026-09-29
+smartrecruiters,bank,BANK OF AMERICA N.A.,empty,,,2026-09-29
+smartrecruiters,bank-of,BANK OF AMERICA N.A.,empty,,,2026-09-29
+smartrecruiters,bank-of-america-n-a,BANK OF AMERICA N.A.,empty,,,2026-09-29
+smartrecruiters,bank-of-new-york-mellon,The Bank of New York Mellon,empty,,,2026-09-29
+smartrecruiters,bank-of-nova-scotia,THE BANK OF NOVA SCOTIA,empty,,,2026-09-29
+smartrecruiters,bankof,BANK OF AMERICA N.A.,empty,,,2026-09-29
+smartrecruiters,bankofamericana,BANK OF AMERICA N.A.,empty,,,2026-09-29
+smartrecruiters,bankofnewyorkmellon,The Bank of New York Mellon,empty,,,2026-09-29
+smartrecruiters,bankofnovascotia,THE BANK OF NOVA SCOTIA,empty,,,2026-09-29
+smartrecruiters,barclays,Barclays Services Corp.,empty,,,2026-09-29
+smartrecruiters,barclays-capital,Barclays Capital Inc.,empty,,,2026-09-29
+smartrecruiters,barclays-services,Barclays Services Corp.,empty,,,2026-09-29
+smartrecruiters,barclayscapital,Barclays Capital Inc.,empty,,,2026-09-29
+smartrecruiters,barclaysservices,Barclays Services Corp.,empty,,,2026-09-29
+smartrecruiters,bayer,Bayer Research and Development Services LLC,empty,,,2026-09-29
+smartrecruiters,bayer-research,Bayer Research and Development Services LLC,empty,,,2026-09-29
+smartrecruiters,bayer-research-and-development,Bayer Research and Development Services LLC,empty,,,2026-09-29
+smartrecruiters,bayerresearch,Bayer Research and Development Services LLC,empty,,,2026-09-29
+smartrecruiters,bayerresearchanddevelopment,Bayer Research and Development Services LLC,empty,,,2026-09-29
+smartrecruiters,blackrock,"BlackRock Financial Management, Inc.",empty,,,2026-09-29
+smartrecruiters,blackrock-financial,"BlackRock Financial Management, Inc.",empty,,,2026-09-29
+smartrecruiters,blackrock-financial-management,"BlackRock Financial Management, Inc.",empty,,,2026-09-29
+smartrecruiters,blackrockfinancial,"BlackRock Financial Management, Inc.",empty,,,2026-09-29
+smartrecruiters,blackrockfinancialmanagement,"BlackRock Financial Management, Inc.",empty,,,2026-09-29
+smartrecruiters,blackstone,"Blackstone, Inc.",empty,,,2026-09-29
+smartrecruiters,bloomberg,Bloomberg L.P.,empty,,,2026-09-29
+smartrecruiters,bloomberg-l,Bloomberg L.P.,empty,,,2026-09-29
+smartrecruiters,bloomberg-l-p,Bloomberg L.P.,empty,,,2026-09-29
+smartrecruiters,bloombergl,Bloomberg L.P.,empty,,,2026-09-29
+smartrecruiters,bloomberglp,Bloomberg L.P.,empty,,,2026-09-29
+smartrecruiters,bnp-paribas,BNP Paribas Securities Corp.,empty,,,2026-09-29
+smartrecruiters,bnp-paribas-securities,BNP Paribas Securities Corp.,empty,,,2026-09-29
+smartrecruiters,bnpparibas,BNP Paribas Securities Corp.,empty,,,2026-09-29
+smartrecruiters,bnpparibassecurities,BNP Paribas Securities Corp.,empty,,,2026-09-29
+smartrecruiters,bofa,"BOFA SECURITIES, INC.",empty,,,2026-09-29
+smartrecruiters,bofa-securities,"BOFA SECURITIES, INC.",empty,,,2026-09-29
+smartrecruiters,bofasecurities,"BOFA SECURITIES, INC.",empty,,,2026-09-29
 smartrecruiters,booksy,Booksy,empty,,,2026-09-14
+smartrecruiters,boston,"Boston Consulting Group, Inc.",empty,,,2026-09-29
+smartrecruiters,boston-consulting,"Boston Consulting Group, Inc.",empty,,,2026-09-29
+smartrecruiters,bostonconsulting,"Boston Consulting Group, Inc.",empty,,,2026-09-29
 smartrecruiters,braintree,Braintree,empty,,,2026-09-14
+smartrecruiters,bridgewater,"BRIDGEWATER ASSOCIATES, LP",empty,,,2026-09-29
+smartrecruiters,bridgewater-associates,"BRIDGEWATER ASSOCIATES, LP",empty,,,2026-09-29
+smartrecruiters,bridgewaterassociates,"BRIDGEWATER ASSOCIATES, LP",empty,,,2026-09-29
+smartrecruiters,brillio,"Brillio, LLC",empty,,,2026-09-29
+smartrecruiters,bristol,Bristol-Myers Squibb Company,empty,,,2026-09-29
+smartrecruiters,bristol-myers,Bristol-Myers Squibb Company,empty,,,2026-09-29
+smartrecruiters,bristol-myers-squibb,Bristol-Myers Squibb Company,empty,,,2026-09-29
+smartrecruiters,bristolmyers,Bristol-Myers Squibb Company,empty,,,2026-09-29
+smartrecruiters,bristolmyerssquibb,Bristol-Myers Squibb Company,empty,,,2026-09-29
 smartrecruiters,bumble,Bumble,empty,,,2026-09-14
+smartrecruiters,bytedance,BYTEDANCE INC.,confirmed,2,bytedance,2026-09-29
+smartrecruiters,capgemini,Capgemini America Inc,empty,,,2026-09-29
+smartrecruiters,caremark,Caremark LLC,empty,,,2026-09-29
+smartrecruiters,cbre,"CBRE, INC.",empty,,,2026-09-29
 smartrecruiters,census,Census,empty,,,2026-09-14
+smartrecruiters,cgi-technologies,CGI Technologies and Solutions Inc.,empty,,,2026-09-29
+smartrecruiters,cgi-technologies-and,CGI Technologies and Solutions Inc.,empty,,,2026-09-29
+smartrecruiters,cgitechnologies,CGI Technologies and Solutions Inc.,empty,,,2026-09-29
+smartrecruiters,cgitechnologiesand,CGI Technologies and Solutions Inc.,empty,,,2026-09-29
 smartrecruiters,chainalysis,Chainalysis,empty,,,2026-09-14
+smartrecruiters,charter,"Charter Communications, Inc.",empty,,,2026-09-29
+smartrecruiters,charter-communications,"Charter Communications, Inc.",empty,,,2026-09-29
+smartrecruiters,chartercommunications,"Charter Communications, Inc.",empty,,,2026-09-29
 smartrecruiters,chewy,Chewy,empty,,,2026-09-14
+smartrecruiters,cigna,Cigna-Evernorth Services Inc.,empty,,,2026-09-29
+smartrecruiters,cigna-evernorth,Cigna-Evernorth Services Inc.,empty,,,2026-09-29
+smartrecruiters,cignaevernorth,Cigna-Evernorth Services Inc.,empty,,,2026-09-29
+smartrecruiters,cisco,"Cisco Systems, Inc.",empty,,,2026-09-29
+smartrecruiters,cisco-systems,"Cisco Systems, Inc.",empty,,,2026-09-29
+smartrecruiters,ciscosystems,"Cisco Systems, Inc.",empty,,,2026-09-29
+smartrecruiters,citadel,CITADEL AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citadel-americas,CITADEL AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citadel-securities,CITADEL SECURITIES AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citadel-securities-americas,CITADEL SECURITIES AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citadelamericas,CITADEL AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citadelsecurities,CITADEL SECURITIES AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citadelsecuritiesamericas,CITADEL SECURITIES AMERICAS SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,citibankna,"Citibank, N.A.",confirmed,7,Citibank N.A,2026-09-29
+smartrecruiters,citigroup,Citigroup Global Markets Inc.,empty,,,2026-09-29
+smartrecruiters,citigroup-global,Citigroup Global Markets Inc.,empty,,,2026-09-29
+smartrecruiters,citigroup-global-markets,Citigroup Global Markets Inc.,empty,,,2026-09-29
+smartrecruiters,citigroupglobal,Citigroup Global Markets Inc.,empty,,,2026-09-29
+smartrecruiters,citigroupglobalmarkets,Citigroup Global Markets Inc.,empty,,,2026-09-29
+smartrecruiters,citiustech,CitiusTech Inc.,empty,,,2026-09-29
 smartrecruiters,clari,Clari,empty,,,2026-09-14
 smartrecruiters,clay,Clay,empty,,,2026-09-14
 smartrecruiters,clio,Clio,empty,,,2026-09-14
 smartrecruiters,codecademy,Codecademy,empty,,,2026-09-14
+smartrecruiters,coforge,Coforge Limited,empty,,,2026-09-29
+smartrecruiters,cognizant,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,empty,,,2026-09-29
+smartrecruiters,cognizant-technology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,empty,,,2026-09-29
+smartrecruiters,cognizanttechnology,COGNIZANT TECHNOLOGY SOLUTIONS US CORP,empty,,,2026-09-29
 smartrecruiters,color,Color,empty,,,2026-09-14
+smartrecruiters,comcast,"Comcast Cable Communications, LLC",empty,,,2026-09-29
+smartrecruiters,comcast-cable,"Comcast Cable Communications, LLC",empty,,,2026-09-29
+smartrecruiters,comcast-cable-communications,"Comcast Cable Communications, LLC",empty,,,2026-09-29
+smartrecruiters,comcastcable,"Comcast Cable Communications, LLC",empty,,,2026-09-29
+smartrecruiters,comcastcablecommunications,"Comcast Cable Communications, LLC",empty,,,2026-09-29
 smartrecruiters,compass,Compass,empty,,,2026-09-14
+smartrecruiters,compunnel,"COMPUNNEL SOFTWARE GROUP, INC",empty,,,2026-09-29
+smartrecruiters,compunnel-software,"COMPUNNEL SOFTWARE GROUP, INC",empty,,,2026-09-29
+smartrecruiters,compunnelsoftware,"COMPUNNEL SOFTWARE GROUP, INC",empty,,,2026-09-29
 smartrecruiters,convoy,Convoy,empty,,,2026-09-14
+smartrecruiters,cotiviti,"Cotiviti, Inc.",empty,,,2026-09-29
+smartrecruiters,cummins,Cummins Inc.,empty,,,2026-09-29
+smartrecruiters,cvs-pharmacy,CVS Pharmacy Inc.,empty,,,2026-09-29
+smartrecruiters,cvs-shared,CVS Shared Services Resources LLC,empty,,,2026-09-29
+smartrecruiters,cvs-shared-services-resources,CVS Shared Services Resources LLC,empty,,,2026-09-29
+smartrecruiters,cvspharmacy,CVS Pharmacy Inc.,empty,,,2026-09-29
+smartrecruiters,cvsshared,CVS Shared Services Resources LLC,empty,,,2026-09-29
+smartrecruiters,cvssharedservicesresources,CVS Shared Services Resources LLC,empty,,,2026-09-29
+smartrecruiters,dataeconomy,"DATAECONOMY, INC.",empty,,,2026-09-29
+smartrecruiters,db-usa,DB USA Core Corporation,empty,,,2026-09-29
+smartrecruiters,db-usa-core,DB USA Core Corporation,empty,,,2026-09-29
+smartrecruiters,dbusa,DB USA Core Corporation,empty,,,2026-09-29
+smartrecruiters,dbusacore,DB USA Core Corporation,empty,,,2026-09-29
+smartrecruiters,dell,Dell USA L.P.,empty,,,2026-09-29
+smartrecruiters,dell-usa,Dell USA L.P.,empty,,,2026-09-29
+smartrecruiters,dell-usa-l-p,Dell USA L.P.,empty,,,2026-09-29
+smartrecruiters,dellusa,Dell USA L.P.,empty,,,2026-09-29
+smartrecruiters,dellusalp,Dell USA L.P.,empty,,,2026-09-29
+smartrecruiters,deloitte,Deloitte Consulting LLP,empty,,,2026-09-29
+smartrecruiters,deloitte-and,Deloitte & Touche LLP,empty,,,2026-09-29
+smartrecruiters,deloitte-and-touche,Deloitte & Touche LLP,empty,,,2026-09-29
+smartrecruiters,deloitte-consulting,Deloitte Consulting LLP,empty,,,2026-09-29
+smartrecruiters,deloitte-tax,Deloitte Tax LLP,empty,,,2026-09-29
+smartrecruiters,deloitteand,Deloitte & Touche LLP,empty,,,2026-09-29
+smartrecruiters,deloitteandtouche,Deloitte & Touche LLP,empty,,,2026-09-29
+smartrecruiters,deloitteconsulting,Deloitte Consulting LLP,empty,,,2026-09-29
+smartrecruiters,deloittetax,Deloitte Tax LLP,empty,,,2026-09-29
+smartrecruiters,deutsche,"Deutsche Bank Securities, Inc.",empty,,,2026-09-29
+smartrecruiters,deutsche-bank,"Deutsche Bank Securities, Inc.",empty,,,2026-09-29
+smartrecruiters,deutsche-bank-securities,"Deutsche Bank Securities, Inc.",empty,,,2026-09-29
+smartrecruiters,deutschebank,"Deutsche Bank Securities, Inc.",empty,,,2026-09-29
+smartrecruiters,deutschebanksecurities,"Deutsche Bank Securities, Inc.",empty,,,2026-09-29
 smartrecruiters,devoted,Devoted,empty,,,2026-09-14
+smartrecruiters,dish,Dish Wireless LLC,empty,,,2026-09-29
+smartrecruiters,dish-wireless,Dish Wireless LLC,empty,,,2026-09-29
+smartrecruiters,dishwireless,Dish Wireless LLC,empty,,,2026-09-29
 smartrecruiters,doordash,DoorDash,empty,,,2026-09-14
+smartrecruiters,ebay,eBay Inc.,empty,,,2026-09-29
+smartrecruiters,elevance,"Elevance Health, Inc.",empty,,,2026-09-29
+smartrecruiters,elevance-health,"Elevance Health, Inc.",empty,,,2026-09-29
+smartrecruiters,elevancehealth,"Elevance Health, Inc.",empty,,,2026-09-29
+smartrecruiters,eli-lilly,Eli Lilly and Company,empty,,,2026-09-29
+smartrecruiters,eli-lilly-and,Eli Lilly and Company,empty,,,2026-09-29
+smartrecruiters,elililly,Eli Lilly and Company,empty,,,2026-09-29
+smartrecruiters,elilillyand,Eli Lilly and Company,empty,,,2026-09-29
 smartrecruiters,empower,Empower,empty,,,2026-09-14
 smartrecruiters,ernst,Ernst & Young U.S. LLP,empty,,,2026-09-29
 smartrecruiters,ernst-and,Ernst & Young U.S. LLP,empty,,,2026-09-29
@@ -375,54 +2234,395 @@ smartrecruiters,ernst-and-young-u-s,Ernst & Young U.S. LLP,empty,,,2026-09-29
 smartrecruiters,ernstand,Ernst & Young U.S. LLP,empty,,,2026-09-29
 smartrecruiters,ernstandyoungus,Ernst & Young U.S. LLP,empty,,,2026-09-29
 smartrecruiters,etsy,Etsy,empty,,,2026-09-14
+smartrecruiters,evercore,EVERCORE PARTNERS SERVICES EAST LLC,empty,,,2026-09-29
+smartrecruiters,evercore-partners,EVERCORE PARTNERS SERVICES EAST LLC,empty,,,2026-09-29
+smartrecruiters,evercore-partners-services-east,EVERCORE PARTNERS SERVICES EAST LLC,empty,,,2026-09-29
+smartrecruiters,evercorepartners,EVERCORE PARTNERS SERVICES EAST LLC,empty,,,2026-09-29
+smartrecruiters,evercorepartnersserviceseast,EVERCORE PARTNERS SERVICES EAST LLC,empty,,,2026-09-29
+smartrecruiters,exlservice,"ExlService.com, LLC",empty,,,2026-09-29
+smartrecruiters,expedia,"Expedia, Inc.",empty,,,2026-09-29
+smartrecruiters,experis,"Experis US, LLC",empty,,,2026-09-29
+smartrecruiters,federal,Federal Express Corporation,empty,,,2026-09-29
+smartrecruiters,federal-express,Federal Express Corporation,empty,,,2026-09-29
+smartrecruiters,federalexpress,Federal Express Corporation,empty,,,2026-09-29
+smartrecruiters,fidelity,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",empty,,,2026-09-29
+smartrecruiters,fidelity-brokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,empty,,,2026-09-29
+smartrecruiters,fidelity-brokerage-services-llc-d-b-a-fidelity-investments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,empty,,,2026-09-29
+smartrecruiters,fidelity-technology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",empty,,,2026-09-29
+smartrecruiters,fidelity-technology-group-llc-d-b-a-fidelity-investments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",empty,,,2026-09-29
+smartrecruiters,fidelitybrokerage,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,empty,,,2026-09-29
+smartrecruiters,fidelitybrokerageservicesllcdbafidelityinvestments,Fidelity Brokerage Services LLC d/b/a Fidelity Investments,empty,,,2026-09-29
+smartrecruiters,fidelitytechnology,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",empty,,,2026-09-29
+smartrecruiters,fidelitytechnologygroupllcdbafidelityinvestments,"Fidelity Technology Group, LLC d/b/a Fidelity Investments",empty,,,2026-09-29
+smartrecruiters,first-citizens,First Citizens Bank and Trust Co.,empty,,,2026-09-29
+smartrecruiters,first-citizens-bank-and-trust,First Citizens Bank and Trust Co.,empty,,,2026-09-29
+smartrecruiters,firstcitizens,First Citizens Bank and Trust Co.,empty,,,2026-09-29
+smartrecruiters,firstcitizensbankandtrust,First Citizens Bank and Trust Co.,empty,,,2026-09-29
+smartrecruiters,fis-management,"FIS Management Services, LLC",empty,,,2026-09-29
+smartrecruiters,fiserv,"Fiserv Solutions, LLC",empty,,,2026-09-29
+smartrecruiters,fiserv-solutions,"Fiserv Solutions, LLC",empty,,,2026-09-29
+smartrecruiters,fiservsolutions,"Fiserv Solutions, LLC",empty,,,2026-09-29
+smartrecruiters,fismanagement,"FIS Management Services, LLC",empty,,,2026-09-29
 smartrecruiters,flatiron,Flatiron,empty,,,2026-09-14
+smartrecruiters,food,FOOD AND DRUG ADMINISTRATION,empty,,,2026-09-29
+smartrecruiters,food-and,FOOD AND DRUG ADMINISTRATION,empty,,,2026-09-29
+smartrecruiters,food-and-drug-administration,FOOD AND DRUG ADMINISTRATION,empty,,,2026-09-29
+smartrecruiters,foodand,FOOD AND DRUG ADMINISTRATION,empty,,,2026-09-29
+smartrecruiters,foodanddrugadministration,FOOD AND DRUG ADMINISTRATION,empty,,,2026-09-29
+smartrecruiters,ford,FORD MOTOR COMPANY,empty,,,2026-09-29
+smartrecruiters,ford-motor,FORD MOTOR COMPANY,empty,,,2026-09-29
+smartrecruiters,fordmotor,FORD MOTOR COMPANY,empty,,,2026-09-29
+smartrecruiters,genentech,"Genentech, Inc.",empty,,,2026-09-29
+smartrecruiters,genpact,Genpact LLC,empty,,,2026-09-29
+smartrecruiters,gilead,"Gilead Sciences, Inc.",empty,,,2026-09-29
+smartrecruiters,gilead-sciences,"Gilead Sciences, Inc.",empty,,,2026-09-29
+smartrecruiters,gileadsciences,"Gilead Sciences, Inc.",empty,,,2026-09-29
 smartrecruiters,glean,Glean,confirmed,1,Glean,2026-09-14
+smartrecruiters,goldman,GOLDMAN SACHS & CO. LLC,empty,,,2026-09-29
+smartrecruiters,goldman-sachs,GOLDMAN SACHS & CO. LLC,empty,,,2026-09-29
+smartrecruiters,goldman-sachs-and,GOLDMAN SACHS & CO. LLC,empty,,,2026-09-29
+smartrecruiters,goldman-sachs-bank,Goldman Sachs Bank USA,empty,,,2026-09-29
+smartrecruiters,goldmansachs,GOLDMAN SACHS & CO. LLC,empty,,,2026-09-29
+smartrecruiters,goldmansachsand,GOLDMAN SACHS & CO. LLC,empty,,,2026-09-29
+smartrecruiters,goldmansachsbank,Goldman Sachs Bank USA,empty,,,2026-09-29
 smartrecruiters,gong,Gong,confirmed,9,GONG!,2026-09-14
+smartrecruiters,google,Google LLC,empty,,,2026-09-29
 smartrecruiters,grafana,Grafana,empty,,,2026-09-14
+smartrecruiters,groupm,"GroupM Worldwide, LLC",empty,,,2026-09-29
 smartrecruiters,guardant,Guardant,empty,,,2026-09-14
 smartrecruiters,hashicorp,HashiCorp,empty,,,2026-09-14
 smartrecruiters,headspace,Headspace,empty,,,2026-09-14
+smartrecruiters,hexaware,"Hexaware Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,hexaware-technologies,"Hexaware Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,hexawaretechnologies,"Hexaware Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,home,Home Depot Management Company LLC,empty,,,2026-09-29
+smartrecruiters,home-depot,Home Depot Management Company LLC,empty,,,2026-09-29
+smartrecruiters,home-depot-management,Home Depot Management Company LLC,empty,,,2026-09-29
+smartrecruiters,homedepot,Home Depot Management Company LLC,empty,,,2026-09-29
+smartrecruiters,homedepotmanagement,Home Depot Management Company LLC,empty,,,2026-09-29
+smartrecruiters,humana,Humana Inc.,empty,,,2026-09-29
 smartrecruiters,included,Included,empty,,,2026-09-14
+smartrecruiters,indeed,"Indeed, Inc.",empty,,,2026-09-29
+smartrecruiters,infinite,"Infinite Computer Solutions, Inc.",empty,,,2026-09-29
+smartrecruiters,infinite-computer,"Infinite Computer Solutions, Inc.",empty,,,2026-09-29
+smartrecruiters,infinitecomputer,"Infinite Computer Solutions, Inc.",empty,,,2026-09-29
+smartrecruiters,infosys,INFOSYS LIMITED,empty,,,2026-09-29
+smartrecruiters,innova,"INNOVA SOLUTIONS, INC.",empty,,,2026-09-29
+smartrecruiters,innova-solutions,"INNOVA SOLUTIONS, INC.",empty,,,2026-09-29
+smartrecruiters,innovasolutions,"INNOVA SOLUTIONS, INC.",empty,,,2026-09-29
+smartrecruiters,insight,"Insight Global, LLC",empty,,,2026-09-29
+smartrecruiters,intel,Intel Corporation,empty,,,2026-09-29
+smartrecruiters,intuit,Intuit Inc.,empty,,,2026-09-29
+smartrecruiters,intuitive,"Intuitive Surgical Operations, Inc.",confirmed,746,Intuitive,2026-09-29
+smartrecruiters,intuitive-surgical,"Intuitive Surgical Operations, Inc.",empty,,,2026-09-29
+smartrecruiters,intuitive-surgical-operations,"Intuitive Surgical Operations, Inc.",empty,,,2026-09-29
+smartrecruiters,intuitivesurgical,"Intuitive Surgical Operations, Inc.",empty,,,2026-09-29
+smartrecruiters,intuitivesurgicaloperations,"Intuitive Surgical Operations, Inc.",empty,,,2026-09-29
 smartrecruiters,invitae,Invitae,empty,,,2026-09-14
+smartrecruiters,iqvia,IQVIA Inc.,empty,,,2026-09-29
+smartrecruiters,iqvia-rds,IQVIA RDS Inc.,empty,,,2026-09-29
+smartrecruiters,iqviards,IQVIA RDS Inc.,empty,,,2026-09-29
 smartrecruiters,ironclad,Ironclad,empty,,,2026-09-14
 smartrecruiters,jasper,Jasper,empty,,,2026-09-14
+smartrecruiters,jefferies,Jefferies LLC,empty,,,2026-09-29
 smartrecruiters,jpmorgan,JPMorgan Chase & Co.,empty,,,2026-09-29
 smartrecruiters,jpmorgan-chase,JPMorgan Chase & Co.,empty,,,2026-09-29
 smartrecruiters,jpmorgan-chase-and,JPMorgan Chase & Co.,empty,,,2026-09-29
 smartrecruiters,jpmorganchase,JPMorgan Chase & Co.,empty,,,2026-09-29
 smartrecruiters,jpmorganchaseand,JPMorgan Chase & Co.,empty,,,2026-09-29
+smartrecruiters,kforce,KFORCE INC.,empty,,,2026-09-29
 smartrecruiters,khan,Khan,empty,,,2026-09-14
+smartrecruiters,kian,Kian Corp,empty,,,2026-09-29
 smartrecruiters,komodo,Komodo,empty,,,2026-09-14
+smartrecruiters,kpmg,KPMG LLP,empty,,,2026-09-29
 smartrecruiters,kraken,Kraken,empty,,,2026-09-14
+smartrecruiters,latentview,LatentView Analytics Corporation,empty,,,2026-09-29
+smartrecruiters,latentview-analytics,LatentView Analytics Corporation,empty,,,2026-09-29
+smartrecruiters,latentviewanalytics,LatentView Analytics Corporation,empty,,,2026-09-29
 smartrecruiters,legalzoom,LegalZoom,empty,,,2026-09-14
+smartrecruiters,lexisnexis,"LexisNexis Risk Solutions, Inc.",empty,,,2026-09-29
+smartrecruiters,lexisnexis-risk,"LexisNexis Risk Solutions, Inc.",empty,,,2026-09-29
+smartrecruiters,lexisnexisrisk,"LexisNexis Risk Solutions, Inc.",empty,,,2026-09-29
 smartrecruiters,loom,Loom,empty,,,2026-09-14
+smartrecruiters,lowe,"Lowe's Companies, Inc.",empty,,,2026-09-29
+smartrecruiters,lowe-s,"Lowe's Companies, Inc.",empty,,,2026-09-29
+smartrecruiters,lowe-s-companies,"Lowe's Companies, Inc.",empty,,,2026-09-29
+smartrecruiters,lowes,"Lowe's Companies, Inc.",empty,,,2026-09-29
+smartrecruiters,lowescompanies,"Lowe's Companies, Inc.",empty,,,2026-09-29
+smartrecruiters,ltimindtree,LTIMindtree Limited,empty,,,2026-09-29
 smartrecruiters,lucid,Lucid,empty,,,2026-09-14
+smartrecruiters,macquarie,Macquarie Holdings (USA) Inc.,empty,,,2026-09-29
+smartrecruiters,macquarie-holdings,Macquarie Holdings (USA) Inc.,empty,,,2026-09-29
+smartrecruiters,macquarieholdings,Macquarie Holdings (USA) Inc.,empty,,,2026-09-29
+smartrecruiters,maplebear,Maplebear Inc.,empty,,,2026-09-29
 smartrecruiters,marqeta,Marqeta,empty,,,2026-09-14
+smartrecruiters,mastercard,Mastercard International Incorporated,empty,,,2026-09-29
+smartrecruiters,mckinsey,"McKinsey & Company, Inc. United States",empty,,,2026-09-29
+smartrecruiters,mckinsey-and,"McKinsey & Company, Inc. United States",empty,,,2026-09-29
+smartrecruiters,mckinsey-and-company-inc-united-states,"McKinsey & Company, Inc. United States",empty,,,2026-09-29
+smartrecruiters,mckinseyand,"McKinsey & Company, Inc. United States",empty,,,2026-09-29
+smartrecruiters,mckinseyandcompanyincunitedstates,"McKinsey & Company, Inc. United States",empty,,,2026-09-29
+smartrecruiters,medline,"Medline Industries, LP.",empty,,,2026-09-29
+smartrecruiters,medline-industries,"Medline Industries, LP.",empty,,,2026-09-29
+smartrecruiters,medlineindustries,"Medline Industries, LP.",empty,,,2026-09-29
+smartrecruiters,merck,MERCK SHARP & DOHME LLC,empty,,,2026-09-29
+smartrecruiters,merck-sharp,MERCK SHARP & DOHME LLC,empty,,,2026-09-29
+smartrecruiters,merck-sharp-and-dohme,MERCK SHARP & DOHME LLC,empty,,,2026-09-29
+smartrecruiters,mercksharp,MERCK SHARP & DOHME LLC,empty,,,2026-09-29
+smartrecruiters,mercksharpanddohme,MERCK SHARP & DOHME LLC,empty,,,2026-09-29
 smartrecruiters,meta,"Meta Platforms, Inc",empty,,,2026-09-29
 smartrecruiters,meta-platforms,"Meta Platforms, Inc",empty,,,2026-09-29
 smartrecruiters,metaplatforms,"Meta Platforms, Inc",empty,,,2026-09-29
+smartrecruiters,micron,"Micron Technology, Inc.",empty,,,2026-09-29
+smartrecruiters,micron-technology,"Micron Technology, Inc.",empty,,,2026-09-29
+smartrecruiters,microntechnology,"Micron Technology, Inc.",empty,,,2026-09-29
 smartrecruiters,microsoft,Microsoft Corporation,empty,,,2026-09-29
+smartrecruiters,moelis,Moelis & Company Group LP,empty,,,2026-09-29
+smartrecruiters,moelis-and,Moelis & Company Group LP,empty,,,2026-09-29
+smartrecruiters,moelisand,Moelis & Company Group LP,empty,,,2026-09-29
+smartrecruiters,moody,"Moody's Investors Service, Inc.",empty,,,2026-09-29
+smartrecruiters,moody-s,"Moody's Investors Service, Inc.",empty,,,2026-09-29
+smartrecruiters,moody-s-analytics,"Moody's Analytics, Inc.",empty,,,2026-09-29
+smartrecruiters,moody-s-investors,"Moody's Investors Service, Inc.",empty,,,2026-09-29
+smartrecruiters,moodys,"Moody's Investors Service, Inc.",empty,,,2026-09-29
+smartrecruiters,moodysanalytics,"Moody's Analytics, Inc.",empty,,,2026-09-29
+smartrecruiters,moodysinvestors,"Moody's Investors Service, Inc.",empty,,,2026-09-29
+smartrecruiters,morgan,"Morgan Stanley & Co., LLC",empty,,,2026-09-29
+smartrecruiters,morgan-stanley,"Morgan Stanley & Co., LLC",empty,,,2026-09-29
+smartrecruiters,morgan-stanley-and,"Morgan Stanley & Co., LLC",empty,,,2026-09-29
+smartrecruiters,morgan-stanley-services,Morgan Stanley Services Group Inc.,empty,,,2026-09-29
+smartrecruiters,morganstanley,"Morgan Stanley & Co., LLC",empty,,,2026-09-29
+smartrecruiters,morganstanleyand,"Morgan Stanley & Co., LLC",empty,,,2026-09-29
+smartrecruiters,morganstanleyservices,Morgan Stanley Services Group Inc.,empty,,,2026-09-29
+smartrecruiters,mpg-operations,MPG Operations LLC,empty,,,2026-09-29
+smartrecruiters,mpgoperations,MPG Operations LLC,empty,,,2026-09-29
+smartrecruiters,mphasis,Mphasis Corporation,empty,,,2026-09-29
 smartrecruiters,navan,Navan,empty,,,2026-09-14
+smartrecruiters,navy,Navy Federal Credit Union,empty,,,2026-09-29
+smartrecruiters,navy-federal,Navy Federal Credit Union,empty,,,2026-09-29
+smartrecruiters,navy-federal-credit-union,Navy Federal Credit Union,empty,,,2026-09-29
+smartrecruiters,navyfederal,Navy Federal Credit Union,empty,,,2026-09-29
+smartrecruiters,navyfederalcreditunion,Navy Federal Credit Union,empty,,,2026-09-29
+smartrecruiters,netflix,"Netflix, Inc.",empty,,,2026-09-29
+smartrecruiters,nomura,"Nomura Securities International, Inc.",empty,,,2026-09-29
+smartrecruiters,nomura-securities,"Nomura Securities International, Inc.",empty,,,2026-09-29
+smartrecruiters,nomurasecurities,"Nomura Securities International, Inc.",empty,,,2026-09-29
 smartrecruiters,noom,Noom,empty,,,2026-09-14
+smartrecruiters,novartis,NOVARTIS PHARMACEUTICALS CORPORATION,empty,,,2026-09-29
+smartrecruiters,novartis-pharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,empty,,,2026-09-29
+smartrecruiters,novartispharmaceuticals,NOVARTIS PHARMACEUTICALS CORPORATION,empty,,,2026-09-29
+smartrecruiters,ntt-data,"NTT DATA Americas, Inc.",empty,,,2026-09-29
+smartrecruiters,nttdata,"NTT DATA Americas, Inc.",empty,,,2026-09-29
+smartrecruiters,nvidia,NVIDIA Corporation,empty,,,2026-09-29
+smartrecruiters,onemain,OneMain General Services Corporation,empty,,,2026-09-29
+smartrecruiters,onemain-general,OneMain General Services Corporation,empty,,,2026-09-29
+smartrecruiters,onemaingeneral,OneMain General Services Corporation,empty,,,2026-09-29
+smartrecruiters,open,Open Avenues Foundation,empty,,,2026-09-29
+smartrecruiters,open-avenues,Open Avenues Foundation,empty,,,2026-09-29
+smartrecruiters,open-avenues-foundation,Open Avenues Foundation,empty,,,2026-09-29
+smartrecruiters,openavenues,Open Avenues Foundation,empty,,,2026-09-29
+smartrecruiters,openavenuesfoundation,Open Avenues Foundation,empty,,,2026-09-29
 smartrecruiters,opendoor,Opendoor,empty,,,2026-09-14
+smartrecruiters,optum,"Optum Services, Inc.",empty,,,2026-09-29
+smartrecruiters,optum-services,"Optum Services, Inc.",empty,,,2026-09-29
+smartrecruiters,optumservices,"Optum Services, Inc.",empty,,,2026-09-29
+smartrecruiters,oracle,"Oracle America, Inc.",empty,,,2026-09-29
+smartrecruiters,pacific,Pacific Investment Management Company LLC,empty,,,2026-09-29
+smartrecruiters,pacific-investment,Pacific Investment Management Company LLC,empty,,,2026-09-29
+smartrecruiters,pacific-investment-management,Pacific Investment Management Company LLC,empty,,,2026-09-29
+smartrecruiters,pacificinvestment,Pacific Investment Management Company LLC,empty,,,2026-09-29
+smartrecruiters,pacificinvestmentmanagement,Pacific Investment Management Company LLC,empty,,,2026-09-29
 smartrecruiters,pave,Pave,empty,,,2026-09-14
+smartrecruiters,paypal,"PayPal, Inc.",empty,,,2026-09-29
+smartrecruiters,photon,"PHOTON INFOTECH, INC.",empty,,,2026-09-29
+smartrecruiters,photon-infotech,"PHOTON INFOTECH, INC.",empty,,,2026-09-29
+smartrecruiters,photoninfotech,"PHOTON INFOTECH, INC.",empty,,,2026-09-29
+smartrecruiters,pjt-partners,PJT Partners Holdings LP,empty,,,2026-09-29
+smartrecruiters,pjtpartners,PJT Partners Holdings LP,empty,,,2026-09-29
 smartrecruiters,pluralsight,Pluralsight,empty,,,2026-09-14
+smartrecruiters,populus,Populus Group LLC,empty,,,2026-09-29
+smartrecruiters,populus-group,Populus Group LLC,empty,,,2026-09-29
+smartrecruiters,populusgroup,Populus Group LLC,empty,,,2026-09-29
+smartrecruiters,pricewaterhousecoopers,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,pricewaterhousecoopers-advisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,pricewaterhousecoopersadvisory,PRICEWATERHOUSECOOPERS ADVISORY SERVICES LLC,empty,,,2026-09-29
+smartrecruiters,prime,"Prime Healthcare Management, Inc",empty,,,2026-09-29
+smartrecruiters,prime-healthcare,"Prime Healthcare Management, Inc",empty,,,2026-09-29
+smartrecruiters,prime-healthcare-management,"Prime Healthcare Management, Inc",empty,,,2026-09-29
+smartrecruiters,primehealthcare,"Prime Healthcare Management, Inc",empty,,,2026-09-29
+smartrecruiters,primehealthcaremanagement,"Prime Healthcare Management, Inc",empty,,,2026-09-29
 smartrecruiters,procore,Procore,empty,,,2026-09-14
+smartrecruiters,prudential,The Prudential Insurance Company of America,empty,,,2026-09-29
+smartrecruiters,prudential-insurance,The Prudential Insurance Company of America,empty,,,2026-09-29
+smartrecruiters,prudential-insurance-company-of,The Prudential Insurance Company of America,empty,,,2026-09-29
+smartrecruiters,prudentialinsurance,The Prudential Insurance Company of America,empty,,,2026-09-29
+smartrecruiters,prudentialinsurancecompanyof,The Prudential Insurance Company of America,empty,,,2026-09-29
+smartrecruiters,pwc-us,PwC US Business Advisory LLP,empty,,,2026-09-29
+smartrecruiters,pwc-us-business-advisory,PwC US Business Advisory LLP,empty,,,2026-09-29
+smartrecruiters,pwcus,PwC US Business Advisory LLP,empty,,,2026-09-29
+smartrecruiters,pwcusbusinessadvisory,PwC US Business Advisory LLP,empty,,,2026-09-29
+smartrecruiters,pyramid,"Pyramid Consulting, Inc.",empty,,,2026-09-29
+smartrecruiters,pyramid-consulting,"Pyramid Consulting, Inc.",empty,,,2026-09-29
+smartrecruiters,pyramidconsulting,"Pyramid Consulting, Inc.",empty,,,2026-09-29
+smartrecruiters,quadrant,Quadrant Technologies LLC,empty,,,2026-09-29
+smartrecruiters,quadrant-technologies,Quadrant Technologies LLC,empty,,,2026-09-29
+smartrecruiters,quadranttechnologies,Quadrant Technologies LLC,empty,,,2026-09-29
+smartrecruiters,randstad,"RANDSTAD DIGITAL, LLC",empty,,,2026-09-29
+smartrecruiters,randstad-digital,"RANDSTAD DIGITAL, LLC",empty,,,2026-09-29
+smartrecruiters,randstaddigital,"RANDSTAD DIGITAL, LLC",empty,,,2026-09-29
+smartrecruiters,rbc-capital,RBC Capital Markets LLC,empty,,,2026-09-29
+smartrecruiters,rbc-capital-markets,RBC Capital Markets LLC,empty,,,2026-09-29
+smartrecruiters,rbccapital,RBC Capital Markets LLC,empty,,,2026-09-29
+smartrecruiters,rbccapitalmarkets,RBC Capital Markets LLC,empty,,,2026-09-29
 smartrecruiters,recursion,Recursion,empty,,,2026-09-14
 smartrecruiters,redfin,Redfin,empty,,,2026-09-14
+smartrecruiters,regeneron,"Regeneron Pharmaceuticals, Inc.",empty,,,2026-09-29
+smartrecruiters,regeneron-pharmaceuticals,"Regeneron Pharmaceuticals, Inc.",empty,,,2026-09-29
+smartrecruiters,regeneronpharmaceuticals,"Regeneron Pharmaceuticals, Inc.",empty,,,2026-09-29
+smartrecruiters,relx,"RELX, Inc.",empty,,,2026-09-29
 smartrecruiters,remitly,Remitly,empty,,,2026-09-14
 smartrecruiters,retool,Retool,empty,,,2026-09-14
 smartrecruiters,rippling,Rippling,empty,,,2026-09-14
 smartrecruiters,rivian,Rivian,empty,,,2026-09-14
+smartrecruiters,rivian-automotive,"Rivian Automotive, LLC",empty,,,2026-09-29
+smartrecruiters,rivianautomotive,"Rivian Automotive, LLC",empty,,,2026-09-29
+smartrecruiters,robotics,ROBOTICS TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,robotics-technologies,ROBOTICS TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,roboticstechnologies,ROBOTICS TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,rocket,Rocket Limited Partnership,empty,,,2026-09-29
+smartrecruiters,rocket-limited,Rocket Limited Partnership,empty,,,2026-09-29
+smartrecruiters,rocket-limited-partnership,Rocket Limited Partnership,empty,,,2026-09-29
+smartrecruiters,rocketlimited,Rocket Limited Partnership,empty,,,2026-09-29
+smartrecruiters,rocketlimitedpartnership,Rocket Limited Partnership,empty,,,2026-09-29
+smartrecruiters,salesforce,"Salesforce, Inc.",empty,,,2026-09-29
 smartrecruiters,scale,Scale,empty,,,2026-09-14
+smartrecruiters,scotia,"SCOTIA CAPITAL (USA), INC.",empty,,,2026-09-29
+smartrecruiters,scotia-capital,"SCOTIA CAPITAL (USA), INC.",empty,,,2026-09-29
+smartrecruiters,scotiacapital,"SCOTIA CAPITAL (USA), INC.",empty,,,2026-09-29
 smartrecruiters,segment,Segment,empty,,,2026-09-14
+smartrecruiters,servicenow,"ServiceNow, Inc.",confirmed,687,ServiceNow,2026-09-29
 smartrecruiters,shield,Shield,empty,,,2026-09-14
 smartrecruiters,shopify,Shopify,empty,,,2026-09-14
 smartrecruiters,sigma,Sigma,empty,,,2026-09-14
+smartrecruiters,slalom,"Slalom, Inc.",empty,,,2026-09-29
+smartrecruiters,snap,SNAP INC.,empty,,,2026-09-29
+smartrecruiters,starbucks,Starbucks Coffee Company,empty,,,2026-09-29
+smartrecruiters,starbucks-coffee,Starbucks Coffee Company,empty,,,2026-09-29
+smartrecruiters,starbuckscoffee,Starbucks Coffee Company,empty,,,2026-09-29
+smartrecruiters,state,State Street Bank and Trust Company,empty,,,2026-09-29
+smartrecruiters,state-street,State Street Bank and Trust Company,empty,,,2026-09-29
+smartrecruiters,state-street-bank-and-trust,State Street Bank and Trust Company,empty,,,2026-09-29
+smartrecruiters,statestreet,State Street Bank and Trust Company,empty,,,2026-09-29
+smartrecruiters,statestreetbankandtrust,State Street Bank and Trust Company,empty,,,2026-09-29
+smartrecruiters,sumeru,SUMERU TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,sumeru-technologies,SUMERU TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,sumerutechnologies,SUMERU TECHNOLOGIES LLC,empty,,,2026-09-29
+smartrecruiters,sumitomo,SUMITOMO MITSUI BANKING CORPORATION,empty,,,2026-09-29
+smartrecruiters,sumitomo-mitsui,SUMITOMO MITSUI BANKING CORPORATION,empty,,,2026-09-29
+smartrecruiters,sumitomo-mitsui-banking,SUMITOMO MITSUI BANKING CORPORATION,empty,,,2026-09-29
+smartrecruiters,sumitomomitsui,SUMITOMO MITSUI BANKING CORPORATION,empty,,,2026-09-29
+smartrecruiters,sumitomomitsuibanking,SUMITOMO MITSUI BANKING CORPORATION,empty,,,2026-09-29
+smartrecruiters,synechron,"Synechron, Inc.",confirmed,3,Synechron,2026-09-29
+smartrecruiters,sysintelli,Sysintelli Inc.,empty,,,2026-09-29
+smartrecruiters,t-mobile,"T-Mobile USA, Inc.",empty,,,2026-09-29
+smartrecruiters,target,"Target Enterprise, Inc.",empty,,,2026-09-29
+smartrecruiters,target-enterprise,"Target Enterprise, Inc.",empty,,,2026-09-29
+smartrecruiters,targetenterprise,"Target Enterprise, Inc.",empty,,,2026-09-29
+smartrecruiters,tata,TATA CONSULTANCY SERVICES LIMITED,empty,,,2026-09-29
+smartrecruiters,tata-consultancy,TATA CONSULTANCY SERVICES LIMITED,empty,,,2026-09-29
+smartrecruiters,tataconsultancy,TATA CONSULTANCY SERVICES LIMITED,empty,,,2026-09-29
+smartrecruiters,td-securities,TD Securities (USA) LLC,empty,,,2026-09-29
+smartrecruiters,tdsecurities,TD Securities (USA) LLC,empty,,,2026-09-29
+smartrecruiters,tech-mahindra,"TECH MAHINDRA (AMERICAS), INC",empty,,,2026-09-29
+smartrecruiters,techdata,TechData Service Company LLC,empty,,,2026-09-29
+smartrecruiters,techdata-service,TechData Service Company LLC,empty,,,2026-09-29
+smartrecruiters,techdataservice,TechData Service Company LLC,empty,,,2026-09-29
+smartrecruiters,techmahindra,"TECH MAHINDRA (AMERICAS), INC",empty,,,2026-09-29
 smartrecruiters,tempus,Tempus,empty,,,2026-09-14
+smartrecruiters,tesla,"Tesla, Inc.",empty,,,2026-09-29
+smartrecruiters,themathcompany,TheMathCompany Inc.,empty,,,2026-09-29
+smartrecruiters,tiktok,TikTok Inc.,empty,,,2026-09-29
+smartrecruiters,tiktok-u,TikTok U.S. Data Security Inc.,empty,,,2026-09-29
+smartrecruiters,tiktok-u-s-data-security,TikTok U.S. Data Security Inc.,empty,,,2026-09-29
+smartrecruiters,tiktok-usds,TikTok USDS Joint Venture LLC,empty,,,2026-09-29
+smartrecruiters,tiktok-usds-joint-venture,TikTok USDS Joint Venture LLC,empty,,,2026-09-29
+smartrecruiters,tiktoku,TikTok U.S. Data Security Inc.,empty,,,2026-09-29
+smartrecruiters,tiktokusdatasecurity,TikTok U.S. Data Security Inc.,empty,,,2026-09-29
+smartrecruiters,tiktokusds,TikTok USDS Joint Venture LLC,empty,,,2026-09-29
+smartrecruiters,tiktokusdsjointventure,TikTok USDS Joint Venture LLC,empty,,,2026-09-29
+smartrecruiters,tmobile,"T-Mobile USA, Inc.",empty,,,2026-09-29
+smartrecruiters,transunion,TransUnion LLC,empty,,,2026-09-29
+smartrecruiters,tredence,Tredence Inc.,empty,,,2026-09-29
+smartrecruiters,truist,Truist Bank,empty,,,2026-09-29
+smartrecruiters,truist-bank,Truist Bank,empty,,,2026-09-29
+smartrecruiters,truistbank,Truist Bank,empty,,,2026-09-29
+smartrecruiters,trustees,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,empty,,,2026-09-29
+smartrecruiters,trustees-of,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,empty,,,2026-09-29
+smartrecruiters,trustees-of-the-university-of-pennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,empty,,,2026-09-29
+smartrecruiters,trusteesof,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,empty,,,2026-09-29
+smartrecruiters,trusteesoftheuniversityofpennsylvania,TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA,empty,,,2026-09-29
+smartrecruiters,tt-commerce,TT Commerce & Global Services LLC,empty,,,2026-09-29
+smartrecruiters,tt-commerce-and-global,TT Commerce & Global Services LLC,empty,,,2026-09-29
+smartrecruiters,ttcommerce,TT Commerce & Global Services LLC,empty,,,2026-09-29
+smartrecruiters,ttcommerceandglobal,TT Commerce & Global Services LLC,empty,,,2026-09-29
+smartrecruiters,two-sigma,"TWO SIGMA INVESTMENTS, LP",empty,,,2026-09-29
+smartrecruiters,two-sigma-investments,"TWO SIGMA INVESTMENTS, LP",empty,,,2026-09-29
+smartrecruiters,twosigma,"TWO SIGMA INVESTMENTS, LP",empty,,,2026-09-29
+smartrecruiters,twosigmainvestments,"TWO SIGMA INVESTMENTS, LP",empty,,,2026-09-29
+smartrecruiters,u-s-bank-national-association,U.S. Bank National Association,empty,,,2026-09-29
 smartrecruiters,uber,Uber,confirmed,1,Uber,2026-09-14
+smartrecruiters,uber-technologies,"Uber Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,ubertechnologies,"Uber Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,ubs-business,UBS Business Solutions US LLC,empty,,,2026-09-29
+smartrecruiters,ubs-securities,UBS SECURITIES LLC,empty,,,2026-09-29
+smartrecruiters,ubsbusiness,UBS Business Solutions US LLC,empty,,,2026-09-29
+smartrecruiters,ubssecurities,UBS SECURITIES LLC,empty,,,2026-09-29
+smartrecruiters,university,University of Michigan,empty,,,2026-09-29
+smartrecruiters,university-of,University of Michigan,empty,,,2026-09-29
+smartrecruiters,university-of-florida,UNIVERSITY OF FLORIDA,empty,,,2026-09-29
+smartrecruiters,university-of-michigan,University of Michigan,empty,,,2026-09-29
+smartrecruiters,universityof,University of Michigan,empty,,,2026-09-29
+smartrecruiters,universityofflorida,UNIVERSITY OF FLORIDA,empty,,,2026-09-29
+smartrecruiters,universityofmichigan,University of Michigan,empty,,,2026-09-29
+smartrecruiters,usbanknationalassociation,U.S. Bank National Association,empty,,,2026-09-29
+smartrecruiters,v-soft,"V-Soft Consulting Group, INC",empty,,,2026-09-29
+smartrecruiters,v-soft-consulting,"V-Soft Consulting Group, INC",empty,,,2026-09-29
+smartrecruiters,vanguard,"The Vanguard Group, Inc.",empty,,,2026-09-29
+smartrecruiters,vanguard-group,"The Vanguard Group, Inc.",empty,,,2026-09-29
+smartrecruiters,vanguardgroup,"The Vanguard Group, Inc.",empty,,,2026-09-29
 smartrecruiters,vannevar,Vannevar,empty,,,2026-09-14
 smartrecruiters,varo,Varo,empty,,,2026-09-14
+smartrecruiters,ventois,"Ventois, Inc",empty,,,2026-09-29
 smartrecruiters,verily,Verily,empty,,,2026-09-14
+smartrecruiters,vertex,Vertex Pharmaceuticals Incorporated,empty,,,2026-09-29
+smartrecruiters,vertex-pharmaceuticals,Vertex Pharmaceuticals Incorporated,empty,,,2026-09-29
+smartrecruiters,vertexpharmaceuticals,Vertex Pharmaceuticals Incorporated,empty,,,2026-09-29
+smartrecruiters,virtusa,VIRTUSA CORPORATION,empty,,,2026-09-29
+smartrecruiters,virtusa-consulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",empty,,,2026-09-29
+smartrecruiters,virtusaconsulting,"VIRTUSA CONSULTING SERVICES PVT., LTD",empty,,,2026-09-29
+smartrecruiters,visa,Visa U.S.A. Inc.,empty,,,2026-09-29
+smartrecruiters,visa-u,Visa U.S.A. Inc.,empty,,,2026-09-29
+smartrecruiters,visa-u-s-a,Visa U.S.A. Inc.,empty,,,2026-09-29
+smartrecruiters,visau,Visa U.S.A. Inc.,empty,,,2026-09-29
+smartrecruiters,visausa,Visa U.S.A. Inc.,empty,,,2026-09-29
+smartrecruiters,vsoft,"V-Soft Consulting Group, INC",empty,,,2026-09-29
+smartrecruiters,vsoftconsulting,"V-Soft Consulting Group, INC",empty,,,2026-09-29
+smartrecruiters,wal-mart,"WAL-MART ASSOCIATES, INC.",empty,,,2026-09-29
+smartrecruiters,wal-mart-associates,"WAL-MART ASSOCIATES, INC.",empty,,,2026-09-29
+smartrecruiters,walmart,"WAL-MART ASSOCIATES, INC.",empty,,,2026-09-29
+smartrecruiters,walmartassociates,"WAL-MART ASSOCIATES, INC.",empty,,,2026-09-29
 smartrecruiters,warby,Warby,empty,,,2026-09-14
+smartrecruiters,wayfair,Wayfair LLC,confirmed,1,Wayfair,2026-09-29
+smartrecruiters,wells,"Wells Fargo Bank, N.A.",empty,,,2026-09-29
+smartrecruiters,wells-fargo,"Wells Fargo Bank, N.A.",empty,,,2026-09-29
+smartrecruiters,wells-fargo-bank-n-a,"Wells Fargo Bank, N.A.",empty,,,2026-09-29
+smartrecruiters,wellsfargo,"Wells Fargo Bank, N.A.",empty,,,2026-09-29
+smartrecruiters,wellsfargobankna,"Wells Fargo Bank, N.A.",empty,,,2026-09-29
+smartrecruiters,wipro,WIPRO LIMITED,empty,,,2026-09-29
+smartrecruiters,workday,"Workday, Inc.",empty,,,2026-09-29
 smartrecruiters,yelp,Yelp,empty,,,2026-09-14
+smartrecruiters,zensar,"Zensar Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,zensar-technologies,"Zensar Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,zensartechnologies,"Zensar Technologies, Inc.",empty,,,2026-09-29
+smartrecruiters,zs-associates,"ZS Associates, Inc.",empty,,,2026-09-29
+smartrecruiters,zsassociates,"ZS Associates, Inc.",empty,,,2026-09-29
