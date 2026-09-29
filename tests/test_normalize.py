@@ -186,3 +186,32 @@ def test_a_us_posting_is_not_classified_foreign(raw):
 def test_a_foreign_posting_is_still_foreign(raw):
     """The fix must not buy US coverage by letting everything through."""
     assert not parse_locations(raw).is_us, raw
+
+
+# --- unrecognised places ------------------------------------------------------
+# An unrecognised location scores "unknown", which carries low confidence and is
+# therefore never dropped. 185 open cards were arriving that way: Warszawa,
+# Herzliya, Sofia, Vilnius, Ebene. Noise rather than loss, but it is noise in
+# the one place Alli is reading.
+
+@pytest.mark.parametrize("raw", [
+    "Warszawa", "Kyiv", "Herzliya", "Sofia", "Vilnius", "Ebene", "Gibraltar",
+    "Tbilisi", "Bengaluru", "Gurugram", "Belgrade", "Guadalajara",
+])
+def test_a_foreign_city_is_recognised_in_its_local_spelling(raw):
+    assert not parse_locations(raw).is_us, raw
+    assert parse_locations(raw).confidence == "high", f"{raw} must be droppable"
+
+
+@pytest.mark.parametrize("raw", [
+    "San Francisco Office", "San Francisco HQ", "Austin Campus", "Chicago Center",
+])
+def test_a_company_labelled_us_site_is_still_us(raw):
+    """Companies name their own sites. The exact-match city lookup missed all of
+    these, so a US role scored unknown and lost the whole location component."""
+    assert parse_locations(raw).is_us, raw
+
+
+@pytest.mark.parametrize("raw", ["London Office", "Warszawa Office", "Toronto HQ"])
+def test_the_suffix_trim_does_not_import_foreign_sites(raw):
+    assert not parse_locations(raw).is_us, raw

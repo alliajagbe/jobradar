@@ -287,6 +287,24 @@ _FOREIGN = {
 # actually appear on these boards; this catches everything else. Without it a
 # Bosch posting in "Sofia, Sofia City Province, Bulgaria" classifies as unknown,
 # which is low confidence rather than foreign, and survives into the results.
+# Foreign cities the list was missing, and the local spellings of ones it had.
+# Each was found sitting in the open feed as an unrecognised location: an
+# unrecognised place scores "unknown", which carries low confidence and so is
+# never dropped, and 185 open cards were arriving that way. "warsaw" was
+# present but the postings say "Warszawa".
+_FOREIGN = _FOREIGN | frozenset("""
+warszawa krakow wroclaw gdansk poznan lodz kyiv kiev lviv odesa minsk
+sofia plovdiv bucharest cluj timisoara vilnius riga tallinn
+herzliya ramat gan petah tikva haifa beer sheva
+ebene quatre bornes port louis gibraltar valletta nicosia
+bengaluru bangalore gurugram gurgaon noida hyderabad chennai mumbai pune
+tbilisi yerevan baku almaty tashkent
+belgrade zagreb ljubljana sarajevo skopje tirana
+guadalajara monterrey medellin bogota buenos aires montevideo santiago
+casablanca cairo nairobi lagos accra johannesburg cape town
+ho chi minh hanoi jakarta manila kuala lumpur bangkok taipei seoul
+""".split())
+
 _FOREIGN = _FOREIGN | frozenset("""
 afghanistan albania algeria andorra angola armenia azerbaijan bahamas bahrain
 bangladesh barbados belarus belize benin bhutan bolivia bosnia botswana brunei
@@ -405,6 +423,13 @@ def _classify(part: str) -> str:
             return "us"
     head = low.split(",")[0].strip()
     if head in _US_CITIES:
+        return "us"
+    # Companies label their own sites: "San Francisco Office", "Austin HQ",
+    # "Chicago Campus". The exact-match lookup missed all of them, so a US role
+    # scored as unknown and lost the full location component.
+    trimmed = re.sub(r"\s+(office|hq|headquarters|campus|site|hub|center|centre)$",
+                     "", head).strip()
+    if trimmed != head and trimmed in _US_CITIES:
         return "us"
     return "unknown"
 
