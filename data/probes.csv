@@ -2,6 +2,7 @@ source,slug,company,verdict,job_count,reported_name,probed_at
 ashby,airwallex,Airwallex,confirmed,579,,2026-09-14
 ashby,aledade,Aledade,notfound,,,2026-09-14
 ashby,allbirds,Allbirds,notfound,,,2026-09-14
+ashby,amazon,Amazon.com Services LLC,notfound,,,2026-09-29
 ashby,anduril,Anduril,notfound,,,2026-09-14
 ashby,angellist,AngelList,notfound,,,2026-09-14
 ashby,angi,Angi,confirmed,50,,2026-09-14
@@ -29,6 +30,11 @@ ashby,devoted,Devoted,notfound,,,2026-09-14
 ashby,doordash,DoorDash,notfound,,,2026-09-14
 ashby,elevenlabs,ElevenLabs,confirmed,246,,2026-09-14
 ashby,empower,Empower,notfound,,,2026-09-14
+ashby,ernst,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+ashby,ernst-and,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+ashby,ernst-and-young-u-s,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+ashby,ernstand,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+ashby,ernstandyoungus,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 ashby,etsy,Etsy,notfound,,,2026-09-14
 ashby,flatiron,Flatiron,notfound,,,2026-09-14
 ashby,fresha,Fresha,notfound,,,2026-09-14
@@ -43,6 +49,11 @@ ashby,included,Included,notfound,,,2026-09-14
 ashby,invitae,Invitae,notfound,,,2026-09-14
 ashby,ironclad,Ironclad,notfound,,,2026-09-14
 ashby,jasper,Jasper,notfound,,,2026-09-14
+ashby,jpmorgan,JPMorgan Chase & Co.,notfound,,,2026-09-29
+ashby,jpmorgan-chase,JPMorgan Chase & Co.,notfound,,,2026-09-29
+ashby,jpmorgan-chase-and,JPMorgan Chase & Co.,notfound,,,2026-09-29
+ashby,jpmorganchase,JPMorgan Chase & Co.,notfound,,,2026-09-29
+ashby,jpmorganchaseand,JPMorgan Chase & Co.,notfound,,,2026-09-29
 ashby,khan,Khan,notfound,,,2026-09-14
 ashby,komodo,Komodo,notfound,,,2026-09-14
 ashby,kraken,Kraken,empty,,,2026-09-14
@@ -50,6 +61,10 @@ ashby,legalzoom,LegalZoom,notfound,,,2026-09-14
 ashby,loom,Loom,empty,,,2026-09-14
 ashby,lucid,Lucid,notfound,,,2026-09-14
 ashby,marqeta,Marqeta,notfound,,,2026-09-14
+ashby,meta,"Meta Platforms, Inc",notfound,,,2026-09-29
+ashby,meta-platforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+ashby,metaplatforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+ashby,microsoft,Microsoft Corporation,notfound,,,2026-09-29
 ashby,miro,Miro,confirmed,39,,2026-09-14
 ashby,navan,Navan,notfound,,,2026-09-14
 ashby,noom,Noom,notfound,,,2026-09-14
@@ -95,6 +110,7 @@ greenhouse,airbnb,Airbnb,confirmed,164,Airbnb,2026-09-14
 greenhouse,airwallex,Airwallex,notfound,,,2026-09-14
 greenhouse,aledade,Aledade,notfound,,,2026-09-14
 greenhouse,allbirds,Allbirds,notfound,,,2026-09-14
+greenhouse,amazon,Amazon.com Services LLC,notfound,,,2026-09-29
 greenhouse,amplitude,Amplitude,confirmed,35,Amplitude ,2026-09-14
 greenhouse,anduril,Anduril,notfound,,,2026-09-14
 greenhouse,angellist,AngelList,notfound,,,2026-09-14
@@ -137,6 +153,11 @@ greenhouse,duolingo,Duolingo,confirmed,80,Duolingo,2026-09-14
 greenhouse,elastic,Elastic,confirmed,359,Elastic,2026-09-14
 greenhouse,elevenlabs,ElevenLabs,notfound,,,2026-09-14
 greenhouse,empower,Empower,notfound,,,2026-09-14
+greenhouse,ernst,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+greenhouse,ernst-and,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+greenhouse,ernst-and-young-u-s,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+greenhouse,ernstand,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+greenhouse,ernstandyoungus,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 greenhouse,etsy,Etsy,notfound,,,2026-09-14
 greenhouse,everlaw,Everlaw,confirmed,35,Everlaw,2026-09-14
 greenhouse,fivetran,Fivetran,confirmed,198,Fivetran ,2026-09-14
@@ -160,6 +181,11 @@ greenhouse,invitae,Invitae,notfound,,,2026-09-14
 greenhouse,ironclad,Ironclad,notfound,,,2026-09-14
 greenhouse,iterable,Iterable,confirmed,15,Iterable,2026-09-14
 greenhouse,jasper,Jasper,notfound,,,2026-09-14
+greenhouse,jpmorgan,JPMorgan Chase & Co.,notfound,,,2026-09-29
+greenhouse,jpmorgan-chase,JPMorgan Chase & Co.,notfound,,,2026-09-29
+greenhouse,jpmorgan-chase-and,JPMorgan Chase & Co.,notfound,,,2026-09-29
+greenhouse,jpmorganchase,JPMorgan Chase & Co.,notfound,,,2026-09-29
+greenhouse,jpmorganchaseand,JPMorgan Chase & Co.,notfound,,,2026-09-29
 greenhouse,justworks,Justworks,confirmed,97,Justworks,2026-09-14
 greenhouse,khan,Khan,notfound,,,2026-09-14
 greenhouse,klaviyo,Klaviyo,confirmed,139,Klaviyo,2026-09-14
@@ -170,6 +196,10 @@ greenhouse,legalzoom,LegalZoom,notfound,,,2026-09-14
 greenhouse,loom,Loom,notfound,,,2026-09-14
 greenhouse,lucid,Lucid,notfound,,,2026-09-14
 greenhouse,marqeta,Marqeta,notfound,,,2026-09-14
+greenhouse,meta,"Meta Platforms, Inc",notfound,,,2026-09-29
+greenhouse,meta-platforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+greenhouse,metaplatforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+greenhouse,microsoft,Microsoft Corporation,notfound,,,2026-09-29
 greenhouse,mindbody,Mindbody,confirmed,16,Mindbody,2026-09-14
 greenhouse,miro,Miro,notfound,,,2026-09-14
 greenhouse,mixpanel,Mixpanel,confirmed,86,Mixpanel,2026-09-14
@@ -238,6 +268,7 @@ greenhouse,zoominfo,ZoomInfo,confirmed,110,ZoomInfo Technologies LLC,2026-09-14
 greenhouse,zoox,Zoox,notfound,,,2026-09-14
 lever,aledade,Aledade,confirmed,35,,2026-09-14
 lever,allbirds,Allbirds,notfound,,,2026-09-14
+lever,amazon,Amazon.com Services LLC,notfound,,,2026-09-29
 lever,anduril,Anduril,notfound,,,2026-09-14
 lever,angellist,AngelList,confirmed,25,,2026-09-14
 lever,apollo,Apollo,notfound,,,2026-09-14
@@ -257,6 +288,11 @@ lever,convoy,Convoy,notfound,,,2026-09-14
 lever,devoted,Devoted,notfound,,,2026-09-14
 lever,doordash,DoorDash,notfound,,,2026-09-14
 lever,empower,Empower,notfound,,,2026-09-14
+lever,ernst,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+lever,ernst-and,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+lever,ernst-and-young-u-s,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+lever,ernstand,Ernst & Young U.S. LLP,notfound,,,2026-09-29
+lever,ernstandyoungus,Ernst & Young U.S. LLP,notfound,,,2026-09-29
 lever,etsy,Etsy,notfound,,,2026-09-14
 lever,flatiron,Flatiron,notfound,,,2026-09-14
 lever,fresha,Fresha,confirmed,153,,2026-09-14
@@ -270,6 +306,11 @@ lever,included,Included,notfound,,,2026-09-14
 lever,invitae,Invitae,notfound,,,2026-09-14
 lever,ironclad,Ironclad,notfound,,,2026-09-14
 lever,jasper,Jasper,notfound,,,2026-09-14
+lever,jpmorgan,JPMorgan Chase & Co.,notfound,,,2026-09-29
+lever,jpmorgan-chase,JPMorgan Chase & Co.,notfound,,,2026-09-29
+lever,jpmorgan-chase-and,JPMorgan Chase & Co.,notfound,,,2026-09-29
+lever,jpmorganchase,JPMorgan Chase & Co.,notfound,,,2026-09-29
+lever,jpmorganchaseand,JPMorgan Chase & Co.,notfound,,,2026-09-29
 lever,khan,Khan,notfound,,,2026-09-14
 lever,komodo,Komodo,notfound,,,2026-09-14
 lever,kraken,Kraken,empty,,,2026-09-14
@@ -277,6 +318,10 @@ lever,legalzoom,LegalZoom,notfound,,,2026-09-14
 lever,loom,Loom,notfound,,,2026-09-14
 lever,lucid,Lucid,notfound,,,2026-09-14
 lever,marqeta,Marqeta,notfound,,,2026-09-14
+lever,meta,"Meta Platforms, Inc",notfound,,,2026-09-29
+lever,meta-platforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+lever,metaplatforms,"Meta Platforms, Inc",notfound,,,2026-09-29
+lever,microsoft,Microsoft Corporation,notfound,,,2026-09-29
 lever,navan,Navan,notfound,,,2026-09-14
 lever,noom,Noom,notfound,,,2026-09-14
 lever,opendoor,Opendoor,notfound,,,2026-09-14
@@ -305,6 +350,7 @@ lever,warby,Warby,notfound,,,2026-09-14
 lever,yelp,Yelp,notfound,,,2026-09-14
 lever,zoox,Zoox,confirmed,243,,2026-09-14
 smartrecruiters,allbirds,Allbirds,empty,,,2026-09-14
+smartrecruiters,amazon,Amazon.com Services LLC,empty,,,2026-09-29
 smartrecruiters,anduril,Anduril,empty,,,2026-09-14
 smartrecruiters,apollo,Apollo,empty,,,2026-09-14
 smartrecruiters,booksy,Booksy,empty,,,2026-09-14
@@ -323,6 +369,11 @@ smartrecruiters,convoy,Convoy,empty,,,2026-09-14
 smartrecruiters,devoted,Devoted,empty,,,2026-09-14
 smartrecruiters,doordash,DoorDash,empty,,,2026-09-14
 smartrecruiters,empower,Empower,empty,,,2026-09-14
+smartrecruiters,ernst,Ernst & Young U.S. LLP,empty,,,2026-09-29
+smartrecruiters,ernst-and,Ernst & Young U.S. LLP,empty,,,2026-09-29
+smartrecruiters,ernst-and-young-u-s,Ernst & Young U.S. LLP,empty,,,2026-09-29
+smartrecruiters,ernstand,Ernst & Young U.S. LLP,empty,,,2026-09-29
+smartrecruiters,ernstandyoungus,Ernst & Young U.S. LLP,empty,,,2026-09-29
 smartrecruiters,etsy,Etsy,empty,,,2026-09-14
 smartrecruiters,flatiron,Flatiron,empty,,,2026-09-14
 smartrecruiters,glean,Glean,confirmed,1,Glean,2026-09-14
@@ -335,6 +386,11 @@ smartrecruiters,included,Included,empty,,,2026-09-14
 smartrecruiters,invitae,Invitae,empty,,,2026-09-14
 smartrecruiters,ironclad,Ironclad,empty,,,2026-09-14
 smartrecruiters,jasper,Jasper,empty,,,2026-09-14
+smartrecruiters,jpmorgan,JPMorgan Chase & Co.,empty,,,2026-09-29
+smartrecruiters,jpmorgan-chase,JPMorgan Chase & Co.,empty,,,2026-09-29
+smartrecruiters,jpmorgan-chase-and,JPMorgan Chase & Co.,empty,,,2026-09-29
+smartrecruiters,jpmorganchase,JPMorgan Chase & Co.,empty,,,2026-09-29
+smartrecruiters,jpmorganchaseand,JPMorgan Chase & Co.,empty,,,2026-09-29
 smartrecruiters,khan,Khan,empty,,,2026-09-14
 smartrecruiters,komodo,Komodo,empty,,,2026-09-14
 smartrecruiters,kraken,Kraken,empty,,,2026-09-14
@@ -342,6 +398,10 @@ smartrecruiters,legalzoom,LegalZoom,empty,,,2026-09-14
 smartrecruiters,loom,Loom,empty,,,2026-09-14
 smartrecruiters,lucid,Lucid,empty,,,2026-09-14
 smartrecruiters,marqeta,Marqeta,empty,,,2026-09-14
+smartrecruiters,meta,"Meta Platforms, Inc",empty,,,2026-09-29
+smartrecruiters,meta-platforms,"Meta Platforms, Inc",empty,,,2026-09-29
+smartrecruiters,metaplatforms,"Meta Platforms, Inc",empty,,,2026-09-29
+smartrecruiters,microsoft,Microsoft Corporation,empty,,,2026-09-29
 smartrecruiters,navan,Navan,empty,,,2026-09-14
 smartrecruiters,noom,Noom,empty,,,2026-09-14
 smartrecruiters,opendoor,Opendoor,empty,,,2026-09-14

@@ -312,8 +312,12 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("discover", help="probe for new boards")
     p.add_argument("--from-lca", action="store_true", default=True)
-    p.add_argument("--top", type=int, default=300, help="top N sponsors to probe")
-    p.add_argument("--max-probes", type=int, default=1500)
+    # 300 was 0.5% of the employers on file and the cut-off cost real boards:
+    # a firm ranked 1246th had an ordinary Greenhouse board whose correct slug
+    # was the first candidate generated for it. Probes are cached forever, so
+    # depth is paid for once.
+    p.add_argument("--top", type=int, default=2000, help="top N sponsors to probe")
+    p.add_argument("--max-probes", type=int, default=25000)
     p.add_argument("--apply", action="store_true", help="write seeds/discovered.csv")
     p.set_defaults(func=cmd_discover)
 
