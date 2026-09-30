@@ -38,8 +38,16 @@ class Lever:
 
     def _to_posting(self, job: dict, board: Board) -> RawPosting:
         categories = job.get("categories") or {}
+        # Lever does not always populate the *Plain variants. This posting had an
+        # empty descriptionPlain and 4338 characters of HTML in `description`,
+        # so the job arrived with no text at all: nothing to match skills
+        # against, and a score built on the title alone. Fall back to the HTML
+        # and let the shared converter handle it.
         text = "\n\n".join(
             part for part in (job.get("descriptionPlain"), job.get("additionalPlain")) if part
+        )
+        html = "" if text else "\n\n".join(
+            part for part in (job.get("description"), job.get("additional")) if part
         )
         return RawPosting(
             source=self.name,
@@ -54,7 +62,8 @@ class Lever:
             employment_type=categories.get("commitment"),
             posted_at=_from_millis(job.get("createdAt")),
             posted_at_source="createdAt",
-            description_text=text,
+            description_text=text or None,
+            description_html=html or None,
             company_name=board.company,
         )
 

@@ -46,3 +46,39 @@ def test_short_name_with_several_candidates_is_refused():
 def test_unknown_company_returns_no_record():
     m = Matcher(["STRIPE", "GOOGLE"])
     assert m.match("Some Tiny Startup").norm_name is None
+
+
+# --- Lever descriptions -------------------------------------------------------
+# Lever does not always populate its *Plain fields. A Thunkable posting had an
+# empty descriptionPlain and 4338 characters of HTML in `description`, so the
+# job arrived with NO text: no skills to match, and a score built on the title
+# alone. It read 41; with the description it reads 80. This matters out of
+# proportion to one posting, because the Lever board count is going from 5 to
+# roughly 2000.
+
+def _lever_posting(**over):
+    job = {"id": "abc", "text": "Senior Data Analyst", "hostedUrl": "https://x/y",
+           "categories": {"location": "San Francisco, CA"}, "createdAt": 1700000000000}
+    job.update(over)
+    return job
+
+
+def test_a_lever_html_description_is_not_dropped():
+    from jobradar.sources.lever import Lever
+    from jobradar.sources.base import Board
+    board = Board(source="lever", token="acme", company="Acme")
+    got = Lever()._to_posting(
+        _lever_posting(description="<p>Build <b>dashboards</b> in SQL.</p>"), board)
+    assert got.description_html, "HTML description must be carried through"
+    assert "dashboards" in (got.description_html or "").lower()
+
+
+def test_plain_text_is_still_preferred_when_present():
+    from jobradar.sources.lever import Lever
+    from jobradar.sources.base import Board
+    board = Board(source="lever", token="acme", company="Acme")
+    got = Lever()._to_posting(
+        _lever_posting(descriptionPlain="Plain wins.",
+                       description="<p>HTML loses.</p>"), board)
+    assert got.description_text == "Plain wins."
+    assert not got.description_html, "no need to carry both"
