@@ -201,7 +201,20 @@ _CLEARANCE = [
         re.I)),
 ]
 
+# Structured postings state this as a LABEL AND A VALUE, with no verb anywhere:
+# "Visa sponsorship: Not available". Every pattern below needed a verb, so that
+# line read as silent and a Recidiviz role Alli could not be hired for scored 88
+# and reached the top of her feed. She caught it by reading the posting; the tool
+# should have. Positives like "Visa sponsorship: Available" must not match.
+_NO_SPONSOR_LABEL = re.compile(
+    r"\b(?:visa|work|employment|immigration)?[ \t]*sponsorship\b(?:[ \t]+available)?"
+    r"[ \t]*[:\-\u2013][ \t]*"
+    r"(?:not[ \t]+(?:available|offered|provided|possible)|unavailable|none|no\b|n/?a\b)|"
+    r"\bsponsorship[ \t]+(?:is[ \t]+)?(?:not[ \t]+(?:available|offered|provided|possible)|unavailable)\b",
+    re.I)
+
 _NO_SPONSOR = [
+    ("no_sponsorship_label", _NO_SPONSOR_LABEL),
     ("no_sponsorship", re.compile(
         r"(?:will |can )?not (?:be able to |be willing to )?sponsor|"
         r"unable to (?:provide |offer )?sponsor|"

@@ -197,3 +197,44 @@ def test_the_work_authorization_rule_still_holds_with_clearance_added():
     v = sponsorship_text_verdict(sentences(
         "Applicants must be authorized to work in the United States."))
     assert v.verdict == "silent"
+
+
+# --- sponsorship stated as a label -------------------------------------------
+# The costliest miss in the tool: a role Alli cannot be hired for reaching the
+# top of her feed. Structured postings write this with no verb at all, as a
+# label and a value, and every pattern required a verb. "Visa sponsorship: Not
+# available" read as silent, so a Recidiviz role scored 88, was ranked second
+# overall, and had a resume built for it before she read the posting herself.
+
+@pytest.mark.parametrize("sentence", [
+    "Visa sponsorship: Not available",
+    "Visa sponsorship: None",
+    "Sponsorship: No",
+    "Sponsorship - Not available",
+    "Visa sponsorship: N/A",
+    "Sponsorship available: No",
+    "Sponsorship is not available for this role",
+    "Work sponsorship: not offered",
+])
+def test_sponsorship_refused_as_a_label_is_still_a_refusal(sentence):
+    assert sponsorship_text_verdict(sentences(sentence)).verdict == "says_no", sentence
+
+
+@pytest.mark.parametrize("sentence", [
+    "Visa sponsorship: Available",
+    "Sponsorship: Yes",
+    "Visa sponsorship is available for this role",
+    "Sponsorship available for exceptional candidates",
+])
+def test_sponsorship_offered_as_a_label_is_not_a_refusal(sentence):
+    """The label pattern reads the value, not just the word. Matching on
+    "sponsorship" alone would throw away the roles that do sponsor."""
+    assert sponsorship_text_verdict(sentences(sentence)).verdict != "says_no", sentence
+
+
+def test_the_opt_rule_survives_the_label_pattern():
+    """Load-bearing, again. Alli is authorized on OPT and this sentence must
+    never filter a posting out."""
+    assert sponsorship_text_verdict(sentences(
+        "Applicants must be authorized to work in the United States."
+    )).verdict == "silent"
