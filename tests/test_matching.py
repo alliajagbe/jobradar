@@ -7,6 +7,8 @@ matter more than the acceptance rule.
 
 from __future__ import annotations
 
+import pytest
+
 from jobradar.matching import Matcher
 from jobradar.normalize import employer_norm
 
@@ -82,3 +84,79 @@ def test_plain_text_is_still_preferred_when_present():
                        description="<p>HTML loses.</p>"), board)
     assert got.description_text == "Plain wins."
     assert not got.description_html, "no need to carry both"
+
+
+# --- sibling filing entities --------------------------------------------------
+# The ambiguity refusal is right in principle and was misfiring in practice. A
+# company that files under several legal entities produced two candidates tied
+# at 100, and the matcher refused rather than guess, so GlobalFoundries read as
+# "no filing record found" while holding 125 certifications. Third occurrence
+# this week, after EA and Hometap.
+
+def test_entity_designations_reduce_to_one_stem():
+    from jobradar.matching import entity_stem
+    assert entity_stem("GLOBALFOUNDRIES U S") == "GLOBALFOUNDRIES"
+    assert entity_stem("GLOBALFOUNDRIES U S 2") == "GLOBALFOUNDRIES"
+    assert entity_stem("ACME HOLDINGS LLC") == "ACME"
+
+
+def test_words_that_distinguish_real_companies_are_not_stripped():
+    """Technologies, Systems and Solutions separate different employers, so
+    stripping them would merge companies that are not related."""
+    from jobradar.matching import entity_stem
+    assert entity_stem("ZOOMINFO TECHNOLOGIES") != entity_stem("ZOOMINFO SYSTEMS")
+    assert entity_stem("AMERICAN AIRLINES") != entity_stem("AMERICAN EXPRESS")
+
+
+def test_sibling_entities_are_matched_together():
+    from jobradar.matching import Matcher
+    m = Matcher(["GLOBALFOUNDRIES U S", "GLOBALFOUNDRIES U S 2"])
+    got = m.match("GlobalFoundries")
+    assert got.method == "sibling-entities", got.method
+    assert set(got.names) == {"GLOBALFOUNDRIES U S", "GLOBALFOUNDRIES U S 2"}
+
+
+@pytest.mark.parametrize("query,table", [
+    ("Consulting", ["CONSULTING SERVICES", "CONSULTING HOLDINGS"]),
+    ("Technology", ["TECHNOLOGY SERVICES", "TECHNOLOGY HOLDINGS"]),
+    ("Analytics",  ["ANALYTICS GROUP LLC", "ANALYTICS HOLDINGS INC"]),
+])
+def test_a_generic_stem_is_not_evidence_of_a_shared_parent(query, table):
+    """Found while measuring the fix: 186 employers file under several entities
+    and the generic ones are where merging would be wrong. "Consulting
+    Services" and "Consulting Holdings" both reduce to CONSULTING and are
+    unrelated firms."""
+    from jobradar.matching import Matcher
+    assert Matcher(table).match(query).method == "ambiguous"
+
+
+def test_different_companies_are_still_refused():
+    """The guard this fix must not disable. An honest "no record" beats a
+    confident number attached to the wrong employer."""
+    from jobradar.matching import Matcher
+    m = Matcher(["AMERICAN AIRLINES", "AMERICAN EXPRESS"])
+    got = m.match("American")
+    assert got.method == "ambiguous"
+    assert got.norm_name is None and not got.names
+
+
+def test_combine_sums_the_filings_of_sibling_entities():
+    from jobradar.sponsorship import EmployerStats, combine
+    table = {
+        "GLOBALFOUNDRIES U S": EmployerStats("GLOBALFOUNDRIES U S", "GlobalFoundries U.S., Inc.",
+                                             116, 23, 2, "2026-01-01"),
+        "GLOBALFOUNDRIES U S 2": EmployerStats("GLOBALFOUNDRIES U S 2", "GlobalFoundries U.S. 2, LLC",
+                                               9, 0, 0, "2025-06-01"),
+    }
+    got = combine(table, tuple(table))
+    assert got.certified == 125
+    assert got.analyst_certified == 23
+    assert got.display_name == "GlobalFoundries U.S., Inc.", "the widest entity names the match"
+    assert got.last_decision == "2026-01-01", "most recent decision wins"
+
+
+def test_combine_on_a_single_name_is_unchanged():
+    from jobradar.sponsorship import EmployerStats, combine
+    one = EmployerStats("ACME", "Acme Inc", 5, 1, 0, "2026-01-01")
+    assert combine({"ACME": one}, ("ACME",)) is one
+    assert combine({"ACME": one}, ()) is None

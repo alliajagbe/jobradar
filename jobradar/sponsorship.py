@@ -33,6 +33,30 @@ class EmployerStats:
     last_decision: str
 
 
+def combine(employers: dict, names) -> "EmployerStats | None":
+    """One employer's stats across every entity it files under.
+
+    A company that files as "X U.S., Inc." and "X U.S. 2, LLC" has one
+    sponsorship history, not two. Summing is only correct because the matcher
+    has already established these are sibling entities of one employer; it
+    refuses when the tied names are different companies.
+    """
+    found = [employers[n] for n in (names or ()) if n in employers]
+    if not found:
+        return None
+    if len(found) == 1:
+        return found[0]
+    widest = max(found, key=lambda e: e.certified)
+    return EmployerStats(
+        norm_name=widest.norm_name,
+        display_name=widest.display_name,
+        certified=sum(e.certified for e in found),
+        analyst_certified=sum(e.analyst_certified for e in found),
+        denied=sum(e.denied for e in found),
+        last_decision=max((e.last_decision or "") for e in found),
+    )
+
+
 @lru_cache(maxsize=1)
 def employer_table() -> dict[str, EmployerStats]:
     """Load data/sponsors.csv.gz. Missing is fine: every company then reads as

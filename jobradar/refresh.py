@@ -317,7 +317,9 @@ def _match_company(company, employers, matcher, cache):
         return None, "no-data", None
     if company not in cache:
         result = matcher.match(company)
-        stats = employers.get(result.norm_name) if result.norm_name else None
+        # Summed across sibling entities when the matcher found several
+        # filing arms of one employer.
+        stats = sponsorship.combine(employers, result.names or (result.norm_name,))
         cache[company] = (stats, result.method, result.score)
     return cache[company]
 

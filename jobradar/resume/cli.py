@@ -155,7 +155,9 @@ def _job_from_posting(posting) -> dict:
     if employers:
         matcher = Matcher(list(employers))
         result = matcher.match(posting.company)
-        stats = employers.get(result.norm_name) if result.norm_name else None
+        # Summed across sibling entities when the matcher found several
+        # filing arms of one employer.
+        stats = sponsorship.combine(employers, result.names or (result.norm_name,))
         method, mscore = result.method, result.score
     signal = sponsorship.resolve(text_verdict=verdict, stats=stats,
                                  match_method=method or "no-data", match_score=mscore,

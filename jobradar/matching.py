@@ -28,11 +28,52 @@ from . import config
 from .normalize import employer_norm
 
 
+# Legal-form and country words that distinguish one filing ENTITY of a company
+# from another, not one company from another. Deliberately conservative:
+# "Technologies", "Systems" and "Solutions" are left out because they
+# distinguish real companies from each other.
+_ENTITY_NOISE = frozenset("""
+INC INCORPORATED LLC LLP LP PLC PBC CORP CORPORATION CO COMPANY LTD LIMITED
+GMBH NV SA AG KK PTE PVT
+US USA U S AMERICA AMERICAS
+HOLDINGS HOLDING SERVICES SERVICE NATIONAL ASSOCIATION
+""".split())
+
+
+# A stem of one generic word says nothing about a shared parent company.
+_GENERIC_STEMS = frozenset("""
+CONSULTING TECHNOLOGY TECHNOLOGIES SOLUTIONS SYSTEMS PARTNERS CAPITAL GLOBAL
+INTERNATIONAL ENTERPRISES VENTURES MANAGEMENT ANALYTICS DIGITAL LABS LABORATORY
+STAFFING RECRUITING SOFTWARE DATA HEALTH HEALTHCARE MEDICAL FINANCIAL INSURANCE
+BANK UNIVERSITY COLLEGE SCHOOL DISTRICT HOSPITAL CLINIC FOUNDATION INSTITUTE
+RESEARCH ENGINEERING CONSTRUCTION LOGISTICS TRANSPORT RETAIL ENERGY
+""".split())
+
+
+def entity_stem(norm_name: str) -> str:
+    """A company name with its entity designations removed.
+
+    "GLOBALFOUNDRIES U S" and "GLOBALFOUNDRIES U S 2" both reduce to
+    "GLOBALFOUNDRIES": one employer that files under two entities. Bare digits
+    go too, because the sequence number is exactly what separates them.
+    """
+    kept = [t for t in norm_name.split(" ")
+            if t and t not in _ENTITY_NOISE and not t.isdigit()]
+    return " ".join(kept)
+
+
 @dataclass(frozen=True)
 class Match:
     norm_name: str | None
     method: str          # exact | alias | fuzzy | none | ambiguous | too-short
+                         # | short-name | sibling-entities
     score: int | None
+    # Every entity this resolved to. One name usually; several when one employer
+    # files under sibling entities, in which case the caller sums their stats.
+    # Refusing those was reporting "no filing record" for companies that
+    # sponsor heavily: GlobalFoundries files 125 certifications across two
+    # entities and read as unknown.
+    names: tuple[str, ...] = ()
 
 
 @lru_cache(maxsize=1)
@@ -74,11 +115,11 @@ class Matcher:
             return Match(None, "none", None)
 
         if norm in self._exact:
-            return Match(norm, "exact", 100)
+            return Match(norm, "exact", 100, names=(norm,))
 
         alias = aliases().get(norm)
         if alias and alias in self._exact:
-            return Match(alias, "alias", 100)
+            return Match(alias, "alias", 100, names=(alias,))
 
         if len(norm.replace(" ", "")) < config.FUZZY_MIN_NAME_LEN:
             # Short names fuzzy-match nearly everything, so they do not go
@@ -93,7 +134,7 @@ class Matcher:
                 if len(name.split(" ")) <= 2
             ]
             if len(short) == 1:
-                return Match(short[0], "short-name", None)
+                return Match(short[0], "short-name", None, names=(short[0],))
             return Match(None, "too-short", None)
 
         candidates = set(self._by_prefix.get(norm[:6], ()))
@@ -101,8 +142,10 @@ class Matcher:
         if not candidates:
             return Match(None, "none", None)
 
+        # More than two, so every tied candidate can be inspected rather than
+        # just the runner-up.
         ranked = process.extract(
-            norm, list(candidates), scorer=fuzz.token_set_ratio, limit=2
+            norm, list(candidates), scorer=fuzz.token_set_ratio, limit=8
         )
         if not ranked:
             return Match(None, "none", None)
@@ -110,10 +153,25 @@ class Matcher:
         best_name, best_score = ranked[0][0], int(ranked[0][1])
         if best_score < config.FUZZY_ACCEPT:
             return Match(None, "none", best_score)
-        if len(ranked) > 1:
-            runner_up = int(ranked[1][1])
-            if best_score - runner_up < config.FUZZY_AMBIGUITY_MARGIN:
-                # Two plausible employers. An honest "no record" beats a
-                # confident number attached to the wrong company.
-                return Match(None, "ambiguous", best_score)
-        return Match(best_name, "fuzzy", best_score)
+
+        tied = [name for name, score, *_ in ranked
+                if best_score - int(score) < config.FUZZY_AMBIGUITY_MARGIN]
+        if len(tied) > 1:
+            # Sibling entities of one employer, or genuinely different
+            # companies? If every tied name reduces to the same stem once
+            # entity designations are removed, it is one company and their
+            # filings belong together.
+            stems = {entity_stem(name) for name in tied}
+            stem = next(iter(stems)) if len(stems) == 1 else None
+            # A stem that is one generic business word is not evidence of a
+            # shared parent: "Consulting Services" and "Consulting Holdings"
+            # both reduce to CONSULTING and are unrelated firms. 186 employers
+            # in the DOL table file under several entities and the generic ones
+            # among them are exactly where this would go wrong.
+            if stem and len(stem) >= 4 and stem not in _GENERIC_STEMS:
+                return Match(best_name, "sibling-entities", best_score,
+                             names=tuple(sorted(tied)))
+            # Otherwise an honest "no record" beats a confident number
+            # attached to the wrong company.
+            return Match(None, "ambiguous", best_score)
+        return Match(best_name, "fuzzy", best_score, names=(best_name,))
