@@ -185,7 +185,17 @@ _CLEARANCE_NOT = re.compile(
     r"\b(?:clearance|public trust)\b[^.]{0,40}(?:is |are )?not (?:required|needed|necessary)|"
     r"\bno\b[^.]{0,20}\bclearance\b", re.I)
 
+# The same label-and-value shape that hid "Visa sponsorship: Not available",
+# found the same week on a PingWind posting reading "Required Clearance:
+# Secret". Naming the LEVEL is what distinguishes it from "Clearance: None"
+# and "Clearance: Not required", which are reasons to keep a posting.
+_CLEARANCE_LABEL = re.compile(
+    r"\b(?:required[ \t]+)?clearance(?:[ \t]+(?:required|level))?[ \t]*[:\-\u2013][ \t]*"
+    r"(?:top[ \t]*secret|ts/sci|\bts\b|\bsci\b|secret|public[ \t]+trust|confidential|interim|\bdod\b)",
+    re.I)
+
 _CLEARANCE = [
+    ("clearance_label", _CLEARANCE_LABEL),
     ("clearance", re.compile(
         r"(?:active |current )?(?:security|government|federal|dod|doe) clearance.{0,40}"
         r"(?:is )?(?:required|mandatory|must)|"

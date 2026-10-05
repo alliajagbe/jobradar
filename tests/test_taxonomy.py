@@ -238,3 +238,30 @@ def test_the_opt_rule_survives_the_label_pattern():
     assert sponsorship_text_verdict(sentences(
         "Applicants must be authorized to work in the United States."
     )).verdict == "silent"
+
+
+# --- clearance stated as a label ---------------------------------------------
+# The same label-and-value shape that hid "Visa sponsorship: Not available",
+# found the same week on a posting reading "Required Clearance: Secret". Both
+# patterns needed a verb or a specific word order; neither read a value.
+
+@pytest.mark.parametrize("sentence", [
+    "Required Clearance: Secret",
+    "Clearance: Top Secret",
+    "Clearance Required: TS/SCI",
+    "Clearance Level: Public Trust",
+    "Clearance: Confidential",
+])
+def test_clearance_named_as_a_label_is_a_refusal(sentence):
+    assert sponsorship_text_verdict(sentences(sentence)).verdict == "requires_clearance", sentence
+
+
+@pytest.mark.parametrize("sentence", [
+    "Clearance: None",
+    "Clearance: Not required",
+    "No clearance required for this role",
+])
+def test_a_label_saying_no_clearance_keeps_the_posting(sentence):
+    """Naming the LEVEL is what separates these. Matching the word "clearance"
+    after a colon would discard roles that explicitly need none."""
+    assert sponsorship_text_verdict(sentences(sentence)).verdict != "requires_clearance", sentence
