@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-09-30T17:08:56Z",
- "total": 10050,
- "open": 1759,
- "dropped": 7167,
- "closed": 1124,
+ "updated_at": "2026-10-05T16:13:19Z",
+ "total": 10432,
+ "open": 1751,
+ "dropped": 7046,
+ "closed": 1635,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
   "ashby",
@@ -14,28 +14,31 @@
  ],
  "has_sponsorship_data": true,
  "run": {
-  "boards_ok": 3128,
-  "boards_failed": 10,
-  "postings_seen": 10719,
-  "new": 5142,
-  "closed": 106,
+  "boards_ok": 3125,
+  "boards_failed": 13,
+  "postings_seen": 10498,
+  "new": 594,
+  "closed": 750,
   "dropped_by_reason": {
-   "location": 3127,
-   "seniority": 5019,
-   "experience": 150,
-   "text": 457,
-   "excluded": 62
+   "location": 3042,
+   "seniority": 4918,
+   "experience": 145,
+   "text": 451,
+   "excluded": 64
   },
   "errors": [
    "greenhouse/amplitude: GET https://boards-api.greenhouse.io/v1/boards/amplitude/jobs -> 404",
+   "greenhouse/hightouch: GET https://boards-api.greenhouse.io/v1/boards/hightouch/jobs -> 404",
    "greenhouse/instabase: GET https://boards-api.greenhouse.io/v1/boards/instabase/jobs -> 404",
    "greenhouse/buyersedgeplatformrecruiting: GET https://boards-api.greenhouse.io/v1/boards/buyersedgeplatformrecruiting/jobs -> 404",
    "greenhouse/forgeglobal: GET https://boards-api.greenhouse.io/v1/boards/forgeglobal/jobs -> 404",
+   "greenhouse/interval: GET https://boards-api.greenhouse.io/v1/boards/interval/jobs -> 404",
    "greenhouse/janeasystems: GET https://boards-api.greenhouse.io/v1/boards/janeasystems/jobs -> 404",
    "greenhouse/liveviewtechnologiesinc: GET https://boards-api.greenhouse.io/v1/boards/liveviewtechnologiesinc/jobs -> 404",
    "greenhouse/persefoniaiinc: GET https://boards-api.greenhouse.io/v1/boards/persefoniaiinc/jobs -> 404",
+   "greenhouse/springhealth66: GET https://boards-api.greenhouse.io/v1/boards/springhealth66/jobs -> 404",
    "greenhouse/toogoodtogo: GET https://boards-api.greenhouse.io/v1/boards/toogoodtogo/jobs -> 404",
-   "greenhouse/traderepublicbank: GET https://boards-api.greenhouse.io/v1/boards/traderepublicbank/jobs -> 404",
+   "greenhouse/wayve: GET https://boards-api.greenhouse.io/v1/boards/wayve/jobs -> 404",
    "greenhouse/ibanfirst: GET https://boards-api.greenhouse.io/v1/boards/ibanfirst/jobs -> 404"
   ]
  }
