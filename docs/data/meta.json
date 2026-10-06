@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-10-05T16:41:07Z",
- "total": 10437,
- "open": 1745,
- "dropped": 7054,
- "closed": 1638,
+ "updated_at": "2026-10-06T14:43:20Z",
+ "total": 10586,
+ "open": 1756,
+ "dropped": 7079,
+ "closed": 1751,
  "actions_url": "https://github.com/alliajagbe/jobradar/actions/workflows/refresh.yml",
  "sources": [
   "ashby",
@@ -14,24 +14,27 @@
  ],
  "has_sponsorship_data": true,
  "run": {
-  "boards_ok": 3125,
-  "boards_failed": 13,
-  "postings_seen": 10498,
-  "new": 5,
-  "closed": 4,
+  "boards_ok": 3120,
+  "boards_failed": 18,
+  "postings_seen": 10542,
+  "new": 267,
+  "closed": 212,
   "dropped_by_reason": {
-   "location": 3042,
-   "seniority": 4919,
+   "location": 3040,
+   "seniority": 4947,
    "experience": 141,
-   "text": 462,
-   "excluded": 64
+   "text": 461,
+   "excluded": 67
   },
   "errors": [
    "greenhouse/amplitude: GET https://boards-api.greenhouse.io/v1/boards/amplitude/jobs -> 404",
    "greenhouse/hightouch: GET https://boards-api.greenhouse.io/v1/boards/hightouch/jobs -> 404",
    "greenhouse/instabase: GET https://boards-api.greenhouse.io/v1/boards/instabase/jobs -> 404",
    "greenhouse/buyersedgeplatformrecruiting: GET https://boards-api.greenhouse.io/v1/boards/buyersedgeplatformrecruiting/jobs -> 404",
+   "greenhouse/clarityai: GET https://boards-api.greenhouse.io/v1/boards/clarityai/jobs -> 404",
    "greenhouse/forgeglobal: GET https://boards-api.greenhouse.io/v1/boards/forgeglobal/jobs -> 404",
+   "ashby/Hiive: GET https://api.ashbyhq.com/posting-api/job-board/Hiive -> 404",
+   "greenhouse/hubspotjobs: GET https://boards-api.greenhouse.io/v1/boards/hubspotjobs/jobs -> 404",
    "greenhouse/interval: GET https://boards-api.greenhouse.io/v1/boards/interval/jobs -> 404",
    "greenhouse/janeasystems: GET https://boards-api.greenhouse.io/v1/boards/janeasystems/jobs -> 404",
    "greenhouse/liveviewtechnologiesinc: GET https://boards-api.greenhouse.io/v1/boards/liveviewtechnologiesinc/jobs -> 404",
@@ -39,7 +42,9 @@
    "greenhouse/springhealth66: GET https://boards-api.greenhouse.io/v1/boards/springhealth66/jobs -> 404",
    "greenhouse/toogoodtogo: GET https://boards-api.greenhouse.io/v1/boards/toogoodtogo/jobs -> 404",
    "greenhouse/wayve: GET https://boards-api.greenhouse.io/v1/boards/wayve/jobs -> 404",
-   "greenhouse/ibanfirst: GET https://boards-api.greenhouse.io/v1/boards/ibanfirst/jobs -> 404"
+   "ashby/hiive: GET https://api.ashbyhq.com/posting-api/job-board/hiive -> 404",
+   "greenhouse/ibanfirst: GET https://boards-api.greenhouse.io/v1/boards/ibanfirst/jobs -> 404",
+   "lever/trustyou: GET https://api.lever.co/v0/postings/trustyou -> 404"
   ]
  }
 }
