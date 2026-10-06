@@ -265,3 +265,27 @@ def test_a_label_saying_no_clearance_keeps_the_posting(sentence):
     """Naming the LEVEL is what separates these. Matching the word "clearance"
     after a colon would discard roles that explicitly need none."""
     assert sponsorship_text_verdict(sentences(sentence)).verdict != "requires_clearance", sentence
+
+
+# --- "U.S." broke the clearance match ----------------------------------------
+# "Must be eligible to obtain and maintain a U.S. security clearance" read as
+# silent for two compounding reasons: the pattern expected "able to obtain",
+# not "eligible to obtain", and [^.]{0,60} stopped at the period inside "U.S."
+# before it could reach the word clearance. A nuclear-fuel employer's new-grad
+# role reached Alli's queue because of it.
+
+@pytest.mark.parametrize("sentence", [
+    "Must be eligible to obtain and maintain a U.S. security clearance.",
+    "Must be able to obtain and maintain a U.S. security clearance.",
+    "Must be eligible to obtain a public trust clearance.",
+    "Candidates must be eligible to hold a U.S. Secret clearance.",
+])
+def test_eligibility_phrasing_and_dotted_abbreviations_are_caught(sentence):
+    assert sponsorship_text_verdict(sentences(sentence)).verdict == "requires_clearance", sentence
+
+
+def test_eligible_to_work_is_not_a_clearance():
+    """The adjacent sentence that must still pass. Alli is authorized on OPT."""
+    for s in ("Must be eligible to work in the United States.",
+              "Applicants must be authorized to work in the United States."):
+        assert sponsorship_text_verdict(sentences(s)).verdict == "silent", s

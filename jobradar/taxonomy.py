@@ -176,6 +176,10 @@ _CITIZENSHIP = [
 # clearance in the strict sense, but it is granted on the same basis and the
 # practical effect on someone on OPT is identical.
 #
+# These use a bounded `.` rather than `[^.]`: sentences are split before this
+# runs, and `[^.]` stopped at the period inside "U.S." so "Must be eligible to
+# obtain and maintain a U.S. security clearance" read as silent.
+#
 # _CLEARANCE_NOT guards the opposite sentence. "No clearance is required" and
 # "does not require a security clearance" are reasons to KEEP a posting, and a
 # pattern that reads the word and not the polarity would throw those away.
@@ -199,14 +203,14 @@ _CLEARANCE = [
     ("clearance", re.compile(
         r"(?:active |current )?(?:security|government|federal|dod|doe) clearance.{0,40}"
         r"(?:is )?(?:required|mandatory|must)|"
-        r"(?:must|required to|ability to|able to) "
-        r"(?:be able to )?(?:possess|hold|have|obtain|maintain|acquire|get)"
-        r"[^.]{0,60}\b(?:clearance|public trust)\b|"
-        r"\b(?:ts/sci|top secret|secret clearance|public trust)\b[^.]{0,60}"
+        r"(?:must|required to|ability to|able to|eligible to) "
+        r"(?:be (?:able|eligible) to )?(?:possess|hold|have|obtain|maintain|acquire|get)"
+        r".{0,80}\b(?:clearance|public trust)\b|"
+        r"\b(?:ts/sci|top secret|secret clearance|public trust)\b.{0,80}"
         r"(?:required|mandatory|eligib\w*|must)|"
-        r"(?:required|mandatory|eligib\w*)[^.]{0,60}\b(?:ts/sci|top secret|"
+        r"(?:required|mandatory|eligib\w*).{0,80}\b(?:ts/sci|top secret|"
         r"secret clearance|public trust|security clearance)\b|"
-        r"\bpolygraph\b[^.]{0,40}(?:required|mandatory)|"
+        r"\bpolygraph\b.{0,60}(?:required|mandatory)|"
         r"\b(?:ts/sci|counterintelligence polygraph|full[- ]scope polygraph)\b",
         re.I)),
 ]
