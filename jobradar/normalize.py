@@ -287,6 +287,20 @@ _FOREIGN = {
 # actually appear on these boards; this catches everything else. Without it a
 # Bosch posting in "Sofia, Sofia City Province, Bulgaria" classifies as unknown,
 # which is low confidence rather than foreign, and survives into the results.
+# Subdivision and country codes that employers write instead of the country
+# name. "AU - HQ - NSW" is an Australian posting and parsed as low-confidence
+# unknown, so it was never dropped. None of these collide with a US state code,
+# which was checked before adding them; WA is deliberately absent because
+# Western Australia and Washington share it.
+_FOREIGN = _FOREIGN | frozenset("""
+au aus nsw qld vic tas nt
+uk gb gbr eng sct wls nir
+ca-on ca-qc ca-bc qc nl-nb
+de-by fr-idf
+sg sgp hk hkg jp jpn kr kor
+in-ka in-mh in-tn in-dl
+""".split())
+
 # Foreign cities the list was missing, and the local spellings of ones it had.
 # Each was found sitting in the open feed as an unrecognised location: an
 # unrecognised place scores "unknown", which carries low confidence and so is

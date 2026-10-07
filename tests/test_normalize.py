@@ -215,3 +215,28 @@ def test_a_company_labelled_us_site_is_still_us(raw):
 @pytest.mark.parametrize("raw", ["London Office", "Warszawa Office", "Toronto HQ"])
 def test_the_suffix_trim_does_not_import_foreign_sites(raw):
     assert not parse_locations(raw).is_us, raw
+
+
+# --- subdivision codes instead of country names -------------------------------
+# "AU - HQ - NSW" is an Australian posting. It parsed as low-confidence unknown,
+# so nothing dropped it, and a Sydney data analyst role reached Alli's queue.
+# Fifth non-US posting to get through this way, after Chile, Kyiv, MENA and
+# Warszawa.
+
+@pytest.mark.parametrize("raw", [
+    "AU - HQ - NSW", "Sydney NSW", "Melbourne VIC", "Brisbane QLD", "AU",
+])
+def test_a_foreign_subdivision_code_is_droppable(raw):
+    got = parse_locations(raw)
+    assert not got.is_us, raw
+    assert got.confidence == "high", f"{raw} must be confident enough to drop"
+
+
+@pytest.mark.parametrize("raw", [
+    "Seattle, WA", "Tacoma, WA", "Washington, DC", "Atlanta, GA",
+    "San Francisco, CA", "Boston, MA", "Austin, TX",
+])
+def test_us_state_codes_are_untouched_by_the_subdivision_list(raw):
+    """WA is deliberately NOT in the foreign list: Western Australia and
+    Washington share it, and Washington is a US job market."""
+    assert parse_locations(raw).is_us, raw
