@@ -22,6 +22,11 @@ DATA_DIR = ROOT / "data"
 DOCS_DIR = ROOT / "docs"
 DOCS_DATA_DIR = DOCS_DIR / "data"
 
+# Contact lists go beside the resumes rather than into the repository: they name
+# real people, and this repo is public. Not month-foldered like the resumes,
+# because a contact list is worked through over weeks rather than filed.
+CONTACTS_DIR = Path.home() / "Desktop" / "jobs"
+
 BOARDS_CSV = SEEDS_DIR / "boards.csv"
 TITLES_CSV = SEEDS_DIR / "titles.csv"
 SKILLS_CSV = SEEDS_DIR / "skills.csv"

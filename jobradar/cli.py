@@ -9,6 +9,7 @@ Usage:
   python -m jobradar tailor brief --find "intel data analyst"
   python -m jobradar tailor render --slug IntelDataAnalyst
   python -m jobradar sponsorship [--years N] [--row-limit N] [--keep-xlsx]
+  python -m jobradar contacts --topic "clinical information extraction"
   python -m jobradar verify-boards
 
 Discovery and anything that rewrites a seed file is a dry run until --apply.
@@ -19,6 +20,8 @@ from __future__ import annotations
 import argparse
 import collections
 import csv
+import datetime as _dt
+import pathlib
 import sys
 
 from . import config, publish as publish_mod, refresh as refresh_mod, store
@@ -147,6 +150,47 @@ def cmd_sponsorship(args: argparse.Namespace) -> int:
         for path in paths:
             path.unlink(missing_ok=True)
         _log("removed the source workbooks")
+    return 0
+
+
+def cmd_contacts(args: argparse.Namespace) -> int:
+    """Named people to write to, joined to whether their employer sponsors."""
+    from . import contacts as contacts_mod
+
+    topics = [t.strip() for t in args.topic if t.strip()]
+    if not topics:
+        _log("Give at least one --topic.")
+        return 1
+
+    _log(f"since {args.since or 'eighteen months ago'}, US {args.sector} institutions, "
+         f"{'PIs and first authors' if args.position == 'both' else args.position + 's'} only")
+    positions = {"both": ("last", "first"), "pi": ("last",), "first": ("first",)}[args.position]
+    rows = contacts_mod.find(
+        topics, since=args.since, pages=args.pages, min_filings=args.min_filings,
+        positions=positions, limit=args.limit, sector=args.sector,
+        per_institution=args.per_institution, progress=_log)
+
+    if not rows:
+        _log("\nNothing matched. Try a broader topic, an earlier --since, "
+             "or --min-filings 0 to include institutions with no filing record.")
+        return 0
+
+    _log("")
+    for c in rows:
+        _log(f"{c.person}  [{c.position}]")
+        _log(f"  {c.institution} - {c.certified} certified, {c.analyst_certified} in analyst roles")
+        if c.merged_from.count(";"):
+            # The audit trail for the merge. One record where you expected
+            # several can mean the institution abbreviates its own name; see
+            # resolve_institution on why that is not guessed at.
+            _log(f"  counted from {c.merged_from}")
+        _log(f"  hook: {c.paper[:96]}{'...' if len(c.paper) > 96 else ''}")
+        _log(f"  {c.link}")
+        _log("")
+
+    out = args.csv or (config.CONTACTS_DIR / f"contacts-{_dt.date.today().isoformat()}.csv")
+    written = contacts_mod.write_csv(rows, pathlib.Path(out))
+    _log(f"wrote {out}: {written} contacts, in the outreach tracker's columns")
     return 0
 
 
@@ -354,6 +398,24 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("serve", help="local helper the page's Tailor button talks to")
     p.add_argument("--port", type=int, default=config.HELPER_PORT)
     p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("contacts", help="named people to write to, with their employer's filing record")
+    p.add_argument("--topic", action="append", default=[], required=True,
+                   help="what they publish on; repeatable")
+    p.add_argument("--since", help="earliest publication date, YYYY-MM-DD (default: 18 months ago)")
+    p.add_argument("--position", choices=["both", "pi", "first"], default="both",
+                   help="PI (last author), first author, or both (default)")
+    p.add_argument("--min-filings", type=int, default=1,
+                   help="skip institutions with fewer certified petitions (default 1; 0 to include all)")
+    p.add_argument("--sector", choices=["capexempt", "company", "any"], default="capexempt",
+                   help="capexempt (universities, hospitals, nonprofit and government research; "
+                        "the default, and no H-1B lottery), company, or any")
+    p.add_argument("--pages", type=int, default=2, help="pages of 100 results per topic (default 2)")
+    p.add_argument("--limit", type=int, default=40, help="contacts to keep (default 40)")
+    p.add_argument("--per-institution", type=int, default=2,
+                   help="contacts per institution before spreading to others (default 2; 0 for no cap)")
+    p.add_argument("--csv", help="where to write the CSV")
+    p.set_defaults(func=cmd_contacts)
 
     p = sub.add_parser("verify-boards", help="probe every seeded board")
     p.set_defaults(func=cmd_verify_boards)

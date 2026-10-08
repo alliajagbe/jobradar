@@ -237,6 +237,70 @@ Two columns answer different questions and are deliberately separate:
   default), **complete**, or **dismissed**. Pending is stored as absence rather than as a
   value, so an untouched row stays out of the tracker entirely.
 
+## Finding who to contact
+
+```
+python -m jobradar contacts --topic "clinical information extraction large language model"
+```
+
+Writes a CSV in the Outreach tab's own columns, so a row pastes straight in.
+
+It joins two public sources. **OpenAlex** says who is publishing what, where, and
+in what author position. The **DOL filing table** says whether that employer has
+ever had a petition certified. Neither is useful alone: OpenAlex lists
+interesting people at places that will never hire you, and the filing table lists
+institutions with no named humans in them. Together they give a person, a paper
+to open with, and a number saying whether the place can sponsor.
+
+Author position is the proxy for who to write to, because in these fields it
+reliably is one. **Last author** is the PI who runs the group and does the
+hiring. **First author** did the work, is a peer conversation, and knows what is
+open before it is posted. Middle authors are dropped: a list with everyone on it
+is a list nobody writes to.
+
+`--sector` defaults to **capexempt** — universities, hospitals, nonprofit and
+government research — and that default is the point of the command. Ranking by
+filing volume without it puts Amazon (16,793 certified) and Microsoft (7,043) at
+the top of every search, and those are precisely the cap-subject employers whose
+March lottery this is meant to route around. A big number beside a company name
+is not an advantage here. `--sector company` or `any` if you want them.
+
+`--per-institution` defaults to 2. The first run returned eight of ten contacts
+at one university, and forty contacts where thirty share an employer is one
+option with a lot of names.
+
+### What the filing numbers can and cannot tell you
+
+One institution files under several names, so the counts are merged, and the
+`Counted from` column always shows exactly which records were summed. Merging is
+only honest if you can see what was merged, and that column has already caught
+one bug in this code.
+
+The rule is asymmetric, because English institution names put the distinctive
+part first:
+
+- Extra tokens **after** a complete name are a branch of it. `WASHINGTON
+  UNIVERSITY` + `IN ST LOUIS`, `JOHNS HOPKINS UNIVERSITY` + `APPLIED PHYSICS
+  LAB`. Merged.
+- Extra tokens **before** one usually make it a different school sharing a
+  system name, so those merge only when the extras are organisational
+  boilerplate. `TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA` is Penn, which is
+  where Penn's 480 filings actually sit. `KUTZTOWN UNIVERSITY OF PENNSYLVANIA`
+  is not Penn. Without that guard the first live run reported 507 for Penn by
+  folding in seven unrelated Pennsylvania state schools.
+- A one-token stem never merges. `entity_stem` drops digits, so `DUKE 65`
+  reduces to `DUKE` and would otherwise absorb the whole university.
+
+**Known undercount.** An institution that abbreviates its own front end is not
+resolved. `UT SOUTHWESTERN MEDICAL CENTER` and `THE UNIVERSITY OF TEXAS
+SOUTHWESTERN MEDICAL CENTER` are one place holding 399 filings between them, and
+the second reports 1. Fixing it needs an acronym table, and every heuristic
+tried in its place misfired worse: matching the rarest shared token finds
+nothing, and matching the last distinctive token claims University of Washington
+"may also file as" Washington University, a different school two thousand miles
+away. So it stays unmerged and visible rather than guessed at. A single entry in
+`Counted from` for a large institution is the tell.
+
 ## Outreach
 
 The **Outreach** tab is a separate record, because "what have I applied to" and "who have
