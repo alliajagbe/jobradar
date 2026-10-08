@@ -141,6 +141,15 @@ class Contact:
         """
         return "author" if self.cap == "subject" else "capexempt"
 
+    def as_dict(self) -> dict:
+        """For the helper's JSON. `asdict` alone drops the properties.
+
+        `cap` and `pool` are both computed, and both are what the page actually
+        uses: one is shown in the candidate row, the other is written into the
+        outreach entry when a candidate is promoted.
+        """
+        return {**asdict(self), "cap": self.cap, "pool": self.pool, "tier": self.tier}
+
     @property
     def tier(self) -> int:
         """How well the employer's filing history supports an analyst hire.
@@ -451,18 +460,53 @@ def _spread(rows: list[Contact], limit: int, per_institution: int) -> list[Conta
     return (first + rest)[:limit]
 
 
+# The CSV header, in one place because three things depend on it agreeing:
+# write_csv, the helper's /api/contacts reader, and the page's parser.
+CSV_HEAD = ["Author ID", "Person", "Their role", "Organisation", "Sector",
+            "H-1B cap", "Pool", "Hook", "Link", "Published",
+            "Certified filings", "In analyst roles", "Counted from"]
+
+
 def write_csv(rows: list[Contact], path) -> int:
-    """A CSV whose columns are the outreach tracker's fields, in its order."""
-    head = ["Person", "Their role", "Organisation", "Sector", "H-1B cap", "Pool",
-            "Hook", "Link", "Published", "Certified filings", "In analyst roles",
-            "Counted from"]
+    """A CSV whose columns are the outreach tracker's fields, in its order.
+
+    `Author ID` leads because it is the only stable key in the data. A person's
+    name repeats across institutions, and name-plus-employer breaks the moment
+    somebody moves, so the page keys candidates and dismissals on the OpenAlex
+    author id rather than on anything a human would read.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="") as handle:
         writer = csv.writer(handle)
-        writer.writerow(head)
+        writer.writerow(CSV_HEAD)
         for c in rows:
-            writer.writerow([c.person, c.position, c.institution, c.sector, c.cap,
-                             c.pool, f"{c.paper} ({c.year})" if c.year else c.paper,
+            writer.writerow([c.openalex_author, c.person, c.position, c.institution,
+                             c.sector, c.cap, c.pool,
+                             f"{c.paper} ({c.year})" if c.year else c.paper,
                              c.link, c.published, c.certified, c.analyst_certified,
                              c.merged_from])
     return len(rows)
+
+
+def read_csv(path) -> list[dict]:
+    """Rows of a contacts CSV as dicts, keyed by the header's own names.
+
+    Used by the local helper so the page does not have to find the file itself.
+    Returns [] for anything unreadable rather than raising: a CSV half-written
+    by a run still in progress must not take the whole route down.
+    """
+    try:
+        with open(path, newline="") as handle:
+            rows = list(csv.DictReader(handle))
+    except (OSError, UnicodeDecodeError, csv.Error):
+        return []
+    # A file without the id column is from before it existed, or hand-edited.
+    # It is still useful, so fall back to a key built from what is there.
+    out = []
+    for row in rows:
+        if not (row.get("Person") or "").strip():
+            continue
+        if not (row.get("Author ID") or "").strip():
+            row["Author ID"] = f"{row.get('Person', '')}|{row.get('Organisation', '')}"
+        out.append(row)
+    return out

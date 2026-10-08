@@ -172,6 +172,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, _refresh_status())
         if path == "/api/queue":
             return self._json(200, {"entries": [e.as_dict() for e in Q.all_entries()]})
+        if path == "/api/contacts":
+            return self._json(200, _contacts())
         if path.startswith("/api/queue/"):
             try:
                 slug = check_slug(path.rsplit("/", 1)[-1])
@@ -296,6 +298,40 @@ def _pull_data() -> dict:
     if done.returncode != 0:
         return {"pulled": False, "error": (done.stderr or done.stdout).strip()[:200]}
     return {"pulled": True}
+
+
+def _contacts() -> dict:
+    """Every contacts CSV on disk, merged, newest file winning.
+
+    The page cannot read the disk, so the helper hands it the files `jobradar
+    contacts` has written. Newest first and deduped on the author id, because
+    the same person can appear in several runs and the freshest row carries the
+    freshest paper, which is the better opening line.
+
+    Nothing here raises: an unreadable or half-written CSV is skipped, and a
+    missing directory is simply an empty list. A contact list is a convenience,
+    and it must never be the reason the Outreach tab fails to load.
+    """
+    from . import contacts as C
+
+    directory = config.CONTACTS_DIR
+    try:
+        paths = sorted(directory.glob("contacts*.csv"),
+                       key=lambda p: p.stat().st_mtime, reverse=True)
+    except OSError:
+        return {"contacts": [], "files": []}
+
+    merged: dict[str, dict] = {}
+    files, skipped = [], []
+    for path in paths:
+        rows = C.read_csv(path)
+        if not rows:
+            skipped.append(path.name)
+            continue
+        files.append(path.name)
+        for row in rows:
+            merged.setdefault(row["Author ID"], row)
+    return {"contacts": list(merged.values()), "files": files, "skipped": skipped}
 
 
 def _refresh_status() -> dict:

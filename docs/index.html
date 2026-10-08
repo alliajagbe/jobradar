@@ -118,6 +118,32 @@
       <button class="btn" id="outreachcsv">Export CSV</button>
     </div>
 
+    <!-- Candidates found by `jobradar contacts`. Deliberately a separate list
+         from the table below: these are people suggested, not people written
+         to. Promoting one is an explicit act, so the reply rates underneath
+         only ever count messages actually sent. -->
+    <section class="candidates" id="candidates">
+      <div class="candhead">
+        <span id="candidatessummary" class="muted"></span>
+        <button class="btn" id="candidatesreload" hidden>Reload</button>
+        <button class="btn" id="candidateschoose">Choose CSV</button>
+        <button class="btn ghost" id="candidateshide" hidden></button>
+        <input type="file" id="candidatesfile" accept=".csv,text/csv" hidden>
+      </div>
+      <table id="candidatestable"><thead><tr>
+        <th data-sort="person">Person</th>
+        <th data-sort="org">Organisation</th>
+        <th data-sort="cap">H-1B</th>
+        <th data-sort="analyst">Filings</th>
+        <th data-sort="hook">Hook</th>
+        <th></th>
+      </tr></thead><tbody></tbody></table>
+      <p class="note" id="candidatesempty">No contacts loaded. Run
+        <code>python -m jobradar contacts --topic "..."</code> and they appear
+        here while the local helper is running, or use Choose CSV to load the
+        file by hand.</p>
+    </section>
+
     <form class="outreachadd" id="outreachform" autocomplete="off">
       <input id="o_person" placeholder="Name" required spellcheck="false">
       <input id="o_org" placeholder="Organisation" required spellcheck="false">

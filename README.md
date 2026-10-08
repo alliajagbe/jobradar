@@ -351,8 +351,38 @@ Stage runs **no reply yet** to **replied**, **call booked**, **referred**, or **
 Dead ends sort last whatever column you sort by, since they need nothing from you.
 
 Stored in `localStorage` under its own key, like the tracker, so it never enters the
-repository. The Export button now writes a backup carrying both stores; an older export,
-which was a bare tracker object, still imports unchanged.
+repository. The Export button writes a backup carrying the tracker, the outreach
+log, the candidates and the dismissals; an older export, which was a bare
+tracker object, still imports unchanged. Dismissals merge as a union on import,
+since a decision to skip somebody is still a decision whichever device made it.
+
+### Contacts, and promoting them
+
+The candidates panel at the top of the Outreach tab shows what `jobradar
+contacts` found. It loads by itself when the local helper is running, from
+`GET /api/contacts`, which merges every `contacts*.csv` in `~/Desktop/jobs`
+newest-file-first and dedupes on the author id. Without the helper, **Choose
+CSV** loads one by hand, which is also the phone path. An unreadable or
+half-written CSV is skipped rather than failing the request.
+
+**A candidate is not a contact.** The panel lists people the tool suggested; the
+table below lists messages actually sent. They are separate stores on purpose:
+if loading a CSV created outreach rows, then "sent this week", the due list and
+every per-pool reply rate would be counting messages that were never written,
+and those rates are the only reason the pool field exists. **Log it** is the one
+place a candidate becomes outreach, and it goes through the same code path as a
+hand-typed contact, so the follow-up is scheduled once and in one place.
+
+**Skip** removes somebody for good. Dismissals are stored separately and
+permanently, including for promoted rows, because the tool is meant to be re-run
+and every run would otherwise resurrect everyone already dealt with.
+
+Each candidate shows the H-1B cap status so you can prioritise without it
+deciding for you: **lottery** for a company, **cap-exempt** for a university or
+government lab, **check** for a nonprofit, where the exemption depends on it
+being a research organisation.
+
+
 
 ### Security
 

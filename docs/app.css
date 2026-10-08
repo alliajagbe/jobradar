@@ -371,3 +371,55 @@ dialog dd { margin: 0; color: var(--ink-dim); }
   .outreachadd input, .outreachadd select { width: 100%; }
   #outreachtable td.hook, #outreachtable th[data-sort="hook"] { display: none; }
 }
+
+/* ---- candidates ----
+   Suggested people, sitting above the outreach table they feed into. Styled as
+   a distinct panel rather than more rows, because the difference between
+   "somebody to write to" and "somebody I wrote to" is the whole point of
+   keeping two lists. */
+.candidates {
+  margin: 10px 0 18px; padding: 10px 12px 4px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+}
+.candhead { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.candhead .muted { margin-right: auto; }
+.candidates code {
+  font-size: 12px; padding: 1px 4px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 4px;
+}
+
+#candidatestable { width: 100%; border-collapse: collapse; font-size: 13px; }
+#candidatestable th {
+  text-align: left; font-weight: 600; font-size: 11px; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--ink-dim); padding: 5px 8px;
+  border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer;
+}
+#candidatestable th:hover { color: var(--accent); }
+#candidatestable th.sorted { color: var(--accent); }
+#candidatestable td {
+  padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top;
+}
+#candidatestable tbody tr:hover { background: var(--accent-soft); }
+#candidatestable td.who { font-weight: 600; white-space: nowrap; }
+#candidatestable td.hook { color: var(--ink-dim); max-width: 340px; }
+#candidatestable td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
+#candidatestable td.act { white-space: nowrap; text-align: right; }
+
+/* The cap badge. "exempt" is the good news and reads as the accent; "subject"
+   means the lottery and is deliberately plain rather than alarming, since a
+   company is still worth writing to. */
+.chip.cap-exempt { background: var(--accent-soft); color: var(--accent); }
+.chip.cap-check { background: var(--bg); color: var(--warn); border-color: var(--line); }
+.chip.cap-subject { background: var(--bg); color: var(--ink-dim); border-color: var(--line); }
+
+.logbtn {
+  font: inherit; font-size: 12px; padding: 2px 8px; cursor: pointer;
+  background: var(--accent); color: var(--panel);
+  border: 1px solid var(--accent); border-radius: 6px;
+}
+.logbtn:hover { filter: brightness(1.08); }
+
+@media (max-width: 720px) {
+  #candidatestable td.hook, #candidatestable th:nth-child(5) { display: none; }
+  #candidatestable td.num, #candidatestable th:nth-child(4) { display: none; }
+}

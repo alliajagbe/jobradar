@@ -68,6 +68,29 @@ const ANSWERED = new Set(["replied", "call", "referred"]);
 // Days after sending that one follow-up comes due. One, then stop.
 const FOLLOWUP_DAYS = 7;
 
+/* ---- candidates ----
+   People `jobradar contacts` suggested, which is NOT the same thing as people
+   written to. Kept in their own store so that promoting one is a deliberate
+   act: if loading a CSV created outreach rows directly, then "sent this week",
+   the due list and every per-pool reply rate would be counting messages that
+   were never sent, and those rates are the only reason the pool field exists.
+
+   Keyed by the OpenAlex author id. A name repeats across institutions and
+   name-plus-employer breaks the moment somebody moves jobs.
+
+   Dismissals are stored separately and permanently, because the tool is meant
+   to be re-run: without them every run would resurrect everyone already ruled
+   out. Promoting also records a dismissal, for the same reason. */
+const CAND_KEY = "jobradar.candidates.v1";
+const CAND_DISMISSED_KEY = "jobradar.candidates.dismissed.v1";
+// The CSV column names, which must agree with contacts.CSV_HEAD.
+const CAND_COLS = {
+  id: "Author ID", person: "Person", role: "Their role", org: "Organisation",
+  sector: "Sector", cap: "H-1B cap", pool: "Pool", hook: "Hook", link: "Link",
+  published: "Published", certified: "Certified filings",
+  analyst: "In analyst roles",
+};
+
 let CARDS = [];
 let ADDED = [];           // jobs pasted in by hand, stored in this browser only
 let FILTERED = null;      // fetched lazily; see loadFiltered
@@ -76,6 +99,8 @@ let VIEW = [];
 let selected = -1;
 let tracker = loadTracker();
 let outreach = loadOutreach();
+let candidates = loadCandidates();
+let candDismissed = loadDismissed();
 
 const $ = (s) => document.querySelector(s);
 const el = (t, c, txt) => { const n = document.createElement(t); if (c) n.className = c; if (txt != null) n.textContent = txt; return n; };
@@ -168,6 +193,92 @@ function outreachPatch(id, patch) {
   if (!id || !outreach[id]) return;
   outreach[id] = Object.assign({}, outreach[id], patch);
   saveOutreach();
+}
+
+function loadCandidates() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(CAND_KEY) || "{}");
+    return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  } catch { return {}; }
+}
+function saveCandidates() {
+  try { localStorage.setItem(CAND_KEY, JSON.stringify(candidates)); }
+  catch { /* private window; the list is a convenience and can be reloaded */ }
+}
+function loadDismissed() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(CAND_DISMISSED_KEY) || "[]");
+    return new Set(Array.isArray(raw) ? raw : []);
+  } catch { return new Set(); }
+}
+function saveDismissed() {
+  try { localStorage.setItem(CAND_DISMISSED_KEY, JSON.stringify([...candDismissed])); }
+  catch { /* private window */ }
+}
+
+/* A real CSV parser, because `split(",")` is wrong on this file.
+
+   Paper titles routinely contain commas, so `write_csv` quotes them, and a
+   naive split shifts every column after the hook by one: the link lands in
+   Published, the filing counts land one place left, and the row still looks
+   plausible enough not to notice. Handles quoted fields, "" escapes, and
+   CRLF. */
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = "", quoted = false, i = 0;
+  const src = String(text || "").replace(/^﻿/, "");   // strip a BOM
+  while (i < src.length) {
+    const ch = src[i];
+    if (quoted) {
+      if (ch === '"') {
+        if (src[i + 1] === '"') { field += '"'; i += 2; continue; }
+        quoted = false; i++; continue;
+      }
+      field += ch; i++; continue;
+    }
+    if (ch === '"') { quoted = true; i++; continue; }
+    if (ch === ",") { row.push(field); field = ""; i++; continue; }
+    if (ch === "\r") { i++; continue; }
+    if (ch === "\n") { row.push(field); rows.push(row); row = []; field = ""; i++; continue; }
+    field += ch; i++;
+  }
+  // A file not ending in a newline still has one row left in hand.
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  if (!rows.length) return [];
+  const head = rows.shift().map((h) => h.trim());
+  return rows
+    .filter((r) => r.some((v) => String(v).trim() !== ""))
+    .map((r) => Object.fromEntries(head.map((h, n) => [h, (r[n] ?? "").trim()])));
+}
+
+/* One CSV row or one helper record becomes one candidate. The helper sends the
+   CSV's own column names, so both paths land here and there is one shape. */
+function toCandidate(row) {
+  const get = (key) => String(row[CAND_COLS[key]] ?? "").trim();
+  const id = get("id") || `${get("person")}|${get("org")}`;
+  if (!id || !get("person")) return null;
+  return {
+    id, person: get("person"), role: get("role"), org: get("org"),
+    sector: get("sector"), cap: get("cap") || "check",
+    pool: get("pool") || "author", hook: get("hook"), link: get("link"),
+    published: get("published"),
+    certified: Number(get("certified")) || 0,
+    analyst: Number(get("analyst")) || 0,
+  };
+}
+
+function addCandidates(rows) {
+  let added = 0;
+  for (const raw of rows || []) {
+    const c = toCandidate(raw);
+    if (!c) continue;
+    if (!candidates[c.id]) added++;
+    // Newest wins: a later run carries a fresher paper, which is the better
+    // opening line.
+    candidates[c.id] = c;
+  }
+  saveCandidates();
+  return added;
 }
 function loadAdded() {
   try { return JSON.parse(localStorage.getItem(ADDED_KEY) || "[]"); }
@@ -902,6 +1013,35 @@ function wire() {
       renderOutreach();
     });
   });
+  document.querySelectorAll("#candidatestable th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      CAND_SORT = { key, dir: CAND_SORT.key === key ? -CAND_SORT.dir : 1 };
+      renderCandidates();
+    });
+  });
+  $("#candidateshide").addEventListener("click", () => setCandHidden(!CAND_HIDDEN));
+  $("#candidatesreload").addEventListener("click", async () => {
+    const added = await loadCandidatesFromHelper();
+    renderCandidates();
+    banner(added ? `Loaded ${added} new contact${added === 1 ? "" : "s"}.`
+                 : "No new contacts found.");
+  });
+  $("#candidateschoose").addEventListener("click", () => $("#candidatesfile").click());
+  $("#candidatesfile").addEventListener("change", (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    file.text().then((text) => {
+      const parsed = parseCsv(text);
+      if (!parsed.length || !(CAND_COLS.person in parsed[0])) {
+        banner("That file is not a jobradar contacts CSV.");
+        return;
+      }
+      const added = addCandidates(parsed);
+      renderCandidates();
+      banner(`Loaded ${added} new contact${added === 1 ? "" : "s"} from ${file.name}.`);
+    });
+  });
+
   $("#outreachdueonly").addEventListener("click", () => setDueOnly(!DUE_ONLY));
   $("#outreachcsv").addEventListener("click", () => {
     const blob = new Blob([outreachCsv()], { type: "text/csv" });
@@ -934,7 +1074,8 @@ function wire() {
      object with no wrapper, so the import below sniffs the shape rather than
      assuming: a backup taken last week has to keep working. */
   $("#export").addEventListener("click", () => {
-    const payload = { v: 1, tracker: tracker, outreach: outreach };
+    const payload = { v: 1, tracker: tracker, outreach: outreach,
+                      candidates: candidates, candidatesDismissed: [...candDismissed] };
     const blob = new Blob([JSON.stringify(payload, null, 1)], { type: "application/json" });
     const a = el("a");
     a.href = URL.createObjectURL(blob);
@@ -955,14 +1096,22 @@ function wire() {
           && (incoming.tracker !== undefined || incoming.outreach !== undefined);
         const inTracker = wrapped ? (incoming.tracker || {}) : incoming;
         const inOutreach = wrapped ? (incoming.outreach || {}) : {};
+        const inCand = wrapped ? (incoming.candidates || {}) : {};
+        const inSkipped = wrapped ? (incoming.candidatesDismissed || []) : [];
         // Merge rather than replace: importing a laptop backup on a phone
         // should not wipe what the phone already knows.
         tracker = Object.assign({}, inTracker, tracker);
         outreach = Object.assign({}, inOutreach, outreach);
-        saveTracker(); saveOutreach(); render(); renderOutreach();
+        candidates = Object.assign({}, inCand, candidates);
+        // Dismissals are a union: a decision to skip somebody made on either
+        // device is still a decision, and resurrecting them would undo it.
+        for (const id of inSkipped) candDismissed.add(id);
+        saveTracker(); saveOutreach(); saveCandidates(); saveDismissed();
+        render(); renderOutreach(); renderCandidates();
         const parts = [Object.keys(inTracker).length + " tracked roles"];
         if (Object.keys(inOutreach).length) parts.push(Object.keys(inOutreach).length + " contacts");
-        banner("Imported " + parts.join(" and ") + ".");
+        if (Object.keys(inCand).length) parts.push(Object.keys(inCand).length + " candidates");
+        banner("Imported " + parts.join(", ") + ".");
       } catch { banner("That file is not a JobRadar export."); }
     });
   });
@@ -1413,6 +1562,144 @@ function renderOutreach() {
   });
 }
 
+/* ---- the candidates panel ---- */
+let CAND_SORT = { key: "analyst", dir: 1 };
+const CAND_HIDE_KEY = "jobradar.candidates.hidden";
+let CAND_HIDDEN = false;
+try { CAND_HIDDEN = localStorage.getItem(CAND_HIDE_KEY) === "1"; } catch { /* private window */ }
+
+function setCandHidden(on) {
+  CAND_HIDDEN = on;
+  try { localStorage.setItem(CAND_HIDE_KEY, on ? "1" : "0"); } catch { /* private window */ }
+  renderCandidates();
+}
+
+async function loadCandidatesFromHelper() {
+  if (!HELPER_UP) return 0;
+  try {
+    const r = await fetch(HELPER + "/api/contacts");
+    if (!r.ok) return 0;
+    const body = await r.json();
+    return addCandidates(body.contacts || []);
+  } catch { return 0; }   // helper went away; whatever is stored still renders
+}
+
+/* Already-contacted people drop out of the panel. Matching is on the author id
+   recorded at promotion, so a contact logged by hand with the same name does
+   not accidentally hide a candidate. */
+function promotedIds() {
+  const out = new Set();
+  for (const v of Object.values(outreach)) if (v && v.candidateId) out.add(v.candidateId);
+  return out;
+}
+
+function candidateRows() {
+  const gone = promotedIds();
+  return Object.values(candidates)
+    .filter((c) => !candDismissed.has(c.id) && !gone.has(c.id));
+}
+
+function renderCandidates() {
+  const rows = candidateRows();
+  const dir = CAND_SORT.dir, key = CAND_SORT.key;
+  const sorted = rows.slice().sort((a, b) => {
+    const av = a[key], bv = b[key];
+    // Filing counts are numbers and want the biggest first; everything else is
+    // text and wants A to Z.
+    if (typeof av === "number" && typeof bv === "number") return (bv - av) * dir;
+    return String(av || "").localeCompare(String(bv || "")) * dir;
+  });
+
+  const body = $("#candidatestable tbody");
+  body.textContent = "";
+  for (const c of sorted) {
+    const tr = el("tr");
+
+    const who = el("td", "who");
+    who.appendChild(el("span", null, c.person));
+    if (c.role) { who.appendChild(el("br")); who.appendChild(el("span", "muted", c.role)); }
+    tr.appendChild(who);
+
+    const org = el("td");
+    if (c.link) {
+      const a = el("a", null, c.org);
+      a.href = c.link; a.target = "_blank"; a.rel = "noopener";
+      org.appendChild(a);
+    } else org.textContent = c.org;
+    tr.appendChild(org);
+
+    const cap = el("td");
+    const label = { exempt: "cap-exempt", subject: "lottery", check: "check" }[c.cap] || c.cap;
+    const chip = el("span", "chip cap-" + c.cap, label);
+    if (c.cap === "check") chip.title = "Cap-exempt only if this is a research nonprofit";
+    cap.appendChild(chip);
+    tr.appendChild(cap);
+
+    tr.appendChild(el("td", "num", c.analyst ? `${c.certified} / ${c.analyst}` : String(c.certified)));
+    tr.appendChild(el("td", "hook", c.hook));
+
+    const act = el("td", "act");
+    const log = el("button", "logbtn", "Log it");
+    log.title = "Record that you have written to this person";
+    log.addEventListener("click", () => promoteCandidate(c.id));
+    act.appendChild(log);
+    const skip = el("button", "rmbtn", "skip");
+    skip.title = "Remove from this list for good";
+    skip.addEventListener("click", () => dismissCandidate(c.id));
+    act.appendChild(skip);
+    tr.appendChild(act);
+
+    body.appendChild(tr);
+  }
+
+  const total = Object.keys(candidates).length;
+  const exempt = rows.filter((c) => c.cap === "exempt").length;
+  $("#candidatessummary").textContent = rows.length
+    ? `${rows.length} contact${rows.length === 1 ? "" : "s"} to write to`
+      + (exempt ? ` · ${exempt} cap-exempt` : "")
+      + (total > rows.length ? ` · ${total - rows.length} already handled` : "")
+    : "";
+
+  const hide = $("#candidateshide");
+  hide.hidden = rows.length === 0;
+  hide.textContent = CAND_HIDDEN ? "Show" : "Hide";
+  $("#candidatesreload").hidden = !HELPER_UP;
+  $("#candidatestable").hidden = rows.length === 0 || CAND_HIDDEN;
+  // The explainer is for an empty list, not for a list you chose to collapse.
+  $("#candidatesempty").hidden = rows.length > 0;
+  document.querySelectorAll("#candidatestable th").forEach((th) => {
+    th.classList.toggle("sorted", th.dataset.sort === key);
+  });
+}
+
+/* Promotion is the one place a candidate becomes outreach. It goes through
+   `outreachAdd` so the follow-up is scheduled by the same single code path
+   that schedules it for a hand-typed contact. */
+function promoteCandidate(id) {
+  const c = candidates[id];
+  if (!c) return;
+  const sent = today();
+  outreachAdd({
+    person: c.person, org: c.org, role: c.role,
+    pool: c.pool, channel: "email",
+    hook: c.hook, link: c.link,
+    sent, followup: addDays(sent, FOLLOWUP_DAYS),
+    stage: "sent",
+    // Keeps the panel and the table in agreement without matching on a name.
+    candidateId: c.id,
+  });
+  candDismissed.add(id);
+  saveDismissed();
+  renderCandidates();
+  renderOutreach();
+}
+
+function dismissCandidate(id) {
+  candDismissed.add(id);
+  saveDismissed();
+  renderCandidates();
+}
+
 function outreachCsv() {
   const head = ["Person", "Role", "Organisation", "Pool", "Channel", "Hook",
                 "Link", "Sent", "Follow up", "Stage"];
@@ -1443,7 +1730,13 @@ async function showView(which) {
     await loadQueueAll();
     renderTracker();
   } else if (which === "outreach") {
+    // Paint from storage first, then top up from the helper. Awaiting the
+    // fetch before the first render would push the whole view a microtask
+    // later for no benefit: what is already stored can be shown immediately,
+    // and most of the time the helper adds nothing to it.
+    renderCandidates();
     renderOutreach();
+    if (await loadCandidatesFromHelper()) renderCandidates();
   }
 }
 

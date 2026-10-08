@@ -512,3 +512,68 @@ def test_csv_shows_the_merged_records(tmp_path, fake_works, fake_table):
     text = path.read_text()
     assert "DUKE UNIVERSITY HEALTH SYSTEM" in text
     assert "265" in text                  # the merged count, not the bare 234
+
+
+# ---- the CSV the page reads ----
+
+def test_author_id_leads_the_csv(tmp_path, fake_works, fake_table):
+    """The only stable key in the data.
+
+    A name repeats across institutions and name-plus-employer breaks the moment
+    somebody changes jobs, so the page keys candidates and dismissals on the
+    OpenAlex author id.
+    """
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    rows = contacts.find("x")
+    path = tmp_path / "contacts.csv"
+    contacts.write_csv(rows, path)
+    head = path.read_text().splitlines()[0].split(",")
+    assert head[0] == "Author ID"
+    assert contacts.CSV_HEAD[0] == "Author ID"
+    assert rows[0].openalex_author in path.read_text()
+
+
+def test_read_csv_round_trips_what_write_csv_wrote(tmp_path, fake_works, fake_table):
+    fake_works.append(_work("Commas, quotes and all", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    path = tmp_path / "contacts.csv"
+    contacts.write_csv(contacts.find("x"), path)
+    back = contacts.read_csv(path)
+    assert len(back) == 1
+    assert back[0]["Person"] == "Senior Person"
+    assert back[0]["Hook"].startswith("Commas, quotes and all")
+    assert back[0]["Author ID"].startswith("https://openalex.org/")
+
+
+def test_read_csv_survives_a_broken_file(tmp_path):
+    """A CSV half-written by a run in progress must not take the route down."""
+    bad = tmp_path / "contacts-bad.csv"
+    bad.write_bytes(b"\xff\xfe not, csv, at \x00 all")
+    assert contacts.read_csv(bad) == []
+    assert contacts.read_csv(tmp_path / "does-not-exist.csv") == []
+
+
+def test_read_csv_keys_an_old_file_without_the_id_column(tmp_path):
+    """Files written before Author ID existed are still worth loading."""
+    path = tmp_path / "contacts-old.csv"
+    path.write_text("Person,Organisation,Hook\nOld Row,Some Org,a paper\n")
+    rows = contacts.read_csv(path)
+    assert rows[0]["Author ID"] == "Old Row|Some Org"
+
+
+def test_read_csv_drops_a_row_with_no_person(tmp_path):
+    path = tmp_path / "contacts.csv"
+    path.write_text("Author ID,Person,Organisation\nA1,,Some Org\nA2,Real Name,Some Org\n")
+    assert [r["Person"] for r in contacts.read_csv(path)] == ["Real Name"]
+
+
+def test_as_dict_includes_the_computed_fields(fake_works, fake_table):
+    """`asdict` alone drops the properties, and the page needs cap and pool."""
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    d = contacts.find("x")[0].as_dict()
+    assert d["cap"] == "subject"
+    assert d["pool"] == "author"
+    assert d["tier"] == 0
+    assert d["person"] == "Senior Person"

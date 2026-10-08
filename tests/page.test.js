@@ -25,6 +25,23 @@ w.fetch = (u, opts) => {
     return Promise.resolve({ ok: true, json: () => Promise.resolve(
       {slug: "AcmeAnalyst", status: "queued", url: "x", dedupe_key: "k"}) });
   }
+  if (u.endsWith("/api/contacts")) {
+    // Shaped exactly as serve._contacts returns it: the CSV's own column names.
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({ files: ["contacts-x.csv"], contacts: [
+      {"Author ID": "https://openalex.org/A1", "Person": "Ada Reviewer",
+       "Their role": "PI", "Organisation": "Fred Hutch", "Sector": "nonprofit",
+       "H-1B cap": "check", "Pool": "capexempt",
+       "Hook": "Gold standards, asymmetric scoring, and clinical extraction (2026)",
+       "Link": "https://doi.org/10.1/abc", "Published": "2026-09-01",
+       "Certified filings": "81", "In analyst roles": "16", "Counted from": "FRED HUTCH"},
+      {"Author ID": "https://openalex.org/A2", "Person": "Bo Engineer",
+       "Their role": "first author", "Organisation": "Deloitte (United States)",
+       "Sector": "company", "H-1B cap": "subject", "Pool": "author",
+       "Hook": "Closing the tax gap: fraud-risk detection (2026)",
+       "Link": "https://doi.org/10.1/def", "Published": "2026-08-01",
+       "Certified filings": "128", "In analyst roles": "14", "Counted from": "DELOITTE"},
+    ]}) });
+  }
   if (u.endsWith("/api/queue")) {
     return Promise.resolve({ ok: true, json: () => Promise.resolve({entries: [
       {slug:"AcmeAnalyst", status:"ready", url:"https://job-boards.greenhouse.io/acme/jobs/123456",
@@ -549,8 +566,156 @@ setTimeout(() => {
             JSON.stringify(JSON.parse(store["jobradar.tracker.v1"] || "{}")) === beforeKeys,
             "tracker unchanged");
 
+      /* ---- candidates ----
+         The panel feeding the outreach table. Every check names the thing that
+         would go wrong without it. */
+
+      // The parser is exercised through the file picker rather than called
+      // directly: app.js is strict-mode and evaluated with w.eval, so its
+      // declarations never leave that scope. Going through the picker also
+      // covers the whole path, which is what actually has to work.
+      //
+      // The row is deliberately nasty. Paper titles contain commas and the
+      // writer quotes them, so a naive split(",") shifts every later column by
+      // one: the link lands in Published, the filing counts move left, and the
+      // row still looks plausible enough not to notice.
+      const candCsv = 'Author ID,Person,Their role,Organisation,Sector,H-1B cap,Pool,Hook,Link,Published,Certified filings,In analyst roles,Counted from\r\n'
+        + 'A9,Cy Author,PI,"Penn, Trustees of",education,exempt,capexempt,'
+        + '"AI for detection, grading, and prognostication",https://doi.org/x,2026-07-01,481,43,"TRUSTEES OF THE UNIVERSITY OF PENNSYLVANIA; UNIVERSITY OF PENNSYLVANIA"\r\n';
+
+      $("#viewoutreach").click();
+      await new Promise((r) => setTimeout(r, 0));
+      const candRows = () => q("#candidatestable tbody tr").length;
+      const rowFor = (name) => [...q("#candidatestable tbody tr")]
+        .find((tr) => tr.textContent.includes(name));
+
+      if (helperUp) {
+        check("candidates load from the helper on opening Outreach", candRows() === 2,
+              candRows() + " rows");
+        check("the cap status is shown per contact",
+              q("#candidatestable .chip.cap-check").length === 1
+              && q("#candidatestable .chip.cap-subject").length === 1,
+              [...q("#candidatestable .chip")].map(n => n.textContent).join(", "));
+      } else {
+        check("no helper means no candidates, and the explainer shows",
+              candRows() === 0 && !$("#candidatesempty").hidden, candRows() + " rows");
+      }
+
+      const pick = (name, text) => {
+        Object.defineProperty($("#candidatesfile"), "files",
+          { value: [{ name, text: () => Promise.resolve(text) }], configurable: true });
+        $("#candidatesfile").dispatchEvent(new w.Event("change", {bubbles:true}));
+        return new Promise((r) => setTimeout(r, 0));
+      };
+
+      const beforePick = candRows();
+      await pick("contacts-x.csv", candCsv);
+      check("the file picker loads a CSV", candRows() === beforePick + 1,
+            candRows() + " rows");
+
+      const cy = rowFor("Cy Author");
+      check("a quoted comma does not shift the columns",
+            !!cy && cy.textContent.includes("AI for detection, grading, and prognostication")
+            && cy.textContent.includes("Penn, Trustees of")
+            && cy.textContent.includes("481 / 43"),
+            cy ? cy.textContent.replace(/\s+/g, " ").slice(0, 110) : "row missing");
+      check("the cap column renders from the CSV",
+            !!cy && cy.querySelector(".chip.cap-exempt"),
+            cy ? (cy.querySelector(".chip") || {}).textContent : "no row");
+
+      await pick("quotes.csv", 'Author ID,Person,Hook\nA8,Dee Quoted,"say ""hi"" now"\n');
+      check("an escaped quote survives",
+            (rowFor("Dee Quoted") || {}).textContent?.includes('say "hi" now'),
+            (rowFor("Dee Quoted") || {}).textContent || "row missing");
+
+      await pick("notrailing.csv", "Author ID,Person,Hook\nA7,Eve NoNewline,last row");
+      check("a file with no trailing newline keeps its last row", !!rowFor("Eve NoNewline"));
+
+      await pick("blanks.csv", "Author ID,Person,Hook\nA6,Fay Blanks,x\n\n\n");
+      check("blank lines do not become empty rows", !!rowFor("Fay Blanks")
+            && [...q("#candidatestable tbody tr")].every((tr) => tr.textContent.trim()));
+
+      await pick("bom.csv", "\uFEFFAuthor ID,Person,Hook\nA5,Gus Bom,y\n");
+      check("a BOM does not corrupt the first header", !!rowFor("Gus Bom"));
+
+      // THE invariant. A candidate is somebody suggested, not somebody written
+      // to. If loading a CSV moved the outreach numbers, then "sent this week",
+      // the due list and every per-pool reply rate would be counting messages
+      // that were never sent.
+      const summaryBefore = $("#outreachsummary").textContent;
+      const outreachBefore = Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length;
+      check("loading candidates does not touch the outreach stats",
+            summaryBefore === $("#outreachsummary").textContent
+            && outreachBefore === Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length,
+            summaryBefore);
+      check("candidates are stored under their own key",
+            Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).length === candRows(),
+            Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).join(","));
+
+      // Promote: the one place a candidate becomes outreach.
+      const beforePromote = candRows();
+      q("#candidatestable .logbtn")[0].click();
+      const afterOutreach = JSON.parse(store["jobradar.outreach.v1"] || "{}");
+      const promoted = Object.values(afterOutreach).filter(v => v.candidateId);
+      check("logging a candidate creates exactly one outreach row",
+            promoted.length === 1, promoted.length + " promoted rows");
+      check("it carries the hook and the pool from the candidate",
+            !!promoted[0].hook && promoted[0].pool
+            && promoted[0].stage === "sent",
+            JSON.stringify(promoted[0]).slice(0, 120));
+      check("the follow-up is scheduled seven days out, by the same code path",
+            promoted[0].followup === iso(7), `${promoted[0].sent} -> ${promoted[0].followup}`);
+      check("a logged candidate leaves the panel", candRows() === beforePromote - 1,
+            candRows() + " of " + beforePromote + " remain");
+      check("and now counts in the outreach stats",
+            $("#outreachsummary").textContent !== summaryBefore,
+            $("#outreachsummary").textContent);
+
+      // Skip: gone for good, because the tool is meant to be re-run.
+      if (candRows() > 0) {
+        const beforeSkip = candRows();
+        q("#candidatestable .rmbtn")[0].click();
+        check("skipping removes a candidate", candRows() === beforeSkip - 1,
+              candRows() + " rows");
+      }
+      const skipped = JSON.parse(store["jobradar.candidates.dismissed.v1"] || "[]");
+      check("promoted and skipped ids are both remembered",
+            skipped.length >= 1, skipped.length + " dismissed");
+
+      // Re-loading the same CSV must not resurrect them. Without this every
+      // run of the tool would bring back everyone already dealt with.
+      const nowShowing = candRows();
+      const reimport = { name: "contacts-x.csv", text: () => Promise.resolve(candCsv) };
+      Object.defineProperty($("#candidatesfile"), "files", { value: [reimport], configurable: true });
+      $("#candidatesfile").dispatchEvent(new w.Event("change", {bubbles:true}));
+      await new Promise((r) => setTimeout(r, 0));
+      check("re-importing does not resurrect a handled contact",
+            candRows() === nowShowing, candRows() + " vs " + nowShowing);
+
+      // A non-contacts CSV should be refused rather than making empty rows.
+      const wrong = { name: "jobs.csv", text: () => Promise.resolve("Company,Title\nAcme,Analyst\n") };
+      Object.defineProperty($("#candidatesfile"), "files", { value: [wrong], configurable: true });
+      $("#candidatesfile").dispatchEvent(new w.Event("change", {bubbles:true}));
+      await new Promise((r) => setTimeout(r, 0));
+      check("a file that is not a contacts CSV is refused",
+            $("#banner").textContent.includes("not a jobradar contacts CSV"),
+            $("#banner").textContent);
+
+      // The backup must carry the panel too, dismissals included.
+      $("#export").click();
+      const backup2 = lastBlob ? JSON.parse(await lastBlob.text()) : {};
+      check("the backup carries candidates and their dismissals",
+            !!backup2.candidates && Array.isArray(backup2.candidatesDismissed)
+            && backup2.candidatesDismissed.length >= 1,
+            `candidates=${Object.keys(backup2.candidates||{}).length} skipped=${(backup2.candidatesDismissed||[]).length}`);
+
       // Contacts have to survive a reload, same as the tracker did not at
       // first. A third window over the same store is the reload.
+      //
+      // Counted rather than hardcoded: promoting a candidate above legitimately
+      // adds a contact, and an absolute number here would have to be edited
+      // every time a check earlier in the file logs one more.
+      const beforeReload = Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length;
       const dom4 = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
         runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/", pretendToBeVisual: true });
       const w4 = dom4.window;
@@ -562,8 +727,9 @@ setTimeout(() => {
       w4.Element.prototype.scrollIntoView = function(){};
       try { w4.eval(fs.readFileSync(path.join(ROOT, "app.js"), "utf8")); } catch { /* boot noise */ }
       const afterReload = JSON.parse(store["jobradar.outreach.v1"] || "{}");
-      check("contacts survive a reload", Object.keys(afterReload).length === 5,
-            Object.keys(afterReload).length + " contacts after reload");
+      check("contacts survive a reload",
+            Object.keys(afterReload).length === beforeReload && beforeReload > 0,
+            Object.keys(afterReload).length + " of " + beforeReload + " after reload");
 
       // And a contact with neither a name nor an organisation is not a contact.
       store["jobradar.outreach.v1"] = JSON.stringify({
