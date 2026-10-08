@@ -392,6 +392,60 @@ merges every file newest-first and dedupes on the author id. An unreadable or
 half-written CSV is skipped rather than failing the request. Use the CLI when
 you want the fuzzy matching the browser cannot do.
 
+### Ways into a company
+
+The panel's second mode, **by company**, answers a different question from the
+topic search: not who publishes on something, but who can get you a first-round
+interview. The company box offers the companies you are tracking and accepts any
+other name.
+
+Nothing here is harvested, and that is a limit of what exists rather than
+caution. **No ATS exposes a person**: Lever and Greenhouse job payloads carry no
+recruiter or hiring-manager field at all. **LinkedIn has no public search API**,
+and scraping it would put the scraping account at risk. So every path is a
+precisely targeted search you complete by clicking, ranked by how well it
+actually converts:
+
+1. **Wake Forest alumni at the company.** The warmest path, and you have the
+   strongest version of it. Uses LinkedIn's own alumni tool.
+2. **The hiring manager**, when a posting named their title. Nine of 101 cached
+   descriptions do: "Reporting to the Director of Data Science", "VP, Data
+   Analytics". Not a name, but it turns a search returning a hundred people into
+   one returning two.
+3. **Recruiters at the company.** Lower conversion than a referral, but replying
+   is their job.
+4. **People already doing the job.** A peer referral carries more weight
+   internally than a cold recruiter note, and they know what is open before it
+   posts.
+5. **A published `careers@` address**, where the posting has one. Three of 101.
+
+The panel also lists the roles you are tracking there, so the note can name a
+specific req. **Log** prefills the outreach form with the company, pool and hook
+and focuses the name box: the name only exists once you have clicked through, and
+writing a placeholder row would start inflating the reply rates the
+candidate/outreach split exists to protect.
+
+Hiring manager is its own pool rather than being folded into recruiter, because
+the two convert differently and per-pool reply rate is the whole point of the
+field.
+
+**Accommodation and compliance addresses are excluded by name.** Seven of the
+101 descriptions publish one — `candidate_accessibility@`, `usaccommodations@`,
+`hiringaccommodations@` — and none publishes a recruiter's address, so without
+that guard this feature would mostly surface exactly the wrong thing. They are a
+legally-mandated accessibility channel for disability accommodation requests,
+not a side door, and a job enquiry sent there reaches people who cannot help.
+A test asserts each one is refused.
+
+The two extracted fields are written onto the queue entry when a brief is built,
+because that is the only point at which the full description exists: the store
+keeps a 400-character snippet, which yields a manager title for 4 of 1,757 jobs.
+Reading them back needs the helper running; the other four paths do not.
+
+The LinkedIn school slug is one constant in `docs/app.js` (`ALUMNI_SLUG`). It
+cannot be verified from here because LinkedIn refuses automated requests, so if
+the alumni link lands on the wrong school, that is the thing to correct.
+
 ### Reaching the person, and why there is no email column
 
 Each contact carries three ways to find them. The **name** links to their

@@ -476,7 +476,7 @@ setTimeout(() => {
             !$("#outreach").hidden && $("#tracker").hidden && $("#list").hidden,
             `outreach hidden=${$("#outreach").hidden} tracker hidden=${$("#tracker").hidden}`);
       check("pool and channel dropdowns built from the vocabularies",
-            q("#o_pool option").length === 5 && q("#o_channel option").length === 3,
+            q("#o_pool option").length === 6 && q("#o_channel option").length === 3,
             `${q("#o_pool option").length} pools, ${q("#o_channel option").length} channels`);
       check("the sent date defaults to today", $("#o_sent").value === iso(0), $("#o_sent").value);
       check("empty state shown before anything is logged", !$("#outreachempty").hidden);
@@ -798,6 +798,72 @@ setTimeout(() => {
               $("#candidatesempty").textContent.slice(0, 90));
         w.fetch = realFetch;
       }
+
+      /* ---- ways into a company ----
+         The topic search finds people who publish, which is no use for most of
+         the market. These are the people who can open a door. Nothing is
+         harvested: no ATS exposes a recruiter and LinkedIn has no public search
+         API, so every path is a search completed by clicking. */
+      $("#mode_company").click();
+      check("company mode swaps the forms",
+            $("#candsearch").hidden && !$("#compsearch").hidden);
+      check("the company list offers what she is tracking",
+            q("#companylist option").length > 0,
+            q("#companylist option").length + " companies");
+
+      $("#q_company").value = "Acme";
+      $("#compsearch").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+      for (let n = 0; n < 6; n++) await new Promise((r) => setTimeout(r, 0));
+
+      const paths = q("#comppaths .path");
+      check("every way in is listed", paths.length === 5, paths.length + " paths");
+      const pathText = paths.map((p) => p.textContent);
+      check("alumni is ranked first, as the warmest path",
+            /Wake Forest alumni/.test(pathText[0] || ""), (pathText[0] || "").slice(0, 60));
+      check("the alumni link uses the school's own alumni tool",
+            (paths[0].querySelector("a.go") || {}).href?.includes("/school/")
+            && (paths[0].querySelector("a.go") || {}).href?.includes("keywords=Acme"),
+            (paths[0].querySelector("a.go") || {}).href || "no link");
+      check("recruiters are offered but ranked below a referral",
+            pathText.findIndex((t) => /Recruiters at/.test(t)) > 0);
+      check("peers already doing the job are offered",
+            pathText.some((t) => /already doing the job/.test(t)));
+      check("every generated link is a search or a mailto, never a scrape",
+            paths.every((p) => {
+              const a = p.querySelector("a.go");
+              return !a || /linkedin\.com\/(search|school)|^mailto:/.test(a.href);
+            }),
+            paths.map((p) => (p.querySelector("a.go") || {}).href || "-").join(" ").slice(0, 110));
+
+      // With no tailored posting for this company there is no manager title,
+      // and the row should say so rather than vanish.
+      check("a missing hiring-manager title is stated, not hidden",
+            pathText.some((t) => /Not named in any posting/.test(t)));
+      check("accommodation addresses are refused, and the row says why",
+            pathText.some((t) => /accessibility channel/.test(t)));
+
+      // Logging prefills and creates nothing: a placeholder row would start
+      // inflating the reply rates the candidate split exists to protect.
+      const beforePaths = Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length;
+      const summaryWas = $("#outreachsummary").textContent;
+      paths[0].querySelector(".rmbtn").click();
+      check("logging a path prefills the form rather than creating a row",
+            Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length === beforePaths
+            && $("#o_org").value === "Acme" && $("#o_pool").value === "alumni"
+            && $("#o_person").value === "",
+            `org=${$("#o_org").value} pool=${$("#o_pool").value} person="${$("#o_person").value}"`);
+      check("and the outreach numbers have not moved",
+            $("#outreachsummary").textContent === summaryWas);
+
+      // A hiring manager is its own pool: it converts differently from a
+      // recruiter and the per-pool reply rate is the point of the field.
+      check("hiring manager is a pool of its own",
+            [...q("#o_pool option")].some((o) => o.value === "hiring"),
+            [...q("#o_pool option")].map((o) => o.value).join(","));
+
+      $("#mode_topic").click();
+      check("switching back restores the topic form",
+            !$("#candsearch").hidden && $("#compsearch").hidden);
 
       // THE invariant. A candidate is somebody suggested, not somebody written
       // to. If loading a CSV moved the outreach numbers, then "sent this week",

@@ -50,6 +50,39 @@ def _report(findings, metrics=None) -> int:
     return len(hard)
 
 
+def record_hiring_contacts(slug: str, jd_text: str, *, progress=None) -> dict:
+    """Note what the posting publishes about who is hiring, on the queue entry.
+
+    Called wherever a brief is written, because that is the only point at which
+    the full description exists. The store keeps a 400-character snippet, which
+    yields a manager title for 4 of 1,757 jobs, so there is nothing worth
+    extracting later.
+
+    The queue entry is the home for it: the helper already serves those and the
+    Outreach tab already merges them. A slug the page never queued has no entry
+    and that is fine, so a missing one is not an error.
+    """
+    from . import queue as Q
+    from .. import contacts as contacts_mod
+
+    say = progress or (lambda _m: None)
+    found = {
+        "hiring_manager": contacts_mod.hiring_manager_title(jd_text) or None,
+        "careers_email": contacts_mod.careers_email(jd_text) or None,
+    }
+    if not any(found.values()):
+        return found
+    if found["hiring_manager"]:
+        say(f"  reports to: {found['hiring_manager']}")
+    if found["careers_email"]:
+        say(f"  enquiries:  {found['careers_email']}")
+    try:
+        Q.update(slug, **found)
+    except Exception:                                      # noqa: BLE001
+        pass          # no queue entry for this slug, the ordinary CLI case
+    return found
+
+
 def build_brief(url: str, *, slug: str | None = None, progress=None,
                 jd_text: str | None = None, company: str | None = None,
                 title: str | None = None) -> tuple[Path, dict, str]:
@@ -79,6 +112,7 @@ def build_brief(url: str, *, slug: str | None = None, progress=None,
     out = resolve("briefs", f"{slug}.md", create_parent=True)
     out.write_text(brief_mod.write(master, job, posting.text, "link", slug),
                    encoding="utf-8")
+    record_hiring_contacts(slug, posting.text, progress=progress)
     return out, job, slug
 
 
@@ -124,6 +158,8 @@ def cmd_brief(args: argparse.Namespace) -> int:
     out = resolve("briefs", f"{slug}.md", create_parent=True)
     out.write_text(brief_mod.write(master, job, text, sha, slug), encoding="utf-8")
     _log(f"\nwrote {out}")
+
+    record_hiring_contacts(slug, text, progress=_log)
     _log(f"next: write ~/.jobradar/variants/{slug}.yaml, then "
          f"`python -m jobradar tailor render --slug {slug}`")
     return 0

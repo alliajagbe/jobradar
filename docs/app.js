@@ -51,6 +51,7 @@ const POOLS = [
   ["capexempt", "Research group"],
   ["alumni", "Wake Forest alumni"],
   ["author", "Paper author"],
+  ["hiring", "Hiring manager"],
   ["recruiter", "Recruiter"],
   ["other", "Other"],
 ];
@@ -1063,6 +1064,16 @@ function wire() {
     });
   });
 
+  $("#mode_topic").addEventListener("click", () => setCandMode("topic"));
+  $("#mode_company").addEventListener("click", () => setCandMode("company"));
+  $("#compsearch").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("#q_company").value.trim();
+    if (!name) return;
+    // Needed for the filing counts when no card for this company carries them.
+    loadSponsors().then(() => renderCompanyPaths(name));
+  });
+
   $("#candidateshide").addEventListener("click", () => setCandHidden(!CAND_HIDDEN));
   $("#candidatesreload").addEventListener("click", async () => {
     const added = await loadCandidatesFromHelper();
@@ -1846,6 +1857,207 @@ function lookupLinks(c) {
     scholar: "https://scholar.google.com/citations?view_op=search_authors&mauthors=" + who,
     orcid: c.orcid || "",
   };
+}
+
+/* ---- ways into a company ----
+   The topic search finds people who publish, which is useless for most of the
+   market: recruiters do not write papers. These are the people who can open a
+   door, and the ordering is the opinion the feature exists to express.
+
+   Nothing here is harvested. No ATS exposes a recruiter — Lever and Greenhouse
+   job payloads carry no person field at all — and LinkedIn has no public
+   search API, so scraping it would risk the account doing the scraping. Every
+   link below is a search Alli completes by clicking. */
+
+// LinkedIn's school slug for the alumni tool. It cannot be verified from here
+// because LinkedIn refuses automated requests, so if the alumni link lands on
+// the wrong school, this constant is the one thing to correct.
+const ALUMNI_SLUG = "wake-forest-university";
+// What she is actually applying for, used to find peers already doing the job.
+const PEER_TITLES = "data analyst OR business analyst OR data scientist";
+
+function liPeople(keywords) {
+  return "https://www.linkedin.com/search/results/people/?keywords="
+    + encodeURIComponent(keywords).replace(/%20/g, "+");
+}
+
+/* Everything the page already knows about one company. The sponsorship block
+   on a card is preferred over the published index: it is what the Jobs tab
+   shows for that company, and two different numbers for one employer would be
+   worse than either. */
+function companyFacts(company) {
+  const want = String(company || "").trim().toLowerCase();
+  const cards = CARDS.filter((c) => String(c.company || "").trim().toLowerCase() === want);
+  const withSponsor = cards.find((c) => c.sponsorship && c.sponsorship.certified != null);
+  let certified = null, analyst = null, signal = "";
+  if (withSponsor) {
+    certified = withSponsor.sponsorship.certified;
+    analyst = withSponsor.sponsorship.analyst_certified;
+    signal = withSponsor.sponsorship.signal || "";
+  } else if (SPONSORS) {
+    const hit = sponsorFor(company);
+    if (hit) { certified = hit.certified; analyst = hit.analyst; }
+  }
+  // Queue entries carry the hiring manager's title, pulled out of the full
+  // description when the brief was built. Only present with the helper up.
+  const slugs = Object.values(QUEUE_ALL).filter(
+    (e) => String(e.company || "").trim().toLowerCase() === want);
+  const manager = (slugs.find((e) => e.hiring_manager) || {}).hiring_manager || "";
+  const email = (slugs.find((e) => e.careers_email) || {}).careers_email || "";
+  return { cards, certified, analyst, signal, manager, email };
+}
+
+function companyPaths(company) {
+  const org = String(company || "").replace(/\s*\([^)]*\)/g, "").trim();
+  const f = companyFacts(company);
+  const paths = [
+    {
+      title: `Wake Forest alumni at ${org}`,
+      why: "The warmest path. An alum has a reason to reply, and you have the "
+         + "strongest version of this: highest GPA in your cohort.",
+      url: `https://www.linkedin.com/school/${ALUMNI_SLUG}/people/?keywords=`
+           + encodeURIComponent(org).replace(/%20/g, "+"),
+      pool: "alumni",
+    },
+    f.manager ? {
+      title: `${f.manager} at ${org}`,
+      why: "The posting names this title as who the role reports to, which "
+         + "makes the search precise and the note specific.",
+      url: liPeople(`${f.manager} ${org}`),
+      pool: "hiring",
+    } : {
+      title: "Hiring manager",
+      why: "Not named in any posting you have tailored for this company. "
+         + "Tailoring one picks the title up if the description states it.",
+      pool: "hiring",
+    },
+    {
+      title: `Recruiters at ${org}`,
+      why: "In-house recruiters screen for the req. Lower conversion than a "
+         + "referral, but they are the people whose job is to reply.",
+      url: liPeople(`${org} recruiter`),
+      pool: "recruiter",
+    },
+    {
+      title: `People already doing the job at ${org}`,
+      why: "A referral from a peer carries more weight internally than a cold "
+         + "note to a recruiter, and they know what is open before it posts.",
+      url: liPeople(`${org} ${PEER_TITLES}`),
+      pool: "other",
+    },
+    f.email ? {
+      title: f.email,
+      why: "Published in the posting for enquiries. Lowest yield of these, but "
+         + "it costs one message.",
+      url: "mailto:" + f.email,
+      pool: "recruiter",
+    } : {
+      title: "Enquiries address",
+      why: "None published. Accommodation and compliance addresses are "
+         + "deliberately excluded: they are an accessibility channel, not a "
+         + "route to a recruiter.",
+      pool: "recruiter",
+    },
+  ];
+  return { facts: f, paths };
+}
+
+function renderCompanyPaths(company) {
+  const box = $("#comppaths");
+  box.textContent = "";
+  box.hidden = false;
+  const { facts, paths } = companyPaths(company);
+  const org = String(company || "").trim();
+
+  const head = el("div", "compco");
+  head.appendChild(el("b", null, org));
+  if (facts.certified != null) {
+    head.appendChild(el("span", "muted",
+      `${facts.certified} certified, ${facts.analyst || 0} in analyst roles`));
+  } else {
+    head.appendChild(el("span", "muted", "no filing record found"));
+  }
+  if (facts.signal) head.appendChild(el("span", "chip " + facts.signal, SPONSOR_LABELS[facts.signal] || facts.signal));
+  box.appendChild(head);
+
+  paths.forEach((p, i) => {
+    const row = el("div", "path");
+    row.appendChild(el("span", "pathnum", String(i + 1)));
+    const body = el("div", "pathbody");
+    body.appendChild(el("div", "t" + (p.url ? "" : " off"), p.title));
+    body.appendChild(el("div", "why", p.why));
+    row.appendChild(body);
+    const act = el("div", "pathact");
+    if (p.url) {
+      const a = el("a", "go", p.url.startsWith("mailto:") ? "email" : "open");
+      a.href = p.url; a.rel = "noopener";
+      if (!p.url.startsWith("mailto:")) a.target = "_blank";
+      act.appendChild(a);
+      const log = el("button", "rmbtn", "log");
+      log.title = "Start an outreach entry for this path";
+      log.addEventListener("click", () => prefillOutreach({
+        org: org, pool: p.pool, hook: p.title,
+      }));
+      act.appendChild(log);
+    }
+    row.appendChild(act);
+    box.appendChild(row);
+  });
+
+  if (facts.cards.length) {
+    const ul = el("ul", "complist");
+    ul.appendChild(el("li", "muted", "Roles you are tracking here, to name in the note:"));
+    for (const c of facts.cards.slice(0, 6)) {
+      const li = el("li");
+      const a = el("a", null, c.title);
+      a.href = c.url; a.target = "_blank"; a.rel = "noopener";
+      li.appendChild(a);
+      ul.appendChild(li);
+    }
+    box.appendChild(ul);
+  }
+}
+
+/* Prefill rather than create. The name only exists after she clicks through,
+   and writing a placeholder row would start inflating the reply rates that the
+   candidate/outreach split exists to keep honest. */
+function prefillOutreach({ org, pool, hook }) {
+  $("#o_org").value = org || "";
+  $("#o_hook").value = hook || "";
+  if (pool && [...$("#o_pool").options].some((o) => o.value === pool)) $("#o_pool").value = pool;
+  $("#o_person").value = "";
+  $("#o_person").focus();
+  banner("Find them on LinkedIn, then put the name in and press Log it.");
+}
+
+function setCandMode(which) {
+  const company = which === "company";
+  $("#mode_topic").classList.toggle("on", !company);
+  $("#mode_company").classList.toggle("on", company);
+  $("#candsearch").hidden = company;
+  $("#compsearch").hidden = !company;
+  $("#comppaths").hidden = true;
+  $("#candidatestable").hidden = company || candidateRows().length === 0;
+  if (company) {
+    // Tracked companies first: a datalist of all 972 in the feed is a wall,
+    // and the ones she is tracking are the ones she means.
+    const seen = new Set();
+    for (const key of Object.keys(tracker)) {
+      const card = CARDS.find((c) => c.dedupe_key === key);
+      if (card && card.company) seen.add(card.company);
+    }
+    for (const e of Object.values(QUEUE_ALL)) if (e.company) seen.add(e.company);
+    const list = $("#companylist");
+    list.textContent = "";
+    for (const name of [...seen].sort()) {
+      const opt = el("option");
+      opt.value = name;
+      list.appendChild(opt);
+    }
+    $("#compcount").textContent = seen.size
+      ? `${seen.size} companies you are tracking, or type any other`
+      : "Type any company";
+  }
 }
 
 /* ---- the candidates panel ---- */

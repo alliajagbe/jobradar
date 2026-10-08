@@ -794,3 +794,80 @@ def test_as_dict_carries_the_links_for_the_page(fake_works, fake_table):
     assert d["linkedin"].startswith("https://www.linkedin.com/search")
     assert d["scholar"].startswith("https://scholar.google.com")
     assert "email" not in d
+
+
+# ---- who the posting says is hiring ----
+
+@pytest.mark.parametrize("text,expected", [
+    ("Reporting to the VP, Data Analytics, this role is remote.", "VP, Data Analytics"),
+    ("Reporting to the Director of Data Science and partnering with Product",
+     "Director of Data Science"),
+    ("You will report to the Head of Data Science.", "Head of Data Science"),
+    ("report to the Manager, Master Data Management. This role is responsible",
+     "Manager, Master Data Management"),
+    ("Reports to the Order Operations lead, Jamie Calkins.", "Order Operations lead"),
+])
+def test_hiring_manager_title_is_extracted(text, expected):
+    assert contacts.hiring_manager_title(text) == expected
+
+
+def test_the_verb_is_matched_whatever_its_case():
+    """A case-sensitive pattern found 4 of 9 real postings, because every one
+    that begins a sentence with "Reporting to" was skipped."""
+    for verb in ("Reporting to", "reporting to", "Reports to", "reports to", "report to"):
+        assert contacts.hiring_manager_title(f"{verb} the Director of Data Science.") \
+            == "Director of Data Science"
+
+
+@pytest.mark.parametrize("text", [
+    # Real sentences from the corpus that the naive pattern matched.
+    "reports to eliminate manual data wrangling across teams",
+    "reports to senior stakeholders regularly",
+    "reports to monitor progress and evaluate the effectiveness",
+    "Reporting to join our team remotely",
+    "produces reports to support the finance function",
+    "",
+])
+def test_a_sentence_is_not_a_job_title(text):
+    assert contacts.hiring_manager_title(text) == ""
+
+
+def test_the_title_stops_at_the_sentence_and_the_clause():
+    assert contacts.hiring_manager_title(
+        "Reporting to the Director of Data Science, the Data Scientist will own"
+    ) == "Director of Data Science"
+    assert contacts.hiring_manager_title(
+        "report to the Manager, Master Data Management. This role is responsible for"
+    ) == "Manager, Master Data Management"
+
+
+@pytest.mark.parametrize("addr", [
+    "careers@getclair.com", "jobs@example.com", "recruiting@example.io",
+    "talent@example.org",
+])
+def test_a_generic_enquiry_address_is_captured(addr):
+    assert contacts.careers_email(f"Questions? Write to {addr} and we will reply.") == addr
+
+
+@pytest.mark.parametrize("addr", [
+    "candidate_accessibility@elastic.co",
+    "usaccommodations@gf.com",
+    "hiringaccommodations@amplify.com",
+    "recruitmentsupport@fedex.com",
+    "privacy@example.com",
+    "legal@example.com",
+])
+def test_an_accommodation_or_compliance_address_is_refused(addr):
+    """These are a legally-mandated accessibility channel, not a side door to a
+    recruiter. Using one for a job enquiry would be inappropriate, and it would
+    also reach a team who cannot help, so it is refused by name.
+
+    Seven of the 101 cached descriptions publish one and none publishes a
+    recruiter's address, so without this guard the feature would mostly surface
+    exactly the wrong thing.
+    """
+    assert contacts.careers_email(f"For accommodations, contact {addr}.") == ""
+
+
+def test_an_address_is_lowercased():
+    assert contacts.careers_email("Write to Careers@Example.COM") == "careers@example.com"

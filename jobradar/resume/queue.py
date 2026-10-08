@@ -47,6 +47,15 @@ class Entry:
     pdf: str | None = None
     error: str | None = None
     note: str | None = None
+    # Two things the posting itself publishes, pulled out when the brief is
+    # built because that is the only point where the full description is in
+    # hand. Both feed the Outreach tab's "who can get me an interview" paths.
+    #
+    # `hiring_manager` is a TITLE and never a name: no posting names the
+    # person, but "Director of Data Science" makes a LinkedIn search return one
+    # or two people instead of a hundred.
+    hiring_manager: str | None = None
+    careers_email: str | None = None
 
     def as_dict(self) -> dict:
         return asdict(self)

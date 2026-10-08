@@ -257,6 +257,90 @@ def simple_key(name: str) -> str:
     return " ".join(tokens)
 
 
+# ---- what a posting publishes about who is hiring ----
+#
+# A title, never a name: no posting names the person. "Director of Data
+# Science" is still worth having, because it turns a LinkedIn search that
+# returns a hundred people into one that returns one or two.
+# The verb is matched case-insensitively BY HAND rather than with re.I,
+# because the capture needs [A-Z] to stay case-sensitive: an initial capital is
+# most of what distinguishes a job title from the rest of the sentence. A
+# plain re.I here silently matched nothing for every "Reporting to", which is
+# how this found 4 of 9 on the first run.
+_MANAGER = re.compile(
+    r"\b[Rr]eport(?:s|ing)?\s+[Tt]o\s+(?:[Tt]he\s+)?"
+    r"([A-Z][A-Za-z&/.\-]*(?:[ ,]+(?:of|the|and|for)?[ ]*[A-Z][A-Za-z&/.\-]*){0,5}"
+    # Postings often leave the seniority word lowercase: "the Order Operations
+    # & Monetization lead". Without this the capture stops before it and the
+    # title-word guard then rejects the whole thing.
+    r"(?:[ ]+(?:lead|manager|director|head|owner|principal|chief|officer))?)"
+)
+# Words that mean the match ran into a sentence rather than a job title:
+# "reports to eliminate manual data wrangling" is not a person.
+_NOT_A_TITLE = re.compile(
+    r"\b(?:eliminat|monitor|evaluat|support|track|measur|identif|understand|"
+    r"ensur|provid|inform|senior stakeholder|join|help|drive|assess)", re.I)
+_TITLE_WORD = re.compile(
+    r"\b(?:chief|president|vp|vice|director|head|manager|lead|principal|partner|"
+    r"officer|supervisor|advisor|architect|owner|founder|cto|ceo|cio|cdo|"
+    # Senior individual contributors are real reporting targets too. Safe to
+    # include because the capture already requires an initial capital, so
+    # "reports to engineer a solution" cannot reach here.
+    r"senior|engineer|scientist|analyst|specialist)\b", re.I)
+
+# Generic enquiry addresses a company publishes for exactly this purpose.
+_CAREERS_EMAIL = re.compile(
+    r"\b((?:careers|jobs|recruiting|recruitment|talent|hiring)"
+    r"@[A-Za-z0-9.-]+\.[A-Za-z]{2,})", re.I)
+# Refused by name. These are a legally-mandated accessibility channel for
+# disability accommodation requests, not a side door to a recruiter, and using
+# one for a job enquiry would be both inappropriate and counterproductive.
+_NOT_FOR_OUTREACH = re.compile(
+    r"accommodat|accessib|disabilit|compliance|privacy|legal|support@", re.I)
+
+
+def hiring_manager_title(jd_text: str) -> str:
+    """The title the posting says the role reports to, or "".
+
+    Nine of 101 real descriptions carry one. The guards matter more than the
+    pattern: "reports to eliminate manual data wrangling" and "reports to
+    senior stakeholders regularly" both match the naive regex and neither is a
+    person, so a candidate must contain an actual seniority word and must not
+    run into a verb.
+    """
+    for match in _MANAGER.finditer(jd_text or ""):
+        title = " ".join(match.group(1).split())
+        # Cut at a sentence boundary. Without this, "Manager, Master Data
+        # Management. This role is..." carried the next sentence into the title.
+        title = re.split(r"\.\s", title)[0]
+        # And at a clause boundary: "Director of Data Science, the Data
+        # Scientist will be responsible for" is a title followed by the rest
+        # of the sentence, and the comma form is how it gets in.
+        title = re.split(r",\s+(?:the|this|who|you|and|where|which)\b", title)[0]
+        title = title.strip(" ,.")
+        if not (3 < len(title) < 60):
+            continue
+        if _NOT_A_TITLE.search(title):
+            continue
+        if not _TITLE_WORD.search(title):
+            continue
+        return title
+    return ""
+
+
+def careers_email(jd_text: str) -> str:
+    """A generic enquiry address the posting published, or "".
+
+    Accommodation and compliance addresses are refused; see _NOT_FOR_OUTREACH.
+    """
+    for match in _CAREERS_EMAIL.finditer(jd_text or ""):
+        address = match.group(1)
+        if _NOT_FOR_OUTREACH.search(address):
+            continue
+        return address.lower()
+    return ""
+
+
 def _affix_index(employers: dict) -> tuple[dict, dict]:
     """Employers bucketed by the first and last token of their stem.
 

@@ -464,3 +464,41 @@ dialog dd { margin: 0; color: var(--ink-dim); }
   text-decoration: none; border-bottom: 1px dotted var(--line);
 }
 .findrow a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ---- by-company mode ---- */
+.candmodes { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 9px; }
+.candmodes button {
+  font: inherit; font-size: 12px; padding: 4px 12px; cursor: pointer;
+  background: var(--panel); color: var(--ink-dim); border: 0;
+}
+.candmodes button + button { border-left: 1px solid var(--line); }
+.candmodes button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+.comppaths { margin: 4px 0 14px; }
+.compco {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+  padding-bottom: 7px; margin-bottom: 9px; border-bottom: 1px solid var(--line);
+}
+.compco b { font-size: 14px; }
+.compco .muted { font-size: 12px; }
+
+/* One row per way in, in conversion order. The rank number is shown because
+   the ordering is the opinion this feature exists to express. */
+.path { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.path:last-child { border-bottom: 0; }
+.pathnum {
+  flex: 0 0 20px; font-size: 11px; font-variant-numeric: tabular-nums;
+  color: var(--ink-dim); padding-top: 2px;
+}
+.pathbody { flex: 1 1 auto; min-width: 0; }
+.pathbody .t { font-size: 13px; font-weight: 600; }
+.pathbody .why { font-size: 12px; color: var(--ink-dim); }
+.pathbody .t.off { font-weight: 400; color: var(--ink-dim); }
+.pathact { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; }
+.path a.go {
+  font-size: 12px; padding: 2px 9px; border: 1px solid var(--accent);
+  border-radius: 6px; color: var(--accent); text-decoration: none;
+}
+.path a.go:hover { background: var(--accent-soft); }
+.complist { margin: 10px 0 0; font-size: 12px; color: var(--ink-dim); }
+.complist li { margin: 2px 0; }

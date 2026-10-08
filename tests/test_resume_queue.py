@@ -128,3 +128,30 @@ def test_an_unfinished_run_does_not_pull(monkeypatch):
                         lambda: pytest.fail("pulled mid-run"))
 
     assert "pulled" not in serve._refresh_status()
+
+
+def test_hiring_contacts_round_trip(tmp_path, monkeypatch):
+    """The two fields the Outreach tab's company paths read.
+
+    They are written when a brief is built, because that is the only point at
+    which the full description exists, and read back through the helper.
+    """
+    from jobradar.resume import queue as Q
+
+    entry = Q.Entry(slug="AcmeAnalyst", url="https://example.com/x", company="Acme",
+                    hiring_manager="Director of Data Science",
+                    careers_email="careers@acme.com")
+    Q.write(entry)
+    back = Q.read("AcmeAnalyst")
+    assert back.hiring_manager == "Director of Data Science"
+    assert back.careers_email == "careers@acme.com"
+    assert back.as_dict()["hiring_manager"] == "Director of Data Science"
+
+
+def test_hiring_contacts_default_to_none(tmp_path):
+    """An older entry on disk has neither field and must still load."""
+    from jobradar.resume import queue as Q
+
+    entry = Q.Entry(slug="PlainCo", url="https://example.com/y")
+    assert entry.hiring_manager is None
+    assert entry.careers_email is None

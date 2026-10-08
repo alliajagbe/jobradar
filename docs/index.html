@@ -135,6 +135,11 @@
            the sponsorship join uses data/sponsors.json, precomputed because it
            needs the whole DOL employer table. So this works on the live site
            with no local helper and no terminal. -->
+      <div class="candmodes" role="group">
+        <button type="button" id="mode_topic" class="on">By topic</button><button
+                type="button" id="mode_company">By company</button>
+      </div>
+
       <form class="candsearch" id="candsearch" autocomplete="off">
         <input id="q_topic" placeholder="What do they work on? e.g. fraud detection machine learning"
                spellcheck="false" required>
@@ -162,6 +167,21 @@
           <button type="button" class="chipbtn" data-topic="program evaluation causal impact">program evaluation</button>
         </p>
       </form>
+
+      <!-- By company: the people who can open a door rather than the people
+           who publish. No ATS exposes a recruiter and LinkedIn has no public
+           search API, so these are precisely targeted searches she completes
+           by clicking, ordered by how well they actually convert. -->
+      <form class="candsearch" id="compsearch" autocomplete="off" hidden>
+        <input id="q_company" placeholder="Which company? e.g. Gotion" spellcheck="false"
+               list="companylist" required>
+        <datalist id="companylist"></datalist>
+        <div class="candopts">
+          <span class="note" id="compcount"></span>
+          <button class="btn" type="submit" id="c_go">Find ways in</button>
+        </div>
+      </form>
+      <div id="comppaths" class="comppaths" hidden></div>
       <table id="candidatestable"><thead><tr>
         <th data-sort="person">Person</th>
         <th data-sort="org">Organisation</th>
