@@ -130,6 +130,38 @@
         <button class="btn ghost" id="candidateshide" hidden></button>
         <input type="file" id="candidatesfile" accept=".csv,text/csv" hidden>
       </div>
+
+      <!-- Search runs in the browser: OpenAlex allows cross-origin reads, and
+           the sponsorship join uses data/sponsors.json, precomputed because it
+           needs the whole DOL employer table. So this works on the live site
+           with no local helper and no terminal. -->
+      <form class="candsearch" id="candsearch" autocomplete="off">
+        <input id="q_topic" placeholder="What do they work on? e.g. fraud detection machine learning"
+               spellcheck="false" required>
+        <div class="candopts">
+          <label><input type="checkbox" id="q_industry" checked> industry</label>
+          <label><input type="checkbox" id="q_nonprofit" checked> nonprofit</label>
+          <label><input type="checkbox" id="q_academic"> academic</label>
+          <select id="q_position" title="Who on the paper to contact">
+            <option value="both">PIs and first authors</option>
+            <option value="pi">PIs only</option>
+            <option value="first">First authors only</option>
+          </select>
+          <select id="q_since" title="How recent the paper must be">
+            <option value="548">last 18 months</option>
+            <option value="365">last year</option>
+            <option value="183">last 6 months</option>
+            <option value="1095">last 3 years</option>
+          </select>
+          <button class="btn" type="submit" id="q_go">Search</button>
+        </div>
+        <p class="note candchips">Try:
+          <button type="button" class="chipbtn" data-topic="large language model evaluation benchmark">LLM evaluation</button>
+          <button type="button" class="chipbtn" data-topic="clinical information extraction large language model">clinical extraction</button>
+          <button type="button" class="chipbtn" data-topic="fraud detection machine learning">fraud detection</button>
+          <button type="button" class="chipbtn" data-topic="program evaluation causal impact">program evaluation</button>
+        </p>
+      </form>
       <table id="candidatestable"><thead><tr>
         <th data-sort="person">Person</th>
         <th data-sort="org">Organisation</th>

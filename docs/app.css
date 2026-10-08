@@ -423,3 +423,36 @@ dialog dd { margin: 0; color: var(--ink-dim); }
   #candidatestable td.hook, #candidatestable th:nth-child(5) { display: none; }
   #candidatestable td.num, #candidatestable th:nth-child(4) { display: none; }
 }
+
+/* ---- contact search ---- */
+.candsearch { margin: 0 0 12px; }
+.candsearch input[type="text"], .candsearch #q_topic {
+  width: 100%; font: inherit; font-size: 13px; padding: 7px 9px;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 6px;
+}
+.candopts {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 7px;
+}
+.candopts label {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; color: var(--ink-dim); white-space: nowrap;
+}
+.candopts select {
+  font: inherit; font-size: 12px; padding: 3px 5px; background: var(--bg);
+  color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
+}
+.candopts button[type="submit"] { margin-left: auto; }
+.candsearch[aria-busy="true"] button[type="submit"] { opacity: .6; pointer-events: none; }
+
+.candchips { margin: 7px 0 0; }
+.chipbtn {
+  font: inherit; font-size: 12px; padding: 1px 7px; margin: 0 3px 3px 0;
+  cursor: pointer; background: var(--bg); color: var(--accent);
+  border: 1px solid var(--line); border-radius: 20px;
+}
+.chipbtn:hover { border-color: var(--accent); }
+
+@media (max-width: 720px) {
+  .candopts button[type="submit"] { margin-left: 0; width: 100%; }
+}

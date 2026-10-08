@@ -88,6 +88,27 @@ def publish(jobs: list[dict], report=None) -> tuple[int, int]:
         encoding="utf-8",
     )
 
+    # The sponsorship lookup the Outreach tab's search needs. It is the one
+    # part of finding a contact that cannot run in a browser: the join wants
+    # the whole DOL employer table and the institution-merge rules, so it is
+    # precomputed here and the page fetches it lazily on first search.
+    #
+    # Written even when the LCA table is missing, as an empty index, so the
+    # page gets a well-formed file saying "no filing data" rather than a 404
+    # it has to interpret.
+    try:
+        from . import contacts as contacts_mod, sponsorship
+
+        index = contacts_mod.build_sponsor_index(sponsorship.employer_table())
+    except Exception as exc:                      # noqa: BLE001
+        # A publish must not fail because the optional sponsorship data is
+        # unreadable. Every job card already renders without it.
+        index = {"meta": {"error": str(exc)[:200], "employers": 0}, "employers": {}}
+    (config.DOCS_DATA_DIR / "sponsors.json").write_text(
+        json.dumps(index, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+
     repo = os.environ.get("GITHUB_REPOSITORY")
     actions_url = (
         f"https://github.com/{repo}/actions/workflows/refresh.yml"

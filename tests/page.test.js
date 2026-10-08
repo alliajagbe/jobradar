@@ -13,6 +13,9 @@ const dom = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
 const w = dom.window;
 let fetched = [];
 let exported = null;
+// Driven per-check by the search tests further down.
+let openalexCalls = [];
+let openalexResults = [];
 // Flip to true to simulate `jobradar serve` running.
 let helperUp = process.env.HELPER_UP === "1";
 w.fetch = (u, opts) => {
@@ -24,6 +27,29 @@ w.fetch = (u, opts) => {
   if (u.includes("/api/tailor")) {
     return Promise.resolve({ ok: true, json: () => Promise.resolve(
       {slug: "AcmeAnalyst", status: "queued", url: "x", dedupe_key: "k"}) });
+  }
+  if (u.includes("data/sponsors.json")) {
+    // Keys are what contacts.simple_key produces; the equivalence of the two
+    // implementations is pinned by test_simple_key_matches_the_javascript.
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({
+      meta: { strong_certified: 25, strong_analyst: 3,
+              cap: { education: "exempt", healthcare: "exempt", government: "exempt",
+                     facility: "exempt", nonprofit: "check", company: "subject" },
+              sector_types: { industry: ["company"], nonprofit: ["nonprofit"],
+                              academic: ["education", "healthcare"],
+                              government: ["government", "facility"] } },
+      employers: {
+        "BIG ANALYTICS": [900, 90],        // strong: tier 0
+        "SMALL SHOP": [2, 0],              // weak: tier 1
+        "FRED HUTCH": [81, 16],            // nonprofit, strong
+        "DUKE UNIVERSITY": [265, 24],      // academic, strong
+        "WASHINGTON UNIVERSITY": [506, 15],  // reached via a variant
+      },
+    }) });
+  }
+  if (u.includes("api.openalex.org/works")) {
+    openalexCalls.push(u);
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({ results: openalexResults }) });
   }
   if (u.endsWith("/api/contacts")) {
     // Shaped exactly as serve._contacts returns it: the CSV's own column names.
@@ -637,6 +663,119 @@ setTimeout(() => {
 
       await pick("bom.csv", "\uFEFFAuthor ID,Person,Hook\nA5,Gus Bom,y\n");
       check("a BOM does not corrupt the first header", !!rowFor("Gus Bom"));
+
+      /* ---- searching from the page ----
+         The point of the whole exercise: no terminal, no local helper. These
+         run with the helper stub off as well as on, because the live site
+         with nothing running locally is the case that has to work. */
+      const aWork = (id, person, position, org, type, date_, country = "US") => ({
+        id: "https://openalex.org/W" + id, doi: "https://doi.org/10.1/" + id,
+        title: "Paper " + id, publication_year: Number(String(date_).slice(0, 4)),
+        publication_date: date_,
+        authorships: [{ author_position: position,
+                        author: { id: "https://openalex.org/A" + id, display_name: person },
+                        institutions: [{ display_name: org, type, country_code: country }] }],
+      });
+
+      const search = async (topic, opts = {}) => {
+        $("#q_topic").value = topic;
+        $("#q_industry").checked = opts.industry !== false;
+        $("#q_nonprofit").checked = opts.nonprofit !== false;
+        $("#q_academic").checked = !!opts.academic;
+        if (opts.position) $("#q_position").value = opts.position;
+        $("#candsearch").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+        // Two ticks: the sponsors fetch and the OpenAlex fetch each resolve.
+        for (let n = 0; n < 6; n++) await new Promise((r) => setTimeout(r, 0));
+      };
+
+      openalexCalls = [];
+      openalexResults = [aWork("1", "Ivy Industry", "last", "Big Analytics", "company", "2026-09-01")];
+      await search("fraud detection");
+      check("a search finds a contact with no helper and no terminal",
+            !!rowFor("Ivy Industry"), candRows() + " rows");
+      check("the OpenAlex query carries the topic, the date and the US filter",
+            openalexCalls.length === 1
+            && decodeURIComponent(openalexCalls[0]).includes("title_and_abstract.search:fraud detection")
+            && decodeURIComponent(openalexCalls[0]).includes("from_publication_date:")
+            && decodeURIComponent(openalexCalls[0]).includes("country_code:us"),
+            openalexCalls[0] ? decodeURIComponent(openalexCalls[0]).slice(0, 120) : "no call");
+      check("the filing counts come from the published index",
+            (rowFor("Ivy Industry") || {}).textContent.includes("900 / 90"),
+            (rowFor("Ivy Industry") || {}).textContent);
+      check("an industry contact is marked as the lottery",
+            !!(rowFor("Ivy Industry") || {}).querySelector(".chip.cap-subject"));
+
+      // The bug that cost a round trip server-side. OpenAlex's country filter
+      // is a property of the WORK, so a paper with one US institution
+      // anywhere on it passes and a foreign co-author's employer would be
+      // credited with US petitions.
+      openalexResults = [aWork("2", "Cara Canada", "last", "Big Analytics", "company", "2026-09-01", "CA")];
+      await search("fraud detection");
+      check("a non-US institution is dropped by the page too", !rowFor("Cara Canada"));
+
+      openalexResults = [{
+        ...aWork("3", "Mid Author", "middle", "Big Analytics", "company", "2026-09-01"),
+      }];
+      await search("fraud detection");
+      check("middle authors are dropped by the page too", !rowFor("Mid Author"));
+
+      openalexResults = [aWork("4", "Nora NoRecord", "last", "Unknown Employer Ltd", "company", "2026-09-01")];
+      await search("fraud detection");
+      check("an employer with no filing record is skipped", !rowFor("Nora NoRecord"));
+
+      // Sector selection, which is the thing Alli corrected me on.
+      openalexResults = [aWork("5", "Acky Academic", "last", "Duke University", "education", "2026-09-01")];
+      await search("fraud detection");
+      check("academic is excluded unless asked for", !rowFor("Acky Academic"));
+      await search("fraud detection", { academic: true });
+      check("academic appears when ticked", !!rowFor("Acky Academic"));
+      check("an academic contact is marked cap-exempt",
+            !!(rowFor("Acky Academic") || {}).querySelector(".chip.cap-exempt"));
+
+      openalexResults = [aWork("6", "Nel Nonprofit", "last", "Fred Hutch", "nonprofit", "2026-09-01")];
+      await search("fraud detection");
+      check("nonprofits are in by default and flagged as needing a check",
+            !!rowFor("Nel Nonprofit")
+            && !!(rowFor("Nel Nonprofit") || {}).querySelector(".chip.cap-check"));
+
+      // A variant spelling must still find the entry written for the plainer
+      // name, which is how "Washington University in St. Louis" reads 506.
+      openalexResults = [aWork("7", "Wash Variant", "last",
+                               "Washington University in St. Louis", "education", "2026-09-01")];
+      await search("fraud detection", { academic: true });
+      check("a longer institution spelling still resolves",
+            (rowFor("Wash Variant") || {}).textContent?.includes("506 / 15"),
+            (rowFor("Wash Variant") || {}).textContent || "row missing");
+
+      // PIs only.
+      openalexResults = [aWork("8", "Pi Person", "last", "Big Analytics", "company", "2026-09-01"),
+                         aWork("9", "First Person", "first", "Big Analytics", "company", "2026-09-01")];
+      await search("fraud detection", { position: "pi" });
+      check("PIs only excludes first authors",
+            !!rowFor("Pi Person") && !rowFor("First Person"));
+      $("#q_position").value = "both";
+
+      // Nothing found says so, rather than leaving a blank panel. This is the
+      // defect that started this change.
+      openalexResults = [];
+      await search("something nobody writes about");
+      check("an empty search explains itself",
+            $("#candidatesempty").textContent.includes("No contacts found"),
+            $("#candidatesempty").textContent.slice(0, 90));
+
+      // An older helper build 404s the route, which used to look identical to
+      // every other failure.
+      if (helperUp) {
+        const realFetch = w.fetch;
+        w.fetch = (u, o) => u.includes("/api/contacts")
+          ? Promise.resolve({ ok: false, status: 404 }) : realFetch(u, o);
+        $("#candidatesreload").click();
+        await new Promise((r) => setTimeout(r, 0));
+        check("a helper missing the route says so by name",
+              $("#candidatesempty").textContent.includes("older build"),
+              $("#candidatesempty").textContent.slice(0, 90));
+        w.fetch = realFetch;
+      }
 
       // THE invariant. A candidate is somebody suggested, not somebody written
       // to. If loading a CSV moved the outreach numbers, then "sent this week",

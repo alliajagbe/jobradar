@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import csv
 import re
+import unicodedata
 from dataclasses import dataclass, asdict
 from datetime import date, timedelta
 
@@ -187,6 +188,108 @@ def institution_variants(name: str) -> list[str]:
 
 def _tokens(name: str) -> tuple[str, ...]:
     return tuple(t for t in entity_stem(employer_norm(name)).split() if t)
+
+
+def simple_key(name: str) -> str:
+    """A normalisation the browser can reproduce exactly. This is a contract.
+
+    `employer_norm` folds accents and then strips legal, geographic and
+    descriptor suffixes against three vocabularies, repeating until stable.
+    Reimplementing that in JavaScript is the same trap as reimplementing the
+    merge rules, which produced four bugs in a week, so it is NOT ported.
+
+    Instead this is the first six lines of `employer_norm` and nothing else,
+    which is five lines of JavaScript and provably the same. The published
+    index emits every employer under both forms, so the page's dumb key still
+    lands on an entry built with the clever one.
+
+    Any change here must be mirrored in `simpleKey` in docs/app.js, and the
+    round-trip test in tests/test_contacts.py pins the pair.
+    """
+    text = unicodedata.normalize("NFKD", name or "")
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    text = text.upper().replace("&", " AND ")
+    text = re.sub(r"[^A-Z0-9 ]+", " ", text)
+    tokens = text.split()
+    if tokens and tokens[0] == "THE":
+        tokens = tokens[1:]
+    return " ".join(tokens)
+
+
+def _affix_index(employers: dict) -> tuple[dict, dict]:
+    """Employers bucketed by the first and last token of their stem.
+
+    `_siblings` scans the whole table, which is fine for a handful of lookups
+    and hopeless for all 64,000 of them: that is four billion comparisons and
+    it runs inside `publish` on every refresh.
+
+    A merge requires the whole shorter stem to be a prefix or a suffix of the
+    longer, so two siblings always share either their first token or their
+    last. Bucketing on both ends turns the scan into two small lookups.
+    Generic-only buckets are skipped because `_mergeable` refuses them anyway.
+    """
+    first: dict[str, list] = {}
+    last: dict[str, list] = {}
+    for key, stats in employers.items():
+        toks = _tokens(stats.display_name)
+        if not toks:
+            continue
+        if toks[0] not in _GENERIC_INST:
+            first.setdefault(toks[0], []).append((key, toks))
+        if toks[-1] not in _GENERIC_INST:
+            last.setdefault(toks[-1], []).append((key, toks))
+    return first, last
+
+
+def build_sponsor_index(employers: dict, *, min_certified: int = 1) -> dict:
+    """The lookup the page fetches instead of running the join itself.
+
+    Keys are `simple_key` and `employer_norm` spellings; values are
+    `[certified, analyst_certified]` AFTER merging an employer with its own
+    other spellings, so "Washington University" and "Washington University in
+    St. Louis" both read the group total rather than 492 and 14.
+
+    The merge reuses `_mergeable` and `_siblings`' rule unchanged. Those carry
+    the regression tests for the Penn over-merge and the `DUKE 65` collapse,
+    and having a second implementation here is exactly what this file has been
+    bitten by before.
+    """
+    first, last = _affix_index(employers)
+    out: dict[str, list] = {}
+    for key, stats in employers.items():
+        if stats.certified < min_certified:
+            continue
+        toks = _tokens(stats.display_name)
+        group = {key}
+        if toks:
+            for bucket in (first.get(toks[0], ()), last.get(toks[-1], ())):
+                for other_key, other_toks in bucket:
+                    if other_key != key and _mergeable(toks, other_toks):
+                        group.add(other_key)
+        merged = sponsorship.combine(employers, tuple(sorted(group)))
+        if merged is None:
+            continue
+        value = [merged.certified, merged.analyst_certified]
+        # Both key forms, because the page can only compute the dumb one.
+        for form in {simple_key(stats.display_name),
+                     simple_key(employer_norm(stats.display_name))}:
+            if not form:
+                continue
+            # A collision between genuinely different employers keeps the
+            # larger, which is the one she is more likely to mean.
+            if form not in out or out[form][0] < value[0]:
+                out[form] = value
+    return {
+        "meta": {
+            "strong_certified": config.SPONSOR_STRONG_CERTIFIED,
+            "strong_analyst": config.SPONSOR_STRONG_ANALYST_SOC,
+            "cap": dict(_CAP),
+            "sector_types": {k: list(v) for k, v in SECTOR_TYPES.items()},
+            "default_sectors": list(DEFAULT_SECTORS),
+            "employers": len(out),
+        },
+        "employers": out,
+    }
 
 
 def _mergeable(a: tuple[str, ...], b: tuple[str, ...]) -> bool:

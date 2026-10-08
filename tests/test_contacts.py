@@ -577,3 +577,128 @@ def test_as_dict_includes_the_computed_fields(fake_works, fake_table):
     assert d["pool"] == "author"
     assert d["tier"] == 0
     assert d["person"] == "Senior Person"
+
+
+# ---- the simple_key contract ----
+
+TRICKY_NAMES = [
+    "The University of Texas Southwestern Medical Center",
+    "Washington University in St. Louis",
+    "Cincinnati Children's Hospital Medical Center",
+    "Universite de Montreal",
+    "Université de Montréal",
+    "Johns Hopkins University  Applied Physics Lab",
+    "AT&T Labs Research",
+    "Amazon (United States)",
+    "Procter & Gamble Co., Ltd.",
+    "Dana-Farber Cancer Institute",
+    "THE OHIO STATE UNIVERSITY",
+    "St. Jude Children's Research Hospital",
+    "École Polytechnique",
+    "  spaced   out   name  ",
+    "123 Numbers 456",
+    "",
+]
+
+
+def test_simple_key_matches_the_javascript(tmp_path):
+    """The page's simpleKey must agree with this one, character for character.
+
+    If they drift, every lookup silently misses and every employer reads as
+    having no filing record, which looks like "no contacts found" rather than
+    like a bug. So the JavaScript is lifted out of docs/app.js and run against
+    the same inputs rather than being eyeballed.
+    """
+    import json
+    import re as _re
+    import subprocess
+    from pathlib import Path
+
+    app = (Path(__file__).resolve().parent.parent / "docs" / "app.js").read_text()
+    match = _re.search(r"function simpleKey\(name\) \{.*?\n\}", app, _re.S)
+    assert match, "simpleKey is no longer in docs/app.js under that name"
+
+    script = match.group(0) + "\n" + (
+        "const names = JSON.parse(process.argv[2]);\n"
+        "console.log(JSON.stringify(names.map(simpleKey)));\n"
+    )
+    path = tmp_path / "key.mjs"
+    path.write_text(script)
+    proc = subprocess.run(["node", str(path), json.dumps(TRICKY_NAMES)],
+                          capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    from_js = json.loads(proc.stdout)
+    from_py = [contacts.simple_key(n) for n in TRICKY_NAMES]
+    mismatched = [(n, p, j) for n, p, j in zip(TRICKY_NAMES, from_py, from_js) if p != j]
+    assert not mismatched, mismatched
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("The Ohio State University", "OHIO STATE UNIVERSITY"),
+    ("AT&T Labs", "AT AND T LABS"),
+    ("Université de Montréal", "UNIVERSITE DE MONTREAL"),
+    ("Amazon (United States)", "AMAZON UNITED STATES"),
+    ("  spaced   out  ", "SPACED OUT"),
+    ("", ""),
+])
+def test_simple_key_cases(name, expected):
+    assert contacts.simple_key(name) == expected
+
+
+# ---- the published index ----
+
+def test_index_merges_siblings(employers):
+    """The whole reason the index is built in Python rather than in the page."""
+    idx = contacts.build_sponsor_index(employers)
+    emp = idx["employers"]
+    assert emp[contacts.simple_key("Washington University in St. Louis")][0] == 506
+    assert emp[contacts.simple_key("Washington University")][0] == 506
+
+
+def test_index_keeps_different_schools_apart(employers):
+    idx = contacts.build_sponsor_index(employers)["employers"]
+    assert idx[contacts.simple_key("University of Washington")][0] == 197
+    # The Penn over-merge, pinned here too: the index must not inherit it.
+    assert idx[contacts.simple_key("University of Pennsylvania")][0] == 481
+    assert idx[contacts.simple_key("Kutztown University of Pennsylvania")][0] == 14
+
+
+def test_index_does_not_let_a_one_token_stem_swallow_a_university(employers):
+    idx = contacts.build_sponsor_index(employers)["employers"]
+    assert idx[contacts.simple_key("Duke University")][0] == 265      # not 267
+
+
+def test_index_carries_the_thresholds_the_page_ranks_with(employers):
+    """Published so the page's tiering cannot drift from config.py."""
+    meta = contacts.build_sponsor_index(employers)["meta"]
+    assert meta["strong_certified"] == config.SPONSOR_STRONG_CERTIFIED
+    assert meta["strong_analyst"] == config.SPONSOR_STRONG_ANALYST_SOC
+    assert meta["cap"]["company"] == "subject"
+    assert meta["cap"]["nonprofit"] == "check"
+    assert meta["sector_types"]["industry"] == ["company"]
+
+
+def test_index_honours_the_threshold(employers):
+    idx = contacts.build_sponsor_index(employers, min_certified=200)["employers"]
+    assert contacts.simple_key("Amazon") in idx
+    assert contacts.simple_key("Tiny Startup") not in idx
+
+
+def test_affix_index_finds_the_same_siblings_as_a_full_scan(employers):
+    """The bucketing is an optimisation, so it must change nothing.
+
+    A full scan of 64,000 employers per employer is four billion comparisons
+    and this runs inside `publish`, hence the index. If it ever disagrees with
+    the scan it is silently dropping merges.
+    """
+    first, last = contacts._affix_index(employers)
+    for key, stats in employers.items():
+        toks = contacts._tokens(stats.display_name)
+        scanned = set(contacts._siblings(toks, employers))
+        bucketed = {key}
+        if toks:
+            for bucket in (first.get(toks[0], ()), last.get(toks[-1], ())):
+                for other, other_toks in bucket:
+                    if contacts._mergeable(toks, other_toks):
+                        bucketed.add(other)
+        assert scanned <= bucketed or not scanned, (stats.display_name, scanned - bucketed)

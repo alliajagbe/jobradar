@@ -356,14 +356,47 @@ log, the candidates and the dismissals; an older export, which was a bare
 tracker object, still imports unchanged. Dismissals merge as a union on import,
 since a decision to skip somebody is still a decision whichever device made it.
 
-### Contacts, and promoting them
+### Finding contacts from the page
 
-The candidates panel at the top of the Outreach tab shows what `jobradar
-contacts` found. It loads by itself when the local helper is running, from
-`GET /api/contacts`, which merges every `contacts*.csv` in `~/Desktop/jobs`
-newest-file-first and dedupes on the author id. Without the helper, **Choose
-CSV** loads one by hand, which is also the phone path. An unreadable or
-half-written CSV is skipped rather than failing the request.
+The candidates panel at the top of the Outreach tab has its own search: a topic
+box, sector checkboxes and a who-to-contact select. It needs **no terminal and
+no local helper**, and works on the published site and on a phone.
+
+It runs in the browser. OpenAlex answers cross-origin reads with
+`access-control-allow-origin: *`, so the page queries it directly. The one step
+a browser cannot do is the sponsorship join, which needs the whole
+64,000-employer DOL table and the institution-merge rules, so `jobradar publish`
+precomputes it into `docs/data/sponsors.json` and the page fetches that lazily
+on the first search. The file is 3.2 MB (815 KB gzipped) and its contents only
+change when the LCA data is re-ingested, so git stores no new blob on a routine
+refresh.
+
+**`simple_key` is a contract.** `jobradar/contacts.py` and the `simpleKey`
+function in `docs/app.js` must agree character for character, or every lookup
+silently misses and every employer reads as having no filing record. The Python
+is deliberately the dumb half of `employer_norm` so the JavaScript can be five
+lines; the index then emits each employer under *both* key forms so the dumb key
+still lands on an entry built with the clever one. `tests/test_contacts.py`
+lifts the JavaScript out of `app.js`, runs it under node and compares, so the
+pair cannot drift unnoticed.
+
+Measured on 100 real papers: of 114 distinct US institutions, 92 had a filing
+record and the page resolved **83 of those 92**. The nine misses need the
+matcher's fuzzy pass, which stays in Python; they surface as "no filing record"
+and drop out, so the page finds slightly fewer people than the CLI would. Fewer
+people, never wrong numbers.
+
+The CLI route still works alongside it. **Reload** and **Choose CSV** read
+`contacts*.csv` files, the first through the helper's `GET /api/contacts`, which
+merges every file newest-first and dedupes on the author id. An unreadable or
+half-written CSV is skipped rather than failing the request. Use the CLI when
+you want the fuzzy matching the browser cannot do.
+
+When the panel is empty it says why: nothing searched yet, no match for that
+topic, helper offline, helper running an older build with no `/api/contacts`
+route, no CSVs on disk, or the browser blocking the call. Those used to be one
+indistinguishable blank panel, which is how an empty panel became impossible to
+debug.
 
 **A candidate is not a contact.** The panel lists people the tool suggested; the
 table below lists messages actually sent. They are separate stores on purpose:

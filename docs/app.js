@@ -1020,6 +1020,48 @@ function wire() {
       renderCandidates();
     });
   });
+  $("#candsearch").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const topic = $("#q_topic").value.trim();
+    if (!topic) return;
+    const sectors = [];
+    if ($("#q_industry").checked) sectors.push("industry");
+    if ($("#q_nonprofit").checked) sectors.push("nonprofit");
+    if ($("#q_academic").checked) sectors.push("academic");
+    if (!sectors.length) { banner("Pick at least one sector to search."); return; }
+    const positions = { both: ["last", "first"], pi: ["last"], first: ["first"] }[$("#q_position").value];
+
+    const form = $("#candsearch");
+    form.setAttribute("aria-busy", "true");
+    $("#q_go").textContent = "Searching…";
+    CAND_STATUS = "Searching OpenAlex…";
+    renderCandidates();
+    try {
+      const rows = await searchContacts({ topic, sectors, positions, since: $("#q_since").value });
+      const added = addCandidates(rows);
+      // Found but all already handled is a different outcome from found
+      // nothing, and conflating them is what sent me debugging a blank panel.
+      CAND_STATUS = rows.length
+        ? (added ? "" : `All ${rows.length} match(es) for "${topic}" are already logged or skipped.`)
+        : `No contacts found for "${topic}". Try broader words, a longer time range, `
+          + "or tick academic as well.";
+      renderCandidates();
+      if (added) banner(`Found ${added} new contact${added === 1 ? "" : "s"} for "${topic}".`);
+    } catch (err) {
+      CAND_STATUS = "The search could not reach OpenAlex: " + (err && err.message ? err.message : err);
+      renderCandidates();
+    } finally {
+      form.removeAttribute("aria-busy");
+      $("#q_go").textContent = "Search";
+    }
+  });
+  document.querySelectorAll(".chipbtn").forEach((b) => {
+    b.addEventListener("click", () => {
+      $("#q_topic").value = b.dataset.topic;
+      $("#candsearch").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+  });
+
   $("#candidateshide").addEventListener("click", () => setCandHidden(!CAND_HIDDEN));
   $("#candidatesreload").addEventListener("click", async () => {
     const added = await loadCandidatesFromHelper();
@@ -1562,6 +1604,200 @@ function renderOutreach() {
   });
 }
 
+/* ---- finding contacts from the page ----
+   OpenAlex answers cross-origin reads with `access-control-allow-origin: *`,
+   so the browser can query it directly. The one step it cannot do is the
+   sponsorship join, which needs the whole 64,000-row DOL employer table and
+   the institution-merge rules, so that is precomputed into data/sponsors.json
+   by `jobradar publish` and fetched here on first search.
+
+   The result: searching works on the live site with no local helper and no
+   terminal, which is the whole point. */
+const OPENALEX = "https://api.openalex.org/works";
+// Mirrors contacts.SECTOR_TYPES. Overwritten by sponsors.json's meta on load,
+// so the two cannot drift; this is only the shape before that arrives.
+let SECTOR_TYPES = {
+  industry: ["company"],
+  nonprofit: ["nonprofit"],
+  academic: ["education", "healthcare"],
+  government: ["government", "facility"],
+};
+let CAP_BY_SECTOR = {
+  education: "exempt", healthcare: "exempt", government: "exempt",
+  facility: "exempt", nonprofit: "check", company: "subject",
+};
+let STRONG = { certified: 25, analyst: 3 };
+let SPONSORS = null;        // fetched lazily; see loadSponsors
+
+/* The browser half of contacts.simple_key. THIS IS A CONTRACT: it must stay
+   character-for-character equivalent to the Python, or lookups silently miss
+   and every employer reads as having no filing record.
+
+   It is deliberately the dumb half. `employer_norm` also strips legal,
+   geographic and descriptor suffixes against three vocabularies, and porting
+   that is the trap that the institution-merge rules already demonstrated. The
+   published index emits each employer under BOTH forms, so this dumb key
+   still lands on an entry built with the clever one. */
+function simpleKey(name) {
+  let text = String(name || "").normalize("NFKD")
+    // Strip combining marks. \p{M} needs the u flag and is the same class the
+    // Python gets from unicodedata.combining.
+    .replace(/\p{M}/gu, "")
+    .toUpperCase()
+    .replace(/&/g, " AND ")
+    .replace(/[^A-Z0-9 ]+/g, " ");
+  const tokens = text.split(/\s+/).filter(Boolean);
+  if (tokens[0] === "THE") tokens.shift();
+  return tokens.join(" ");
+}
+
+/* Mirrors contacts.institution_variants: plainer spellings of one name. Two
+   regexes, safe to duplicate, and the reason "Washington University in St.
+   Louis" finds the entry written for "Washington University". */
+function institutionVariants(name) {
+  const out = [], seen = new Set();
+  const noParens = String(name || "").replace(/\s*\([^)]*\)/g, "");
+  const noCity = noParens.replace(/\s+(?:in|at)\s+[A-Z][\w.-]*(?:\s+[A-Z][\w.-]*){0,2}$/, "");
+  for (const candidate of [name, noParens, noCity]) {
+    const plain = String(candidate || "").replace(/^The\s+/i, "").trim();
+    if (plain && !seen.has(plain.toLowerCase())) { seen.add(plain.toLowerCase()); out.push(plain); }
+  }
+  return out;
+}
+
+async function loadSponsors() {
+  if (SPONSORS !== null) return true;
+  try {
+    const body = await fetch("data/sponsors.json", { cache: "force-cache" }).then((r) => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+    SPONSORS = body.employers || {};
+    const meta = body.meta || {};
+    if (meta.sector_types) SECTOR_TYPES = meta.sector_types;
+    if (meta.cap) CAP_BY_SECTOR = meta.cap;
+    if (meta.strong_certified) {
+      STRONG = { certified: meta.strong_certified, analyst: meta.strong_analyst };
+    }
+    return true;
+  } catch (err) {
+    SPONSORS = {};
+    banner("Could not load the sponsorship data, so filing counts will be missing. "
+           + "Run `python -m jobradar publish` to rebuild it.");
+    return false;
+  }
+}
+
+function sponsorFor(institution) {
+  if (!SPONSORS) return null;
+  for (const variant of institutionVariants(institution)) {
+    const hit = SPONSORS[simpleKey(variant)];
+    if (hit) return { certified: hit[0], analyst: hit[1] };
+  }
+  return null;
+}
+
+/* Tier, matching Contact.tier. Sponsorship is a gate rather than a gradient:
+   once an employer clearly sponsors analysts, more filings do not make the
+   person more worth writing to. Ranking on the raw count is what put Amazon's
+   16,793 on top of every search. Thresholds come from sponsors.json. */
+function sponsorTier(certified, analyst) {
+  if (certified >= STRONG.certified && analyst >= STRONG.analyst) return 0;
+  return certified >= 1 ? 1 : 2;
+}
+
+function sinceDate(days) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - Number(days || 548));
+  return d.toISOString().slice(0, 10);
+}
+
+/* One OpenAlex page of works for a topic. Anonymous pool: the polite pool
+   wants an email address in the query string and that is not mine to put into
+   a third-party request. */
+async function fetchWorks(topic, since) {
+  const filter = [
+    "title_and_abstract.search:" + topic,
+    "from_publication_date:" + since,
+    "authorships.institutions.country_code:us",
+  ].join(",");
+  const url = OPENALEX + "?filter=" + encodeURIComponent(filter)
+    + "&per-page=100&sort=publication_date:desc"
+    + "&select=id,doi,title,publication_year,publication_date,authorships";
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("OpenAlex returned " + r.status);
+  return (await r.json()).results || [];
+}
+
+/* The browser's version of contacts.find. The ranking and spread are ~30 lines
+   duplicated from the Python, which is acceptable because it is arithmetic
+   over published thresholds. The MERGE rules are not duplicated; they are
+   baked into sponsors.json. */
+async function searchContacts({ topic, sectors, positions, since }) {
+  await loadSponsors();
+  const allowed = new Set(sectors.flatMap((s) => SECTOR_TYPES[s] || []));
+  const works = await fetchWorks(topic, sinceDate(since));
+
+  const found = {};
+  for (const work of works) {
+    const title = (work.title || "").trim();
+    if (!title) continue;
+    for (const a of work.authorships || []) {
+      if (!positions.includes(a.author_position)) continue;
+      const author = a.author || {};
+      const id = author.id || "";
+      const person = (author.display_name || "").trim();
+      if (!id || !person || found[id]) continue;
+      for (const inst of a.institutions || []) {
+        const name = (inst.display_name || "").trim();
+        const type = (inst.type || "").trim();
+        if (!name) continue;
+        // The OpenAlex country filter is a property of the WORK, so a paper
+        // with one US institution anywhere on it passes and a foreign
+        // co-author's employer would be credited with US petitions. This cost
+        // a round trip server-side; it must not come back here.
+        if ((inst.country_code || "").toUpperCase() !== "US") continue;
+        if (allowed.size && !allowed.has(type)) continue;
+        const stats = sponsorFor(name);
+        if (!stats) continue;      // no filing record, same as --min-filings 1
+        found[id] = {
+          "Author ID": id,
+          "Person": person,
+          "Their role": a.author_position === "last" ? "PI" : "first author",
+          "Organisation": name,
+          "Sector": type,
+          "H-1B cap": CAP_BY_SECTOR[type] || "check",
+          "Pool": (CAP_BY_SECTOR[type] || "check") === "subject" ? "author" : "capexempt",
+          "Hook": work.publication_year ? `${title} (${work.publication_year})` : title,
+          "Link": work.doi || work.id || "",
+          "Published": work.publication_date || "",
+          "Certified filings": String(stats.certified),
+          "In analyst roles": String(stats.analyst),
+          "_tier": sponsorTier(stats.certified, stats.analyst),
+        };
+        break;
+      }
+    }
+  }
+
+  // Tier, then newest paper first: "I read your paper from last month" is a
+  // different message from one about work two years old.
+  const rows = Object.values(found).sort((a, b) =>
+    a._tier - b._tier
+    || String(b.Published).localeCompare(String(a.Published))
+    || a.Person.localeCompare(b.Person));
+
+  // Not all from one employer. The first CLI run returned eight of ten
+  // contacts at a single university, which is one option and a lot of names.
+  const taken = {}, first = [], rest = [];
+  for (const row of rows) {
+    const org = row.Organisation;
+    if ((taken[org] || 0) < 2) { taken[org] = (taken[org] || 0) + 1; first.push(row); }
+    else rest.push(row);
+  }
+  return first.concat(rest).slice(0, 40);
+}
+
 /* ---- the candidates panel ---- */
 let CAND_SORT = { key: "analyst", dir: 1 };
 const CAND_HIDE_KEY = "jobradar.candidates.hidden";
@@ -1574,14 +1810,49 @@ function setCandHidden(on) {
   renderCandidates();
 }
 
+/* Why the panel is empty, in words. Every failure used to return 0 and show
+   the same blank panel, so "no contacts" could mean the helper was off, the
+   helper was running an older build without the route, there were no CSVs on
+   disk, or the fetch was blocked. Not being able to tell those apart is what
+   made an empty panel impossible to debug. */
+let CAND_STATUS = "";
+
 async function loadCandidatesFromHelper() {
-  if (!HELPER_UP) return 0;
+  if (!HELPER_UP) {
+    CAND_STATUS = "The local helper is not running, so saved contact files cannot be read. "
+      + "Search above works without it.";
+    return 0;
+  }
   try {
     const r = await fetch(HELPER + "/api/contacts");
-    if (!r.ok) return 0;
+    if (r.status === 404) {
+      CAND_STATUS = "The local helper is running an older build with no /api/contacts route. "
+        + "Restart it: stop `jobradar serve` and start it again.";
+      return 0;
+    }
+    if (!r.ok) {
+      CAND_STATUS = `The local helper answered ${r.status} for /api/contacts.`;
+      return 0;
+    }
     const body = await r.json();
-    return addCandidates(body.contacts || []);
-  } catch { return 0; }   // helper went away; whatever is stored still renders
+    const added = addCandidates(body.contacts || []);
+    if (!(body.contacts || []).length) {
+      CAND_STATUS = (body.skipped || []).length
+        ? `Found ${body.skipped.length} contact file(s) that could not be read: `
+          + body.skipped.join(", ")
+        : "No contact files on disk yet. Search above, or run "
+          + "`python -m jobradar contacts --topic \"...\"`.";
+    } else {
+      CAND_STATUS = "";
+    }
+    return added;
+  } catch (err) {
+    // Reached when the browser blocks the call rather than when the helper
+    // refuses it, which is a different problem and needs saying differently.
+    CAND_STATUS = "The browser blocked the call to the local helper. "
+      + "Open localhost:8777 instead of the published site, or just use Search above.";
+    return 0;
+  }
 }
 
 /* Already-contacted people drop out of the panel. Matching is on the author id
@@ -1665,8 +1936,12 @@ function renderCandidates() {
   hide.textContent = CAND_HIDDEN ? "Show" : "Hide";
   $("#candidatesreload").hidden = !HELPER_UP;
   $("#candidatestable").hidden = rows.length === 0 || CAND_HIDDEN;
-  // The explainer is for an empty list, not for a list you chose to collapse.
-  $("#candidatesempty").hidden = rows.length > 0;
+  // The explainer is for an empty list, not for a list you chose to collapse,
+  // and it says what actually happened rather than a fixed sentence.
+  const note = $("#candidatesempty");
+  note.hidden = rows.length > 0;
+  note.textContent = CAND_STATUS
+    || "Search above to find people to write to. Nothing loaded yet.";
   document.querySelectorAll("#candidatestable th").forEach((th) => {
     th.classList.toggle("sorted", th.dataset.sort === key);
   });
