@@ -36,6 +36,7 @@ from dataclasses import dataclass, asdict
 from datetime import date, timedelta
 
 from . import config, sponsorship
+from . import matching
 from .matching import Matcher, entity_stem
 from .normalize import employer_norm
 from .sources import http
@@ -45,16 +46,29 @@ OPENALEX_WORKS = "https://api.openalex.org/works"
 # Enough of a paper record to write a first line, and nothing more.
 _SELECT = "id,doi,title,publication_year,publication_date,authorships"
 
-# Institution words that identify nothing on their own. "Washington" is the
-# distinctive token in "Washington University"; "University" is not. Used both
-# for picking a rare token and for refusing to merge on a generic one.
+def matching_generic_stems() -> frozenset:
+    """The company-side generic stems, reused rather than re-listed.
+
+    "MACHINE INTELLIGENCE RESEARCH INSTITUTE" merged with a bare "MACHINE
+    INTELLIGENCE" record in the first industry run, because the institution
+    list below is university-flavoured and knew nothing about corporate
+    boilerplate. The matcher already maintains that vocabulary.
+    """
+    return frozenset(matching._GENERIC_STEMS)
+
+
+# Words that identify nothing on their own. "Washington" is the distinctive
+# token in "Washington University"; "University" is not, and neither is
+# "Artificial Intelligence". Used to refuse a merge on a generic affix.
 _GENERIC_INST = frozenset("""
 UNIVERSITY UNIVERSITIES COLLEGE SCHOOL MEDICAL CENTER CENTERS CENTRE HOSPITAL HOSPITALS
 HEALTH HEALTHCARE SCIENCES SCIENCE INSTITUTE INSTITUTES RESEARCH LABORATORY LABORATORIES
 CLINIC FOUNDATION SYSTEM SYSTEMS DEPARTMENT DIVISION FACULTY GRADUATE NATIONAL STATE
 REGIONAL MEMORIAL CHILDRENS CHILDREN GENERAL COMMUNITY COMPREHENSIVE CANCER HEART BRAIN
 TRUSTEES BOARD REGENTS AUTHORITY TRUST THE OF AND FOR AT IN S
-""".split())
+ARTIFICIAL INTELLIGENCE MACHINE LEARNING AI ML ADVANCED APPLIED INNOVATION
+INNOVATIONS CLOUD CYBER SMART GROUP COMPANY CORP INCORPORATED
+""".split()) | matching_generic_stems()
 
 # "Washington University in St. Louis" and "Washington University" are one
 # employer. "University of Washington" is not either of them, which is why the
@@ -71,10 +85,29 @@ _PARENS = re.compile(r"\s*\([^)]*\)")
 # at the top of every search, and those are precisely the cap-subject employers
 # whose lottery this is meant to route around. A big number next to a company
 # name is not an advantage here; it is the thing being avoided.
-SECTORS = {
-    "capexempt": ("education", "healthcare", "nonprofit", "government", "facility"),
-    "company": ("company",),
-    "any": (),
+# Sector groups, named the way Alli thinks about them, each mapping to the
+# OpenAlex institution types it covers. `--sector` takes a comma list, so
+# industry and nonprofit can run together, which is the default.
+SECTOR_TYPES = {
+    "industry": ("company",),
+    "nonprofit": ("nonprofit",),
+    "academic": ("education", "healthcare"),
+    "government": ("government", "facility"),
+}
+DEFAULT_SECTORS = ("industry", "nonprofit")
+
+# Whether the employer has to enter the H-1B lottery, under INA 214(g)(5).
+# Deliberately three values and not a boolean: higher education and government
+# research are exempt outright, a company never is, and a nonprofit is exempt
+# only if it is a research organisation or affiliated with a university.
+# RAND and RTI qualify on that basis; Mercy Corps and the Wildlife
+# Conservation Society, which the same OpenAlex type returns, do not. Printing
+# "exempt" for all of them would be a legal claim this data cannot support.
+_CAP = {
+    "education": "exempt", "healthcare": "exempt",
+    "government": "exempt", "facility": "exempt",
+    "nonprofit": "check",
+    "company": "subject",
 }
 
 
@@ -90,17 +123,40 @@ class Contact:
     merged_from: str        # which employer records were summed, for auditing
     paper: str
     year: int | None
+    published: str          # ISO date, used for ordering: a fresh paper opens better
     link: str
     openalex_author: str
+
+    @property
+    def cap(self) -> str:
+        """"subject", "exempt" or "check". See `_CAP`."""
+        return _CAP.get(self.sector, "check")
 
     @property
     def pool(self) -> str:
         """The outreach tracker's vocabulary, so a row can be pasted straight in.
 
-        A company author is the `author` pool: the paper is still a real hook,
+        An industry author is the `author` pool: the paper is still a real hook,
         but the sponsorship is a lottery, so it is not the research-group pool.
         """
-        return "capexempt" if self.sector in SECTORS["capexempt"] else "author"
+        return "author" if self.cap == "subject" else "capexempt"
+
+    @property
+    def tier(self) -> int:
+        """How well the employer's filing history supports an analyst hire.
+
+        Sponsorship is a gate rather than a gradient: past the point where a
+        place clearly sponsors analysts, more filings do not make the person
+        more worth writing to. Ranking on the raw count instead is what put
+        Amazon's 16,793 at the top of every search while a well-matched paper
+        at a mid-size company sat below it.
+        """
+        if (self.certified or 0) >= config.SPONSOR_STRONG_CERTIFIED \
+                and (self.analyst_certified or 0) >= config.SPONSOR_STRONG_ANALYST_SOC:
+            return 0
+        if (self.certified or 0) >= 1:
+            return 1
+        return 2
 
 
 def institution_variants(name: str) -> list[str]:
@@ -257,16 +313,16 @@ def _works(topic: str, since: str, pages: int, per_page: int):
 
 def find(topics, *, since: str | None = None, pages: int = 2, per_page: int = 100,
          min_filings: int = 1, positions=("last", "first"), limit: int = 40,
-         sector: str = "capexempt", per_institution: int = 2,
+         sectors=DEFAULT_SECTORS, per_institution: int = 2,
          progress=None) -> list[Contact]:
-    """People to write to, best-sponsoring institution first.
+    """People to write to, newest well-sponsored paper first.
 
-    `min_filings` of 1 is deliberate: an institution with no certified petition
-    on record is not a reason to spend an hour writing to someone there, and
-    there are more good targets than there is time.
+    `min_filings` of 1 is deliberate: an employer with no certified petition on
+    record is not a reason to spend an hour writing to someone there, and there
+    are more good targets than there is time.
     """
     say = progress or (lambda _m: None)
-    allowed = SECTORS.get(sector, SECTORS["capexempt"])
+    allowed = types_for(sectors)
     since = since or (date.today() - timedelta(days=548)).isoformat()
     employers = sponsorship.employer_table()
     matcher = Matcher(employers)
@@ -294,6 +350,15 @@ def find(topics, *, since: str | None = None, pages: int = 2, per_page: int = 10
                     inst_type = (inst.get("type") or "").strip()
                     if not inst_name:
                         continue
+                    # The OpenAlex country filter is a property of the WORK: it
+                    # keeps papers with at least one US institution anywhere on
+                    # them, not papers whose every author is in the US. So each
+                    # institution is checked again here. Without this a
+                    # Canadian co-author's employer was looked up in a table of
+                    # US petitions and reported 116 certified filings, which is
+                    # a number about a different organisation entirely.
+                    if (inst.get("country_code") or "").upper() != "US":
+                        continue
                     if allowed and inst_type not in allowed:
                         continue
                     if inst_name not in inst_cache:
@@ -316,6 +381,7 @@ def find(topics, *, since: str | None = None, pages: int = 2, per_page: int = 10
                         merged_from="; ".join(names),
                         paper=title,
                         year=work.get("publication_year"),
+                        published=(work.get("publication_date") or ""),
                         link=work.get("doi") or work.get("id") or "",
                         openalex_author=author_id,
                     )
@@ -323,10 +389,42 @@ def find(topics, *, since: str | None = None, pages: int = 2, per_page: int = 10
                     break
         say(f"    {found} new contacts")
 
+    # Tier first, then recency. Within employers that clearly sponsor analysts,
+    # the freshest paper is the better opener, and "I read your paper from last
+    # month" is a different message from one about work two years old.
     rows = sorted(seen_authors.values(),
-                  key=lambda c: (-(c.analyst_certified or 0), -(c.certified or 0),
-                                 -(c.year or 0), c.person))
+                  key=lambda c: (c.tier, _neg_date(c.published), c.person))
     return _spread(rows, limit, per_institution)
+
+
+def types_for(sectors) -> tuple[str, ...]:
+    """OpenAlex institution types for a sector list. Empty tuple means any."""
+    names = [sectors] if isinstance(sectors, str) else list(sectors)
+    if "any" in names:
+        return ()
+    out: list[str] = []
+    for name in names:
+        out.extend(SECTOR_TYPES.get(name, ()))
+    return tuple(dict.fromkeys(out)) or types_for(DEFAULT_SECTORS)
+
+
+def _neg_date(iso: str):
+    """Sort key putting the newest ISO date first, blanks last.
+
+    A plain `-date` is not available on a string, and reversing the whole sort
+    would also reverse the tier, so the date is inverted on its own. OpenAlex
+    sometimes gives a partial date ("2026-10") or none, so parts are padded to
+    three and anything non-numeric is treated as absent rather than raising.
+    """
+    parts = (iso or "").split("-")[:3]
+    nums = []
+    for part in parts:
+        try:
+            nums.append(-int(part))
+        except ValueError:
+            break
+    nums += [0] * (3 - len(nums))
+    return (not iso, tuple(nums))
 
 
 def _spread(rows: list[Contact], limit: int, per_institution: int) -> list[Contact]:
@@ -355,15 +453,16 @@ def _spread(rows: list[Contact], limit: int, per_institution: int) -> list[Conta
 
 def write_csv(rows: list[Contact], path) -> int:
     """A CSV whose columns are the outreach tracker's fields, in its order."""
-    head = ["Person", "Their role", "Organisation", "Sector", "Pool", "Hook", "Link",
-            "Certified filings", "In analyst roles", "Counted from"]
+    head = ["Person", "Their role", "Organisation", "Sector", "H-1B cap", "Pool",
+            "Hook", "Link", "Published", "Certified filings", "In analyst roles",
+            "Counted from"]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="") as handle:
         writer = csv.writer(handle)
         writer.writerow(head)
         for c in rows:
-            writer.writerow([c.person, c.position, c.institution, c.sector, c.pool,
-                             f"{c.paper} ({c.year})" if c.year else c.paper,
-                             c.link, c.certified, c.analyst_certified,
+            writer.writerow([c.person, c.position, c.institution, c.sector, c.cap,
+                             c.pool, f"{c.paper} ({c.year})" if c.year else c.paper,
+                             c.link, c.published, c.certified, c.analyst_certified,
                              c.merged_from])
     return len(rows)

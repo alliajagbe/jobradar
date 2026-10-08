@@ -162,12 +162,19 @@ def cmd_contacts(args: argparse.Namespace) -> int:
         _log("Give at least one --topic.")
         return 1
 
-    _log(f"since {args.since or 'eighteen months ago'}, US {args.sector} institutions, "
+    sectors = [s.strip() for s in (args.sector or "").split(",") if s.strip()] \
+        or list(contacts_mod.DEFAULT_SECTORS)
+    unknown = [s for s in sectors if s != "any" and s not in contacts_mod.SECTOR_TYPES]
+    if unknown:
+        _log(f"Unknown sector: {', '.join(unknown)}. "
+             f"Choose from {', '.join(contacts_mod.SECTOR_TYPES)}, any.")
+        return 1
+    _log(f"since {args.since or 'eighteen months ago'}, US {'/'.join(sectors)}, "
          f"{'PIs and first authors' if args.position == 'both' else args.position + 's'} only")
     positions = {"both": ("last", "first"), "pi": ("last",), "first": ("first",)}[args.position]
     rows = contacts_mod.find(
         topics, since=args.since, pages=args.pages, min_filings=args.min_filings,
-        positions=positions, limit=args.limit, sector=args.sector,
+        positions=positions, limit=args.limit, sectors=sectors,
         per_institution=args.per_institution, progress=_log)
 
     if not rows:
@@ -178,7 +185,10 @@ def cmd_contacts(args: argparse.Namespace) -> int:
     _log("")
     for c in rows:
         _log(f"{c.person}  [{c.position}]")
-        _log(f"  {c.institution} - {c.certified} certified, {c.analyst_certified} in analyst roles")
+        cap = {"subject": "H-1B lottery", "exempt": "cap-exempt",
+               "check": "cap-exempt if a research nonprofit"}[c.cap]
+        _log(f"  {c.institution} - {c.certified} certified, "
+             f"{c.analyst_certified} in analyst roles - {cap}")
         if c.merged_from.count(";"):
             # The audit trail for the merge. One record where you expected
             # several can mean the institution abbreviates its own name; see
@@ -407,9 +417,9 @@ def main(argv: list[str] | None = None) -> int:
                    help="PI (last author), first author, or both (default)")
     p.add_argument("--min-filings", type=int, default=1,
                    help="skip institutions with fewer certified petitions (default 1; 0 to include all)")
-    p.add_argument("--sector", choices=["capexempt", "company", "any"], default="capexempt",
-                   help="capexempt (universities, hospitals, nonprofit and government research; "
-                        "the default, and no H-1B lottery), company, or any")
+    p.add_argument("--sector", default="industry,nonprofit",
+                   help="comma list of industry, nonprofit, academic, government, or any "
+                        "(default: industry,nonprofit)")
     p.add_argument("--pages", type=int, default=2, help="pages of 100 results per topic (default 2)")
     p.add_argument("--limit", type=int, default=40, help="contacts to keep (default 40)")
     p.add_argument("--per-institution", type=int, default=2,

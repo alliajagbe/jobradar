@@ -258,12 +258,26 @@ hiring. **First author** did the work, is a peer conversation, and knows what is
 open before it is posted. Middle authors are dropped: a list with everyone on it
 is a list nobody writes to.
 
-`--sector` defaults to **capexempt** — universities, hospitals, nonprofit and
-government research — and that default is the point of the command. Ranking by
-filing volume without it puts Amazon (16,793 certified) and Microsoft (7,043) at
-the top of every search, and those are precisely the cap-subject employers whose
-March lottery this is meant to route around. A big number beside a company name
-is not an advantage here. `--sector company` or `any` if you want them.
+`--sector` takes a comma list of **industry**, **nonprofit**, **academic**,
+**government** or **any**, and defaults to `industry,nonprofit`. Industry is the
+primary interest; nonprofits bring in the program-evaluation research shops
+(RAND, RTI International, Upjohn) that fit the same profile and are usually
+cap-exempt. Academic is there when you want it rather than on by default.
+
+Each row says which side of the H-1B cap the employer sits on, because it
+changes what the conversation is worth rather than whether to have it:
+**H-1B lottery** for a company, **cap-exempt** for a university, hospital or
+government lab, and **cap-exempt if a research nonprofit** for a nonprofit,
+since that exemption depends on being a research organisation. RAND qualifies;
+Mercy Corps, which the same OpenAlex type returns, does not, so the tool says
+"check" rather than making a legal claim the data cannot support.
+
+Ranking **tiers** the sponsorship signal rather than sorting on it, then orders
+by how recently the paper came out. Sponsorship is a gate, not a gradient: once
+an employer clearly sponsors analysts, more filings do not make the person more
+worth writing to, and sorting on the raw count is what put Amazon's 16,793 at
+the top of every search in the first run. A paper from last month is a better
+opening line than one from two years ago.
 
 `--per-institution` defaults to 2. The first run returned eight of ten contacts
 at one university, and forty contacts where thirty share an employer is one
@@ -290,6 +304,15 @@ part first:
   folding in seven unrelated Pennsylvania state schools.
 - A one-token stem never merges. `entity_stem` drops digits, so `DUKE 65`
   reduces to `DUKE` and would otherwise absorb the whole university.
+- Generic words cannot carry a merge, and the vocabulary covers corporate
+  boilerplate as well as university boilerplate: a bare `MACHINE INTELLIGENCE`
+  record was folding into Machine Intelligence Research Institute until the
+  matcher's own company stems were unioned in.
+
+Institutions are also re-checked for being in the US. OpenAlex's country filter
+is a property of the *work*, so a paper with one US institution anywhere on it
+passes, and a Canadian co-author's employer was being looked up in a table of US
+petitions and credited with 116 certified filings belonging to someone else.
 
 **Known undercount.** An institution that abbreviates its own front end is not
 resolved. `UT SOUTHWESTERN MEDICAL CENTER` and `THE UNIVERSITY OF TEXAS

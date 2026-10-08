@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from jobradar import contacts, sponsorship
+from jobradar import config, contacts, sponsorship
 from jobradar.matching import Matcher
 from jobradar.sponsorship import EmployerStats
 
@@ -45,6 +45,11 @@ def employers():
         _emp("JOHNS HOPKINS UNIVERSITY", 524, 27),
         _emp("JOHNS HOPKINS UNIVERSITY APPLIED PHYSICS LAB", 6, 0),
         _emp("AMAZON", 16793, 2767),
+        # Industry is the primary interest, so the fixture carries a mid-size
+        # company that clearly sponsors analysts and a small one that barely has.
+        _emp("MIDSIZE ANALYTICS", 120, 30),
+        _emp("TINY STARTUP", 2, 0),
+        _emp("RAND CORPORATION", 60, 8),
     ]
     return {r.norm_name: r for r in rows}
 
@@ -179,25 +184,25 @@ def test_mergeable(a, b, merge):
     assert contacts._mergeable(a, b) is merge
     assert contacts._mergeable(b, a) is merge     # the rule is symmetric
 
-
 # ---- author extraction ----
 
-def _work(title, year, authorships):
-    return {"title": title, "publication_year": year,
-            "doi": f"https://doi.org/10.1/{title[:4].lower()}",
+def _work(title, date_, authorships):
+    return {"title": title, "publication_year": int(date_[:4]), "publication_date": date_,
+            "doi": f"https://doi.org/10.1/{title[:4].lower().strip()}",
             "id": "https://openalex.org/W1", "authorships": authorships}
 
 
-def _authorship(name, position, inst, inst_type="education"):
+def _authorship(name, position, inst, inst_type="company", country="US"):
     return {"author_position": position,
             "author": {"id": f"https://openalex.org/A{abs(hash(name)) % 10000}",
                        "display_name": name},
-            "institutions": [{"display_name": inst, "type": inst_type}]}
+            "institutions": [{"display_name": inst, "type": inst_type,
+                              "country_code": country}]}
 
 
 @pytest.fixture
 def fake_works(monkeypatch):
-    """Replace the network call. Each test sets `payload` before calling find."""
+    """Replace the network call. Each test appends to the returned list."""
     payload: list = []
 
     def _fake(topic, since, pages, per_page):
@@ -213,110 +218,259 @@ def fake_table(monkeypatch, employers):
     return employers
 
 
+# ---- sector selection ----
+
+def test_industry_and_nonprofit_are_the_default():
+    """Alli's primary interest is industry, with nonprofits included.
+
+    An earlier version defaulted to cap-exempt only, which quietly made this a
+    university search and buried the sector she actually cares about.
+    """
+    assert contacts.DEFAULT_SECTORS == ("industry", "nonprofit")
+    assert set(contacts.types_for(contacts.DEFAULT_SECTORS)) == {"company", "nonprofit"}
+
+
+def test_academic_is_available_but_not_on_by_default():
+    assert "education" not in contacts.types_for(contacts.DEFAULT_SECTORS)
+    assert "education" in contacts.types_for(["academic"])
+
+
+def test_sectors_combine():
+    types = contacts.types_for(["industry", "academic"])
+    assert set(types) == {"company", "education", "healthcare"}
+
+
+def test_any_means_no_filter():
+    assert contacts.types_for(["any"]) == ()
+    assert contacts.types_for(["industry", "any"]) == ()
+
+
+def test_an_unknown_sector_falls_back_to_the_default():
+    """A typo must not silently return everything."""
+    assert set(contacts.types_for(["nonsense"])) == {"company", "nonprofit"}
+
+
+def test_the_default_filters_academic_out_of_a_real_search(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("At Company", "last", "Midsize Analytics", inst_type="company"),
+        _authorship("At University", "last", "Duke University", inst_type="education"),
+    ]))
+    assert [r.person for r in contacts.find("x")] == ["At Company"]
+
+
+def test_academic_can_be_asked_for(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("At University", "last", "Duke University", inst_type="education")]))
+    assert [r.person for r in contacts.find("x", sectors=["academic"])] == ["At University"]
+
+
+def test_nonprofits_are_included_by_default(fake_works, fake_table):
+    """RAND and RTI are the program-evaluation shops that fit her profile."""
+    fake_works.append(_work("Impact evaluation", "2026-09-01", [
+        _authorship("At RAND", "last", "RAND Corporation", inst_type="nonprofit")]))
+    assert [r.person for r in contacts.find("x")] == ["At RAND"]
+
+
+# ---- the cap signal ----
+
+@pytest.mark.parametrize("inst_type,expected", [
+    ("company", "subject"),
+    ("education", "exempt"),
+    ("healthcare", "exempt"),
+    ("government", "exempt"),
+    ("nonprofit", "check"),
+])
+def test_cap_status_per_sector(fake_works, fake_table, inst_type, expected):
+    """Three values, not a boolean.
+
+    A nonprofit is cap-exempt only if it is a research organisation or
+    university-affiliated. RAND qualifies; Mercy Corps, which the same OpenAlex
+    type returns, does not. Printing "exempt" for both would be a legal claim
+    this data cannot support.
+    """
+    inst = {"company": "Midsize Analytics", "education": "Duke University",
+            "healthcare": "Duke University", "government": "Duke University",
+            "nonprofit": "RAND Corporation"}[inst_type]
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Someone", "last", inst, inst_type=inst_type)]))
+    rows = contacts.find("x", sectors=["any"])
+    assert rows[0].cap == expected
+
+
+def test_industry_contacts_go_in_the_author_pool(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("At Company", "last", "Midsize Analytics", inst_type="company")]))
+    assert contacts.find("x")[0].pool == "author"
+
+
+def test_nonprofit_and_academic_contacts_go_in_the_capexempt_pool(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("At RAND", "last", "RAND Corporation", inst_type="nonprofit")]))
+    assert contacts.find("x")[0].pool == "capexempt"
+
+
+# ---- who on the paper ----
+
 def test_middle_authors_are_dropped(fake_works, fake_table):
     """A list that includes everyone on the paper is a list nobody writes to."""
-    fake_works.append(_work("Extraction at scale", 2026, [
-        _authorship("First Person", "first", "Duke University"),
-        _authorship("Middle Person", "middle", "Duke University"),
-        _authorship("Senior Person", "last", "Duke University"),
+    fake_works.append(_work("Extraction at scale", "2026-09-01", [
+        _authorship("First Person", "first", "Midsize Analytics"),
+        _authorship("Middle Person", "middle", "Midsize Analytics"),
+        _authorship("Senior Person", "last", "Midsize Analytics"),
     ]))
-    rows = contacts.find("anything", min_filings=1)
-    assert [r.person for r in rows] == ["Senior Person", "First Person"] or \
-           sorted(r.person for r in rows) == ["First Person", "Senior Person"]
-    assert "Middle Person" not in [r.person for r in rows]
+    people = [r.person for r in contacts.find("x")]
+    assert sorted(people) == ["First Person", "Senior Person"]
 
 
 def test_last_author_is_labelled_the_pi(fake_works, fake_table):
-    fake_works.append(_work("A paper", 2026, [
-        _authorship("Senior Person", "last", "Duke University")]))
-    rows = contacts.find("anything")
-    assert rows[0].position == "PI"
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    assert contacts.find("x")[0].position == "PI"
+
+
+def test_only_pis_when_asked(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("First Person", "first", "Midsize Analytics"),
+        _authorship("Senior Person", "last", "Midsize Analytics"),
+    ]))
+    rows = contacts.find("x", positions=("last",))
+    assert [r.person for r in rows] == ["Senior Person"]
 
 
 def test_the_paper_title_becomes_the_hook(fake_works, fake_table):
-    fake_works.append(_work("Asymmetric scoring for clinical extraction", 2026, [
-        _authorship("Senior Person", "last", "Duke University")]))
-    rows = contacts.find("anything")
-    assert rows[0].paper == "Asymmetric scoring for clinical extraction"
+    fake_works.append(_work("Asymmetric scoring for extraction", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    assert contacts.find("x")[0].paper == "Asymmetric scoring for extraction"
 
 
 def test_one_row_per_person_keeping_the_first_paper_seen(fake_works, fake_table):
-    """The loop walks newest first, so the first win is the freshest opener."""
-    fake_works.append(_work("Newer work", 2026, [
-        _authorship("Senior Person", "last", "Duke University")]))
-    fake_works.append(_work("Older work", 2024, [
-        _authorship("Senior Person", "last", "Duke University")]))
-    rows = contacts.find("anything")
+    """The feed walks newest first, so the first win is the freshest opener."""
+    fake_works.append(_work("Newer work", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    fake_works.append(_work("Older work", "2024-01-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    rows = contacts.find("x")
     assert len(rows) == 1
     assert rows[0].paper == "Newer work"
 
 
-def test_companies_are_excluded_by_default(fake_works, fake_table):
-    """The default is cap-exempt, and that default is the point of the feature.
+def test_min_filings_skips_employers_with_no_record(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Nobody", "last", "Some Company Nobody Has Heard Of")]))
+    assert contacts.find("x", min_filings=1) == []
+    assert len(contacts.find("x", min_filings=0)) == 1
 
-    Amazon files 16,793 certified petitions, which ranks it top of every search
-    while being exactly the cap-subject lottery this routes around.
+
+def test_a_non_us_institution_is_dropped(fake_works, fake_table):
+    """The OpenAlex country filter is a property of the work, not the author.
+
+    A paper with one US institution anywhere on it passes that filter, so a
+    Canadian co-author's employer was being looked up in a table of US
+    petitions and reported 116 certified filings belonging to someone else.
     """
-    fake_works.append(_work("A benchmark", 2026, [
-        _authorship("Industry Person", "last", "Amazon", inst_type="company"),
-        _authorship("Faculty Person", "last", "Duke University"),
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("In Canada", "last", "Midsize Analytics", country="CA"),
+        _authorship("In the US", "first", "Midsize Analytics", country="US"),
     ]))
-    rows = contacts.find("anything")
-    assert [r.person for r in rows] == ["Faculty Person"]
+    assert [r.person for r in contacts.find("x")] == ["In the US"]
 
 
-def test_companies_are_included_when_asked_for(fake_works, fake_table):
-    fake_works.append(_work("A benchmark", 2026, [
-        _authorship("Industry Person", "last", "Amazon", inst_type="company")]))
-    rows = contacts.find("anything", sector="any")
-    assert [r.person for r in rows] == ["Industry Person"]
-    assert rows[0].pool == "author"          # not the research-group pool
+def test_a_missing_country_is_dropped(fake_works, fake_table):
+    """Absent is not the same as US, and guessing would attach a wrong number."""
+    fake_works.append(_work("A paper", "2026-09-01", [
+        {"author_position": "last",
+         "author": {"id": "https://openalex.org/A1", "display_name": "Unknown Place"},
+         "institutions": [{"display_name": "Midsize Analytics", "type": "company"}]}]))
+    assert contacts.find("x") == []
 
 
-def test_a_faculty_contact_lands_in_the_capexempt_pool(fake_works, fake_table):
-    fake_works.append(_work("A paper", 2026, [
-        _authorship("Faculty Person", "last", "Duke University")]))
-    assert contacts.find("anything")[0].pool == "capexempt"
+def test_corporate_boilerplate_does_not_merge(fake_works, fake_table):
+    """"Machine Intelligence" is not a distinctive name.
+
+    The first industry run folded a bare MACHINE INTELLIGENCE record into
+    Machine Intelligence Research Institute. The institution vocabulary was
+    university-flavoured and knew nothing about corporate generics, so the
+    matcher's own company stems are unioned in.
+    """
+    assert "INTELLIGENCE" in contacts._GENERIC_INST
+    assert "TECHNOLOGIES" in contacts._GENERIC_INST      # from the matcher's list
+    assert contacts._mergeable(("MACHINE", "INTELLIGENCE"),
+                               ("MACHINE", "INTELLIGENCE", "RESEARCH", "INSTITUTE")) is False
 
 
-def test_min_filings_skips_institutions_with_no_record(fake_works, fake_table):
-    fake_works.append(_work("A paper", 2026, [
-        _authorship("Nobody", "last", "Some Tiny Liberal Arts College")]))
-    assert contacts.find("anything", min_filings=1) == []
-    assert len(contacts.find("anything", min_filings=0)) == 1
+# ---- ranking ----
+
+def test_sponsorship_is_a_gate_not_a_gradient(fake_works, fake_table):
+    """Amazon's 16,793 filings must not outrank a fresher, well-sponsored paper.
+
+    Ranking on the raw count is what put Amazon and Microsoft at the top of
+    every search in the first live run. Both employers here clear the strong
+    threshold, so recency decides.
+    """
+    fake_works.append(_work("Old Amazon paper", "2025-02-01", [
+        _authorship("At Amazon", "last", "Amazon")]))
+    fake_works.append(_work("New midsize paper", "2026-09-01", [
+        _authorship("At Midsize", "last", "Midsize Analytics")]))
+    rows = contacts.find("x")
+    assert [r.person for r in rows] == ["At Midsize", "At Amazon"]
 
 
-def test_ranking_puts_the_most_analyst_filings_first(fake_works, fake_table):
-    fake_works.append(_work("A paper", 2026, [
-        _authorship("At Boston", "last", "Boston Medical Center", inst_type="healthcare")]))
-    fake_works.append(_work("B paper", 2026, [
-        _authorship("At Duke", "last", "Duke University")]))
-    rows = contacts.find("anything")
-    assert [r.person for r in rows] == ["At Duke", "At Boston"]   # 24 analyst vs 23
+def test_a_weakly_sponsoring_employer_ranks_below_a_strong_one(fake_works, fake_table):
+    """Recency only decides WITHIN a tier. Two filings is not a strong signal."""
+    fake_works.append(_work("Very new tiny paper", "2026-10-01", [
+        _authorship("At Tiny", "last", "Tiny Startup")]))
+    fake_works.append(_work("Older midsize paper", "2026-01-01", [
+        _authorship("At Midsize", "last", "Midsize Analytics")]))
+    rows = contacts.find("x")
+    assert [r.person for r in rows] == ["At Midsize", "At Tiny"]
 
 
-# ---- spreading across institutions ----
+def test_tier_thresholds_follow_the_shared_config():
+    def tier(certified, analyst):
+        return contacts.Contact("p", "PI", "i", "company", certified, analyst,
+                                "", "paper", 2026, "2026-01-01", "", "a").tier
+    assert tier(config.SPONSOR_STRONG_CERTIFIED, config.SPONSOR_STRONG_ANALYST_SOC) == 0
+    assert tier(config.SPONSOR_STRONG_CERTIFIED, config.SPONSOR_STRONG_ANALYST_SOC - 1) == 1
+    assert tier(1, 0) == 1
+    assert tier(0, 0) == 2
 
-def _c(person, institution):
+
+@pytest.mark.parametrize("iso,other,newer_first", [
+    ("2026-09-01", "2025-09-01", True),
+    ("2026-09-02", "2026-09-01", True),
+    ("", "2026-09-01", False),
+])
+def test_recency_ordering(iso, other, newer_first):
+    assert (contacts._neg_date(iso) < contacts._neg_date(other)) is newer_first
+
+
+@pytest.mark.parametrize("iso", ["", "2026", "2026-10", "not-a-date", "2026-xx-01"])
+def test_partial_and_malformed_dates_do_not_raise(iso):
+    """OpenAlex sometimes gives a partial date or none at all."""
+    assert isinstance(contacts._neg_date(iso), tuple)
+
+
+# ---- spreading across employers ----
+
+def _c(person, institution, certified=100, analyst=10, published="2026-01-01"):
     return contacts.Contact(person=person, position="PI", institution=institution,
-                            sector="education", certified=100, analyst_certified=10,
-                            merged_from="", paper="p", year=2026,
+                            sector="company", certified=certified, analyst_certified=analyst,
+                            merged_from="", paper="p", year=2026, published=published,
                             link="", openalex_author=person)
 
 
-def test_one_institution_does_not_fill_the_list():
-    """The first real run returned eight of ten contacts at one university."""
-    rows = [_c(f"P{i}", "Big U") for i in range(8)] + [_c("Other", "Small U")]
+def test_one_employer_does_not_fill_the_list():
+    """The first real run returned eight of ten contacts at one institution."""
+    rows = [_c(f"P{i}", "Big Co") for i in range(8)] + [_c("Other", "Small Co")]
     out = contacts._spread(rows, limit=4, per_institution=2)
     # The cap applies to the first pass; leftover slots are then filled in rank
-    # order rather than left empty, so Big U reappears only after Small U has
-    # had its turn.
-    assert [r.institution for r in out[:3]] == ["Big U", "Big U", "Small U"]
+    # order rather than left empty, so Big Co reappears only after Small Co.
+    assert [r.institution for r in out[:3]] == ["Big Co", "Big Co", "Small Co"]
 
 
-def test_spread_still_fills_the_limit_when_there_is_only_one_institution():
+def test_spread_still_fills_the_limit_when_there_is_only_one_employer():
     """A cap must not shrink the list when there is nothing to spread to."""
-    rows = [_c(f"P{i}", "Only U") for i in range(6)]
+    rows = [_c(f"P{i}", "Only Co") for i in range(6)]
     assert len(contacts._spread(rows, limit=5, per_institution=2)) == 5
 
 
@@ -327,21 +481,34 @@ def test_spread_preserves_rank_order_within_the_cap():
 
 
 def test_no_cap_means_straight_rank_order():
-    rows = [_c(f"P{i}", "Only U") for i in range(4)]
+    rows = [_c(f"P{i}", "Only Co") for i in range(4)]
     out = contacts._spread(rows, limit=3, per_institution=0)
     assert [r.person for r in out] == ["P0", "P1", "P2"]
 
 
 # ---- csv ----
 
-def test_csv_carries_the_hook_and_the_filing_counts(tmp_path, fake_works, fake_table):
-    fake_works.append(_work("Gold sets and asymmetric scoring", 2026, [
-        _authorship("Senior Person", "last", "Duke University")]))
-    rows = contacts.find("anything")
+def test_csv_carries_the_hook_the_cap_and_the_counts(tmp_path, fake_works, fake_table):
+    fake_works.append(_work("Gold sets and asymmetric scoring", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    rows = contacts.find("x")
     path = tmp_path / "out" / "contacts.csv"
     assert contacts.write_csv(rows, path) == 1
     text = path.read_text()
     assert "Gold sets and asymmetric scoring" in text
-    assert "Duke University" in text
-    assert "265" in text                 # the merged count, not the bare 234
-    assert "capexempt" in text           # pasteable into the outreach tracker
+    assert "Midsize Analytics" in text
+    assert "subject" in text              # industry means the lottery, and says so
+    assert "author" in text               # pasteable into the outreach tracker
+    assert "2026-09-01" in text
+
+
+def test_csv_shows_the_merged_records(tmp_path, fake_works, fake_table):
+    """The column that caught the Penn over-merge."""
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Someone", "last", "Duke University", inst_type="education")]))
+    rows = contacts.find("x", sectors=["academic"])
+    path = tmp_path / "contacts.csv"
+    contacts.write_csv(rows, path)
+    text = path.read_text()
+    assert "DUKE UNIVERSITY HEALTH SYSTEM" in text
+    assert "265" in text                  # the merged count, not the bare 234
