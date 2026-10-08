@@ -420,6 +420,171 @@ setTimeout(() => {
             !("" in healed) && !("undefined" in healed) && !!healed.ok,
             Object.keys(healed).join(",") || "empty");
 
+      /* ---- outreach ----
+         The point of each check is the hole it closes, so they are named for
+         the failure rather than the feature. */
+      const iso = (n) => {
+        const d = new Date(); d.setUTCDate(d.getUTCDate() + n);
+        return d.toISOString().slice(0, 10);
+      };
+
+      $("#viewoutreach").click();
+      check("outreach view opens and the other two close",
+            !$("#outreach").hidden && $("#tracker").hidden && $("#list").hidden,
+            `outreach hidden=${$("#outreach").hidden} tracker hidden=${$("#tracker").hidden}`);
+      check("pool and channel dropdowns built from the vocabularies",
+            q("#o_pool option").length === 5 && q("#o_channel option").length === 3,
+            `${q("#o_pool option").length} pools, ${q("#o_channel option").length} channels`);
+      check("the sent date defaults to today", $("#o_sent").value === iso(0), $("#o_sent").value);
+      check("empty state shown before anything is logged", !$("#outreachempty").hidden);
+
+      const logOne = (person, org, pool, sent, hook) => {
+        $("#o_person").value = person; $("#o_org").value = org;
+        $("#o_pool").value = pool; $("#o_sent").value = sent;
+        $("#o_hook").value = hook || "";
+        $("#outreachform").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+      };
+
+      // Sent 10 days ago, so its follow-up (sent + 7) is 3 days overdue.
+      logOne("A Reviewer", "Duke University", "capexempt", iso(-10), "their extraction paper");
+      let saved2 = JSON.parse(store["jobradar.outreach.v1"] || "{}");
+      check("a logged contact persists", Object.keys(saved2).length === 1,
+            JSON.stringify(Object.values(saved2)[0] || {}).slice(0, 90));
+      const first = Object.values(saved2)[0] || {};
+      check("one follow-up is scheduled on the way in, not left to be set later",
+            first.followup === iso(-3), `sent ${first.sent} -> follow up ${first.followup}`);
+      check("a new contact starts awaiting a reply", first.stage === "sent", first.stage);
+      check("the hook is recorded", first.hook === "their extraction paper", first.hook);
+
+      check("an overdue follow-up is marked on the row",
+            q("#outreachtable tr.due").length === 1, q("#outreachtable tr.due").length + " due rows");
+      check("the summary counts what is due",
+            $("#outreachsummary").textContent.includes("1 due now"), $("#outreachsummary").textContent);
+      check("the due filter only appears when something is due",
+            !$("#outreachdueonly").hidden && $("#outreachdueonly").textContent.includes("1 due"),
+            $("#outreachdueonly").textContent);
+
+      // Per-person fields clear, per-session ones are kept: logging four
+      // contacts from one pool in a row should not mean re-picking the pool.
+      check("name clears after logging but the pool is kept",
+            $("#o_person").value === "" && $("#o_pool").value === "capexempt",
+            `person="${$("#o_person").value}" pool=${$("#o_pool").value}`);
+
+      // A reply makes the follow-up moot. If a replied row still counted as
+      // due, the due list would fill up with people who already answered.
+      const stageSel = q("#outreachtable .stagesel")[0];
+      stageSel.value = "replied";
+      stageSel.dispatchEvent(new w.Event("change", {bubbles:true}));
+      check("a replied contact is no longer due however old the date",
+            q("#outreachtable tr.due").length === 0
+            && !$("#outreachsummary").textContent.includes("due now"),
+            $("#outreachsummary").textContent);
+      check("the reply shows in the summary",
+            $("#outreachsummary").textContent.includes("1 replied (100%)"),
+            $("#outreachsummary").textContent);
+
+      // Reply rate per pool is the reason the pool field exists. A pool needs
+      // three sent before it can be called best, or one lucky reply out of one
+      // message would win it.
+      logOne("B Recruiter", "Acme", "recruiter", iso(0));
+      logOne("C Recruiter", "Acme", "recruiter", iso(0));
+      check("a pool with one reply from one message is not yet called best",
+            q("#outreachpools .poolstat.best").length === 0,
+            q("#outreachpools .poolstat").length + " pools shown");
+      logOne("D Reviewer", "Duke University", "capexempt", iso(0));
+      logOne("E Reviewer", "UNC", "capexempt", iso(0));
+      check("the pool with the best rate is marked once it has enough sent",
+            q("#outreachpools .poolstat.best").length === 1,
+            [...q("#outreachpools .poolstat")].map(n => n.textContent).join(" | "));
+
+      // Dead ends sort last: they need nothing and would otherwise sit among
+      // the rows that do.
+      const stageSels = q("#outreachtable .stagesel");
+      stageSels[stageSels.length - 1].value = "dead";
+      stageSels[stageSels.length - 1].dispatchEvent(new w.Event("change", {bubbles:true}));
+      const lastRow = q("#outreachtable tbody tr").slice(-1)[0];
+      check("a dead end sorts to the bottom", lastRow.classList.contains("closed"),
+            lastRow.textContent.slice(0, 40));
+
+      $("#outreachcsv").click();
+      const ocsv = lastBlob ? await lastBlob.text() : "";
+      check("outreach csv carries the hook and the pool",
+            ocsv.includes("Hook") && ocsv.includes("their extraction paper")
+            && ocsv.includes("Research group"),
+            ocsv.split("\n").length - 1 + " data rows");
+
+      // The backup carries both stores now. An export taken before outreach
+      // existed is a bare tracker object, and it still has to restore.
+      $("#export").click();
+      const backup = lastBlob ? JSON.parse(await lastBlob.text()) : {};
+      check("the backup carries both stores",
+            backup.v === 1 && !!backup.tracker && Object.keys(backup.outreach || {}).length === 5,
+            `v=${backup.v} tracker=${Object.keys(backup.tracker||{}).length} outreach=${Object.keys(backup.outreach||{}).length}`);
+
+      // The older bare-tracker export must still import. This is the shape
+      // every backup taken before today has, and sniffing it wrong would
+      // silently throw the whole file away. jsdom will not let us build a
+      // FileList, so the property is defined with an object carrying the one
+      // method the handler calls.
+      const legacy = JSON.stringify({"legacy-key": {status: "applied", company: "Old Co"}});
+      Object.defineProperty($("#importfile"), "files", {
+        value: [{ text: () => Promise.resolve(legacy) }], configurable: true });
+      $("#importfile").dispatchEvent(new w.Event("change", {bubbles:true}));
+      await new Promise((r) => setTimeout(r, 0));
+      const afterLegacy = JSON.parse(store["jobradar.tracker.v1"] || "{}");
+      check("a pre-outreach backup still imports",
+            !!afterLegacy["legacy-key"] && afterLegacy["legacy-key"].status === "applied",
+            Object.keys(afterLegacy).length + " tracked roles after import");
+      check("importing a bare tracker leaves the contacts alone",
+            Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length === 5,
+            Object.keys(JSON.parse(store["jobradar.outreach.v1"] || "{}")).length + " contacts");
+
+      // A select must not leak keystrokes into the jobs shortcuts. Typing "a"
+      // with a dropdown focused used to mark the job selected in the JOBS view
+      // as applied, which is not even the row being looked at.
+      const beforeKeys = JSON.stringify(JSON.parse(store["jobradar.tracker.v1"] || "{}"));
+      const sel0 = q("#outreachtable .stagesel")[0];
+      sel0.dispatchEvent(new w.KeyboardEvent("keydown", {key:"a", bubbles:true}));
+      check("typing in a dropdown does not fire the jobs shortcuts",
+            JSON.stringify(JSON.parse(store["jobradar.tracker.v1"] || "{}")) === beforeKeys,
+            "tracker unchanged");
+
+      // Contacts have to survive a reload, same as the tracker did not at
+      // first. A third window over the same store is the reload.
+      const dom4 = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
+        runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/", pretendToBeVisual: true });
+      const w4 = dom4.window;
+      w4.fetch = w.fetch; w4.AbortController = w.AbortController;
+      Object.defineProperty(w4, "localStorage", { value: w.localStorage });
+      w4.HTMLDialogElement.prototype.showModal = function(){ this.open = true; };
+      w4.HTMLDialogElement.prototype.close = function(){ this.open = false; };
+      w4.URL.createObjectURL = () => "blob:x"; w4.URL.revokeObjectURL = () => {};
+      w4.Element.prototype.scrollIntoView = function(){};
+      try { w4.eval(fs.readFileSync(path.join(ROOT, "app.js"), "utf8")); } catch { /* boot noise */ }
+      const afterReload = JSON.parse(store["jobradar.outreach.v1"] || "{}");
+      check("contacts survive a reload", Object.keys(afterReload).length === 5,
+            Object.keys(afterReload).length + " contacts after reload");
+
+      // And a contact with neither a name nor an organisation is not a contact.
+      store["jobradar.outreach.v1"] = JSON.stringify({
+        empty: {stage: "sent"}, real: {person: "X", org: "Y", stage: "sent"} });
+      const dom5 = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
+        runScripts: "outside-only", url: "https://alliajagbe.github.io/jobradar/", pretendToBeVisual: true });
+      const w5 = dom5.window;
+      w5.fetch = w.fetch; w5.AbortController = w.AbortController;
+      Object.defineProperty(w5, "localStorage", { value: w.localStorage });
+      w5.HTMLDialogElement.prototype.showModal = function(){ this.open = true; };
+      w5.HTMLDialogElement.prototype.close = function(){ this.open = false; };
+      w5.URL.createObjectURL = () => "blob:x"; w5.URL.revokeObjectURL = () => {};
+      w5.Element.prototype.scrollIntoView = function(){};
+      try { w5.eval(fs.readFileSync(path.join(ROOT, "app.js"), "utf8")); } catch { /* boot noise */ }
+      // The heal is asserted against storage, not the table: these secondary
+      // windows do not finish booting, so nothing is wired up to render.
+      const healedOut = JSON.parse(store["jobradar.outreach.v1"] || "{}");
+      check("a contact with no name and no organisation is dropped",
+            !("empty" in healedOut) && !!healedOut.real,
+            Object.keys(healedOut).join(",") || "empty");
+
       console.log(fail ? `\n${fail} FAILURES` : "\nAll page checks passed");
       process.exit(fail ? 1 : 0);
     }, 150);

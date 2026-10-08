@@ -16,7 +16,7 @@
   </div>
   <input id="search" type="search" placeholder="Search title, company, skill" autocomplete="off" spellcheck="false">
   <div class="views" role="group">
-    <button id="viewjobs" class="on">Jobs</button><button id="viewtracker">Tracker</button>
+    <button id="viewjobs" class="on">Jobs</button><button id="viewtracker">Tracker</button><button id="viewoutreach">Outreach</button>
   </div>
   <div class="topmeta">
     <span id="updated" class="muted">loading</span>
@@ -108,6 +108,48 @@
       interested, or click Tailor on one, and it appears here.</p>
     <p class="note" id="trackerdone" hidden>All caught up. Every tracked job is
       marked complete, so the table is clear. Use Show completed to see them.</p>
+  </section>
+
+
+  <section class="outreach" id="outreach" hidden>
+    <div class="trackerhead">
+      <span id="outreachsummary" class="muted"></span>
+      <button class="btn" id="outreachdueonly" hidden></button>
+      <button class="btn" id="outreachcsv">Export CSV</button>
+    </div>
+
+    <form class="outreachadd" id="outreachform" autocomplete="off">
+      <input id="o_person" placeholder="Name" required spellcheck="false">
+      <input id="o_org" placeholder="Organisation" required spellcheck="false">
+      <input id="o_role" placeholder="Their role" spellcheck="false">
+      <select id="o_pool" title="Which pool this contact came from"></select>
+      <select id="o_channel" title="How you reached them"></select>
+      <input id="o_hook" placeholder="The specific thing you referenced" spellcheck="false">
+      <input id="o_link" type="url" placeholder="Profile or paper link" spellcheck="false">
+      <input id="o_sent" type="date" title="Date sent">
+      <button class="btn" type="submit">Log it</button>
+    </form>
+
+    <!-- The follow-up is where a large share of replies come from, so overdue
+         rows are pulled to the top and marked rather than left to be noticed. -->
+    <table id="outreachtable"><thead><tr>
+      <th data-sort="person">Person</th>
+      <th data-sort="org">Organisation</th>
+      <th data-sort="pool">Pool</th>
+      <th data-sort="hook">Hook</th>
+      <th data-sort="sent">Sent</th>
+      <th data-sort="followup">Follow up</th>
+      <th data-sort="stage">Stage</th>
+      <th></th>
+    </tr></thead><tbody></tbody></table>
+
+    <div id="outreachpools" class="poolstats"></div>
+
+    <p class="note" id="outreachempty" hidden>No outreach logged yet. Add the
+      first person above. Pool and hook are the two fields worth filling
+      honestly: they are what tell you later which approach is working.</p>
+    <p class="note">Stored in this browser only, like the tracker. Nothing here
+      is in the repository.</p>
   </section>
 
   <aside class="detail" id="detail">

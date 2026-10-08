@@ -237,6 +237,36 @@ Two columns answer different questions and are deliberately separate:
   default), **complete**, or **dismissed**. Pending is stored as absence rather than as a
   value, so an untouched row stays out of the tracker entirely.
 
+## Outreach
+
+The **Outreach** tab is a separate record, because "what have I applied to" and "who have
+I written to, and is anyone owed a reply" are different questions and one table answering
+both reads badly. A row here is a person at an organisation, not a posting.
+
+It exists to prevent one specific failure: forgetting the follow-up. Past about forty
+contacts that stops being a memory problem, and the follow-up is where a large share of
+replies come from. So one follow-up is scheduled on the way in, seven days out, and a row
+that has come due is marked across its whole width and sorts to the top. A contact who has
+already replied is never due, however old the date on it is.
+
+Two fields earn their place beyond the obvious ones:
+
+- **Pool** is which channel the contact came from: research group, Wake Forest alumni,
+  paper author, recruiter, other. Reply rates differ enormously between them, and the only
+  way to learn which is worth continuing is to have recorded it *before* the replies came
+  in. The cards under the table give reply rate per pool and outline the best one, which
+  needs at least three sent before it can win: one reply out of one message is not
+  evidence of anything.
+- **Hook** is the specific thing you referenced. It is what makes outreach work at all,
+  and recording it lets you see later which openers got answered.
+
+Stage runs **no reply yet** to **replied**, **call booked**, **referred**, or **dead end**.
+Dead ends sort last whatever column you sort by, since they need nothing from you.
+
+Stored in `localStorage` under its own key, like the tracker, so it never enters the
+repository. The Export button now writes a backup carrying both stores; an older export,
+which was a bare tracker object, still imports unchanged.
+
 ### Security
 
 The helper binds to `127.0.0.1`, which the kernel will not route external packets to, so

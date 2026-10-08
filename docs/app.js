@@ -38,6 +38,36 @@ const STATUSES = ["interested", "applied", "interviewing", "offer", "rejected", 
 // Pending is the default and is never stored: absence means pending.
 const PROCESS = ["pending", "complete", "dismissed"];
 
+/* ---- outreach vocabulary ----
+   A contact is a person at an organisation, not a posting, so outreach needs
+   its own store and its own key: people have no URL to dedupe on.
+
+   `pool` is what makes this a strategy record rather than an address book.
+   Reply rates differ enormously between a faculty cold email and a recruiter
+   DM, and the only way to learn which is worth continuing is to have recorded
+   which pool each message belonged to BEFORE the replies came in. */
+const OUTREACH_KEY = "jobradar.outreach.v1";
+const POOLS = [
+  ["capexempt", "Research group"],
+  ["alumni", "Wake Forest alumni"],
+  ["author", "Paper author"],
+  ["recruiter", "Recruiter"],
+  ["other", "Other"],
+];
+const POOL_LABELS = Object.fromEntries(POOLS);
+const CHANNELS = ["email", "linkedin", "other"];
+// The funnel. "sent" is the default: no reply yet, which is where every
+// contact starts and where most of them stay.
+const STAGES = ["sent", "replied", "call", "referred", "dead"];
+const STAGE_LABELS = {
+  sent: "no reply yet", replied: "replied", call: "call booked",
+  referred: "referred", dead: "dead end",
+};
+// A reply is any of these. The numerator of the reply rate.
+const ANSWERED = new Set(["replied", "call", "referred"]);
+// Days after sending that one follow-up comes due. One, then stop.
+const FOLLOWUP_DAYS = 7;
+
 let CARDS = [];
 let ADDED = [];           // jobs pasted in by hand, stored in this browser only
 let FILTERED = null;      // fetched lazily; see loadFiltered
@@ -45,6 +75,7 @@ let META = {};
 let VIEW = [];
 let selected = -1;
 let tracker = loadTracker();
+let outreach = loadOutreach();
 
 const $ = (s) => document.querySelector(s);
 const el = (t, c, txt) => { const n = document.createElement(t); if (c) n.className = c; if (txt != null) n.textContent = txt; return n; };
@@ -82,6 +113,61 @@ function saveTracker() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(tracker)); }
   catch { banner("This browser is not saving your tracking. Private windows block storage."); }
   renderTrackCount();
+}
+
+/* Outreach is stored the same way and under its own key, so importing a
+   tracker backup can never clobber the contacts and vice versa. Entries are
+   kept in an object rather than an array because the stage dropdown and the
+   remove button both need a stable handle on one row, and array indices shift
+   the moment the table is sorted. */
+function loadOutreach() {
+  let raw;
+  try { raw = JSON.parse(localStorage.getItem(OUTREACH_KEY) || "{}"); }
+  catch { return {}; }
+  // A contact with neither a name nor an organisation is not a contact. Same
+  // reasoning as the tracker heal: remove what is not about anybody, never a
+  // row Alli actually filled in.
+  //
+  // The heal is written back, as the tracker's is. Healing in memory only
+  // would leave the bad entry on disk to be removed again on every single
+  // load, and would make "what is stored" and "what is shown" disagree for as
+  // long as the entry sat there.
+  let healed = false;
+  for (const id of Object.keys(raw)) {
+    const v = raw[id] || {};
+    if (!id || id === "undefined" || (!v.person && !v.org)) { delete raw[id]; healed = true; }
+  }
+  if (healed) {
+    try { localStorage.setItem(OUTREACH_KEY, JSON.stringify(raw)); } catch { /* ignore */ }
+  }
+  return raw;
+}
+function saveOutreach() {
+  try { localStorage.setItem(OUTREACH_KEY, JSON.stringify(outreach)); }
+  catch { banner("This browser is not saving your outreach. Private windows block storage."); }
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/* Date arithmetic on the ISO string, via UTC, so a follow-up date never slides
+   by a day depending on the timezone the page happens to be open in. */
+function addDays(iso, n) {
+  const d = new Date((iso || today()) + "T00:00:00Z");
+  if (isNaN(d)) return "";
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function outreachAdd(entry) {
+  const id = "o" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  outreach[id] = entry;
+  saveOutreach();
+  return id;
+}
+function outreachPatch(id, patch) {
+  if (!id || !outreach[id]) return;
+  outreach[id] = Object.assign({}, outreach[id], patch);
+  saveOutreach();
 }
 function loadAdded() {
   try { return JSON.parse(localStorage.getItem(ADDED_KEY) || "[]"); }
@@ -764,6 +850,67 @@ function wire() {
 
   $("#viewjobs").addEventListener("click", () => showView("jobs"));
   $("#viewtracker").addEventListener("click", () => showView("tracker"));
+  $("#viewoutreach").addEventListener("click", () => showView("outreach"));
+
+  // Outreach: build the two dropdowns from the vocabularies rather than
+  // repeating them in the HTML, so adding a pool is a one-line change.
+  for (const [value, label] of POOLS) {
+    const opt = el("option", null, label);
+    opt.value = value;
+    $("#o_pool").appendChild(opt);
+  }
+  for (const c of CHANNELS) {
+    const opt = el("option", null, c);
+    opt.value = c;
+    $("#o_channel").appendChild(opt);
+  }
+  // Default the date to today, because almost every row is logged the moment
+  // the message goes out.
+  $("#o_sent").value = today();
+
+  $("#outreachform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const person = $("#o_person").value.trim();
+    const org = $("#o_org").value.trim();
+    if (!person || !org) return;
+    const sent = $("#o_sent").value || today();
+    outreachAdd({
+      person, org,
+      role: $("#o_role").value.trim(),
+      pool: $("#o_pool").value,
+      channel: $("#o_channel").value,
+      hook: $("#o_hook").value.trim(),
+      link: $("#o_link").value.trim(),
+      sent,
+      // One follow-up, scheduled on the way in. Leaving this to be set later
+      // is how it gets forgotten.
+      followup: addDays(sent, FOLLOWUP_DAYS),
+      stage: "sent",
+    });
+    // Name, role, hook and link are per-person and must clear. Pool, channel
+    // and date are per-session: she works one pool at a time, so keeping them
+    // makes logging the next four contacts quick.
+    for (const id of ["#o_person", "#o_org", "#o_role", "#o_hook", "#o_link"]) $(id).value = "";
+    $("#o_person").focus();
+    renderOutreach();
+  });
+
+  document.querySelectorAll("#outreachtable th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      OUT_SORT = { key, dir: OUT_SORT.key === key ? -OUT_SORT.dir : 1 };
+      renderOutreach();
+    });
+  });
+  $("#outreachdueonly").addEventListener("click", () => setDueOnly(!DUE_ONLY));
+  $("#outreachcsv").addEventListener("click", () => {
+    const blob = new Blob([outreachCsv()], { type: "text/csv" });
+    const a = el("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "jobradar-outreach-" + today() + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
   document.querySelectorAll("#trackertable th[data-sort]").forEach((th) => {
     th.addEventListener("click", () => {
       const key = th.dataset.sort;
@@ -783,11 +930,15 @@ function wire() {
 
   $("#reset").addEventListener("click", () => { location.hash = ""; location.reload(); });
 
+  /* The backup now carries both stores. Older exports are a bare tracker
+     object with no wrapper, so the import below sniffs the shape rather than
+     assuming: a backup taken last week has to keep working. */
   $("#export").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(tracker, null, 1)], { type: "application/json" });
+    const payload = { v: 1, tracker: tracker, outreach: outreach };
+    const blob = new Blob([JSON.stringify(payload, null, 1)], { type: "application/json" });
     const a = el("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "jobradar-tracker-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.download = "jobradar-backup-" + today() + ".json";
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -797,11 +948,21 @@ function wire() {
     file.text().then((text) => {
       try {
         const incoming = JSON.parse(text);
+        // Two shapes: the current wrapper carrying both stores, and the older
+        // bare tracker object. Sniff rather than assume, so a backup taken
+        // before outreach existed still restores.
+        const wrapped = incoming && incoming.v === 1
+          && (incoming.tracker !== undefined || incoming.outreach !== undefined);
+        const inTracker = wrapped ? (incoming.tracker || {}) : incoming;
+        const inOutreach = wrapped ? (incoming.outreach || {}) : {};
         // Merge rather than replace: importing a laptop backup on a phone
         // should not wipe what the phone already knows.
-        tracker = Object.assign({}, incoming, tracker);
-        saveTracker(); render();
-        banner("Imported " + Object.keys(incoming).length + " tracked roles.");
+        tracker = Object.assign({}, inTracker, tracker);
+        outreach = Object.assign({}, inOutreach, outreach);
+        saveTracker(); saveOutreach(); render(); renderOutreach();
+        const parts = [Object.keys(inTracker).length + " tracked roles"];
+        if (Object.keys(inOutreach).length) parts.push(Object.keys(inOutreach).length + " contacts");
+        banner("Imported " + parts.join(" and ") + ".");
       } catch { banner("That file is not a JobRadar export."); }
     });
   });
@@ -813,7 +974,12 @@ function wire() {
     // .matches on it throws and takes every keyboard shortcut down with it,
     // silently, for the rest of the session.
     const t = e.target;
-    if (t && typeof t.matches === "function" && t.matches("input, textarea")) {
+    // `select` belongs here too. Without it, typing while a dropdown has focus
+    // fell through to the shortcuts: "a" in the tracker's process select
+    // silently marked the job SELECTED IN THE JOBS VIEW as applied, which is
+    // not even the row you were looking at. The outreach stage dropdowns have
+    // the same shape, so this is one guard for both.
+    if (t && typeof t.matches === "function" && t.matches("input, textarea, select")) {
       if (e.key === "Escape") t.blur();
       return;
     }
@@ -1073,17 +1239,211 @@ function trackerCsv() {
   return lines.join("\n");
 }
 
+/* ---- outreach ----
+   The tracker answers "what have I applied to". This answers "who have I
+   spoken to, and is anything owed a reply". Those are different questions and
+   conflating them into one table would make both harder to read.
+
+   The failure mode this view exists to prevent is forgetting the follow-up.
+   At forty contacts that is not a memory problem any more, and the follow-up
+   is where a large share of replies come from. */
+let OUT_SORT = { key: "followup", dir: 1 };
+const DUEONLY_KEY = "jobradar.outreach.dueonly";
+let DUE_ONLY = false;
+try { DUE_ONLY = localStorage.getItem(DUEONLY_KEY) === "1"; } catch { /* private window */ }
+
+function setDueOnly(on) {
+  DUE_ONLY = on;
+  try { localStorage.setItem(DUEONLY_KEY, on ? "1" : "0"); } catch { /* private window */ }
+  renderOutreach();
+}
+
+/* Due means: still no reply, and the follow-up date has arrived. Once someone
+   has replied the follow-up is moot, so a replied row is never due however old
+   the date on it is. */
+function isDue(r) {
+  return r.stage === "sent" && !!r.followup && r.followup <= today();
+}
+
+function outreachRows() {
+  return Object.entries(outreach).map(([id, v]) => ({
+    id,
+    person: v.person || "", org: v.org || "", role: v.role || "",
+    pool: v.pool || "other", channel: v.channel || "email",
+    hook: v.hook || "", link: v.link || "",
+    sent: v.sent || "", followup: v.followup || "",
+    stage: STAGES.includes(v.stage) ? v.stage : "sent",
+  }));
+}
+
+function poolStats(rows) {
+  const out = [];
+  for (const [key, label] of POOLS) {
+    const mine = rows.filter((r) => r.pool === key);
+    if (!mine.length) continue;
+    const replied = mine.filter((r) => ANSWERED.has(r.stage)).length;
+    out.push({ key, label, sent: mine.length, replied,
+               rate: Math.round((replied / mine.length) * 100) });
+  }
+  // Best is by rate, but a single reply out of one message is not evidence of
+  // anything, so a pool needs at least three sent before it can win.
+  const eligible = out.filter((p) => p.sent >= 3);
+  const best = eligible.length ? Math.max(...eligible.map((p) => p.rate)) : -1;
+  for (const p of out) p.best = p.sent >= 3 && p.rate === best && p.rate > 0;
+  return out;
+}
+
+function renderOutreach() {
+  const rows = outreachRows();
+  const dir = OUT_SORT.dir, key = OUT_SORT.key;
+
+  // Dead ends sort last whatever the chosen column, because they need nothing
+  // and they would otherwise sit among the rows that do. Within the live rows
+  // the default column is the follow-up date ascending, which puts whatever is
+  // overdue at the top without having to special-case it.
+  const sorted = rows.slice().sort((a, b) => {
+    const ad = a.stage === "dead" ? 1 : 0, bd = b.stage === "dead" ? 1 : 0;
+    if (ad !== bd) return ad - bd;
+    // Blank dates sort last rather than first: an empty string compares below
+    // every real date, which would otherwise bury the urgent rows.
+    const av = String(a[key] || ""), bv = String(b[key] || "");
+    if (!av && bv) return 1;
+    if (av && !bv) return -1;
+    return av.localeCompare(bv) * dir;
+  });
+
+  const due = rows.filter(isDue);
+  const shown = DUE_ONLY ? sorted.filter(isDue) : sorted;
+
+  const body = $("#outreachtable tbody");
+  body.textContent = "";
+  for (const r of shown) {
+    const tr = el("tr");
+    if (isDue(r)) tr.classList.add("due");
+    if (r.stage === "dead") tr.classList.add("closed");
+
+    const who = el("td", "who");
+    who.appendChild(el("span", null, r.person));
+    if (r.role) { who.appendChild(el("br")); who.appendChild(el("span", "muted", r.role)); }
+    tr.appendChild(who);
+
+    const org = el("td");
+    if (r.link) {
+      const a = el("a", null, r.org);
+      a.href = r.link; a.target = "_blank"; a.rel = "noopener";
+      org.appendChild(a);
+    } else org.textContent = r.org;
+    tr.appendChild(org);
+
+    const pool = el("td");
+    pool.appendChild(el("span", "chip pool pool-" + r.pool, POOL_LABELS[r.pool] || r.pool));
+    tr.appendChild(pool);
+
+    tr.appendChild(el("td", "hook", r.hook));
+    tr.appendChild(el("td", "when", r.sent));
+
+    // The follow-up date is editable in place. Pushing one out by a few days
+    // is the commonest edit in this table and it should not need a dialog.
+    const fu = el("td", "when");
+    const fin = el("input", "fdate");
+    fin.type = "date"; fin.value = r.followup;
+    fin.addEventListener("change", () => {
+      outreachPatch(r.id, { followup: fin.value });
+      renderOutreach();
+    });
+    fu.appendChild(fin);
+    tr.appendChild(fu);
+
+    const st = el("td");
+    const sel = el("select", "stagesel s-" + r.stage);
+    for (const s of STAGES) {
+      const opt = el("option", null, STAGE_LABELS[s]);
+      opt.value = s;
+      if (s === r.stage) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.addEventListener("change", () => {
+      outreachPatch(r.id, { stage: sel.value });
+      renderOutreach();
+    });
+    st.appendChild(sel);
+    tr.appendChild(st);
+
+    const rm = el("td");
+    const btn = el("button", "rmbtn", "remove");
+    btn.title = "Remove this contact";
+    btn.addEventListener("click", () => {
+      delete outreach[r.id];
+      saveOutreach();
+      renderOutreach();
+    });
+    rm.appendChild(btn);
+    tr.appendChild(rm);
+
+    body.appendChild(tr);
+  }
+
+  const week = addDays(today(), -7);
+  const thisWeek = rows.filter((r) => r.sent && r.sent >= week).length;
+  const waiting = rows.filter((r) => r.stage === "sent").length;
+  const replied = rows.filter((r) => ANSWERED.has(r.stage)).length;
+  const rate = rows.length ? Math.round((replied / rows.length) * 100) : 0;
+  $("#outreachsummary").textContent =
+    `${rows.length} contact${rows.length === 1 ? "" : "s"} · ${thisWeek} sent this week`
+    + ` · ${waiting} awaiting reply · ${replied} replied (${rate}%)`
+    + (due.length ? ` · ${due.length} due now` : "");
+
+  const toggle = $("#outreachdueonly");
+  toggle.hidden = due.length === 0;
+  toggle.textContent = DUE_ONLY ? "Show all" : `Show ${due.length} due`;
+
+  const pools = $("#outreachpools");
+  pools.textContent = "";
+  for (const p of poolStats(rows)) {
+    const box = el("div", "poolstat" + (p.best ? " best" : ""));
+    box.appendChild(el("b", null, p.rate + "%"));
+    box.appendChild(el("span", null, `${p.label} · ${p.replied}/${p.sent}`));
+    pools.appendChild(box);
+  }
+
+  $("#outreachempty").hidden = rows.length > 0;
+  $("#outreachtable").hidden = shown.length === 0;
+  document.querySelectorAll("#outreachtable th").forEach((th) => {
+    th.classList.toggle("sorted", th.dataset.sort === key);
+  });
+}
+
+function outreachCsv() {
+  const head = ["Person", "Role", "Organisation", "Pool", "Channel", "Hook",
+                "Link", "Sent", "Follow up", "Stage"];
+  const esc = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const lines = [head.map(esc).join(",")];
+  for (const r of outreachRows()) {
+    lines.push([r.person, r.role, r.org, POOL_LABELS[r.pool] || r.pool, r.channel,
+                r.hook, r.link, r.sent, r.followup, STAGE_LABELS[r.stage]].map(esc).join(","));
+  }
+  return lines.join("\n");
+}
+
 async function showView(which) {
+  const views = { jobs: "#list", tracker: "#tracker", outreach: "#outreach" };
+  if (!(which in views)) which = "jobs";
   const jobs = which === "jobs";
   $("#viewjobs").classList.toggle("on", jobs);
-  $("#viewtracker").classList.toggle("on", !jobs);
+  $("#viewtracker").classList.toggle("on", which === "tracker");
+  $("#viewoutreach").classList.toggle("on", which === "outreach");
+  // The rail and the detail pane belong to the jobs view only; both table
+  // views take the full width.
   $("#list").hidden = !jobs;
   $("#detail").hidden = !jobs;
   $("#rail").hidden = !jobs;
-  $("#tracker").hidden = jobs;
-  if (!jobs) {
+  $("#tracker").hidden = which !== "tracker";
+  $("#outreach").hidden = which !== "outreach";
+  if (which === "tracker") {
     await loadQueueAll();
     renderTracker();
+  } else if (which === "outreach") {
+    renderOutreach();
   }
 }
 
