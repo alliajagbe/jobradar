@@ -35,6 +35,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, asdict
 from datetime import date, timedelta
+from urllib.parse import quote_plus
 
 from . import config, sponsorship
 from . import matching
@@ -127,6 +128,45 @@ class Contact:
     published: str          # ISO date, used for ordering: a fresh paper opens better
     link: str
     openalex_author: str
+    orcid: str = ""         # from OpenAlex; present for roughly 2 in 3 authors
+
+    # ---- ways to find the person ----
+    #
+    # There is deliberately no email field. Nothing public and reliable
+    # provides one: OpenAlex has no emails, Europe PMC's API returns none and
+    # refuses browser requests outright, and ORCID public emails came back
+    # empty for every author sampled, because almost nobody marks them public.
+    # The remaining options are reading corresponding-author lines out of PDFs,
+    # which does not cover industry papers at all, or generating
+    # firstname.lastname permutations against a company domain, which is an
+    # email harvester. These links go to places the person chose to publish
+    # about themselves instead.
+
+    @property
+    def linkedin_search(self) -> str:
+        """A prefilled people search, not a scrape.
+
+        LinkedIn has no public search API and scraping it risks the account
+        doing the scraping, so this is the query she would type by hand, one
+        click instead of three. The organisation is stripped of OpenAlex's
+        "(United States)" suffix, which otherwise matches nothing.
+        """
+        org = _PARENS.sub("", self.institution).strip()
+        query = quote_plus(f"{self.person} {org}".strip())
+        return f"https://www.linkedin.com/search/results/people/?keywords={query}"
+
+    @property
+    def scholar_search(self) -> str:
+        """Author-profile search. A Scholar profile shows a verified
+        institutional email DOMAIN, which is the closest legitimate thing to
+        an address that exists without guessing."""
+        org = _PARENS.sub("", self.institution).strip()
+        return ("https://scholar.google.com/citations?view_op=search_authors&mauthors="
+                + quote_plus(f"{self.person} {org}".strip()))
+
+    @property
+    def orcid_url(self) -> str:
+        return self.orcid or ""
 
     @property
     def cap(self) -> str:
@@ -149,7 +189,8 @@ class Contact:
         uses: one is shown in the candidate row, the other is written into the
         outreach entry when a candidate is promoted.
         """
-        return {**asdict(self), "cap": self.cap, "pool": self.pool, "tier": self.tier}
+        return {**asdict(self), "cap": self.cap, "pool": self.pool, "tier": self.tier,
+                "linkedin": self.linkedin_search, "scholar": self.scholar_search}
 
     @property
     def tier(self) -> int:
@@ -496,6 +537,7 @@ def find(topics, *, since: str | None = None, pages: int = 2, per_page: int = 10
                         published=(work.get("publication_date") or ""),
                         link=work.get("doi") or work.get("id") or "",
                         openalex_author=author_id,
+                        orcid=(author.get("orcid") or ""),
                     )
                     found += 1
                     break
@@ -567,7 +609,8 @@ def _spread(rows: list[Contact], limit: int, per_institution: int) -> list[Conta
 # write_csv, the helper's /api/contacts reader, and the page's parser.
 CSV_HEAD = ["Author ID", "Person", "Their role", "Organisation", "Sector",
             "H-1B cap", "Pool", "Hook", "Link", "Published",
-            "Certified filings", "In analyst roles", "Counted from"]
+            "Certified filings", "In analyst roles", "ORCID", "LinkedIn", "Scholar",
+            "Counted from"]
 
 
 def write_csv(rows: list[Contact], path) -> int:
@@ -587,6 +630,7 @@ def write_csv(rows: list[Contact], path) -> int:
                              c.sector, c.cap, c.pool,
                              f"{c.paper} ({c.year})" if c.year else c.paper,
                              c.link, c.published, c.certified, c.analyst_certified,
+                             c.orcid, c.linkedin_search, c.scholar_search,
                              c.merged_from])
     return len(rows)
 

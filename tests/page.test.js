@@ -690,6 +690,7 @@ setTimeout(() => {
 
       openalexCalls = [];
       openalexResults = [aWork("1", "Ivy Industry", "last", "Big Analytics", "company", "2026-09-01")];
+      openalexResults[0].authorships[0].author.orcid = "https://orcid.org/0000-0002-1825-0097";
       await search("fraud detection");
       check("a search finds a contact with no helper and no terminal",
             !!rowFor("Ivy Industry"), candRows() + " rows");
@@ -704,6 +705,27 @@ setTimeout(() => {
             (rowFor("Ivy Industry") || {}).textContent);
       check("an industry contact is marked as the lottery",
             !!(rowFor("Ivy Industry") || {}).querySelector(".chip.cap-subject"));
+
+      // Ways to find the person. No email column anywhere: nothing public and
+      // reliable provides one, and guessing firstname.lastname against a
+      // company domain is an email harvester.
+      const ivy = rowFor("Ivy Industry");
+      check("the name links to the ORCID profile when there is one",
+            !!ivy && /orcid\.org/.test(ivy.querySelector("a")?.href || ""),
+            ivy ? (ivy.querySelector("a") || {}).href : "no row");
+      check("a LinkedIn people search is offered",
+            !!ivy && [...ivy.querySelectorAll("a")].some(
+              (a) => a.href.includes("linkedin.com/search/results/people")
+                     && a.href.includes("Ivy+Industry")),
+            [...(ivy ? ivy.querySelectorAll("a") : [])].map(a => a.textContent).join(", "));
+      check("a Scholar author search is offered",
+            !!ivy && [...ivy.querySelectorAll("a")].some(
+              (a) => a.href.includes("scholar.google.com") && a.href.includes("search_authors")));
+      check("the paper is still reachable",
+            !!ivy && [...ivy.querySelectorAll("a")].some((a) => a.href.includes("doi.org")));
+      check("no lookup link carries OpenAlex's country suffix",
+            !!ivy && [...ivy.querySelectorAll("a")].every((a) => !a.href.includes("United")),
+            [...(ivy ? ivy.querySelectorAll("a") : [])].map(a => a.href).join(" ").slice(0, 100));
 
       // The bug that cost a round trip server-side. OpenAlex's country filter
       // is a property of the WORK, so a paper with one US institution
@@ -804,6 +826,14 @@ setTimeout(() => {
             JSON.stringify(promoted[0]).slice(0, 120));
       check("the follow-up is scheduled seven days out, by the same code path",
             promoted[0].followup === iso(7), `${promoted[0].sent} -> ${promoted[0].followup}`);
+      check("a promoted row keeps a way back to the person",
+            (() => {
+              const r = [...q("#outreachtable tbody tr")].find(
+                (tr) => tr.textContent.includes(promoted[0].person));
+              return !!r && [...r.querySelectorAll("a")].some(
+                (a) => a.href.includes("linkedin.com/search") || a.href.includes("orcid.org"));
+            })(), "profile link present on the logged row");
+
       check("a logged candidate leaves the panel", candRows() === beforePromote - 1,
             candRows() + " of " + beforePromote + " remain");
       check("and now counts in the outreach stats",

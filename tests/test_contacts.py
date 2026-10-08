@@ -702,3 +702,95 @@ def test_affix_index_finds_the_same_siblings_as_a_full_scan(employers):
                     if contacts._mergeable(toks, other_toks):
                         bucketed.add(other)
         assert scanned <= bucketed or not scanned, (stats.display_name, scanned - bucketed)
+
+
+# ---- ways to find the person ----
+
+def _contact(**kw):
+    base = dict(person="Ada Lovelace", position="PI",
+                institution="Deloitte (United States)", sector="company",
+                certified=128, analyst_certified=14, merged_from="DELOITTE",
+                paper="A paper", year=2026, published="2026-09-01",
+                link="https://doi.org/x", openalex_author="https://openalex.org/A1")
+    base.update(kw)
+    return contacts.Contact(**base)
+
+
+def test_there_is_no_email_field():
+    """Deliberate, and the reason is worth keeping pinned.
+
+    Nothing public and reliable provides one: OpenAlex carries no emails,
+    Europe PMC's API returns none and refuses browser requests, and ORCID
+    public emails were empty for every author sampled. What is left is reading
+    corresponding-author lines out of PDFs, which covers no industry paper, or
+    generating firstname.lastname guesses against a company domain, which is
+    an email harvester. If an email field ever appears here, that decision
+    should be made on purpose rather than by accident.
+    """
+    assert "email" not in contacts.Contact.__dataclass_fields__
+    assert not any("email" in h.lower() for h in contacts.CSV_HEAD)
+
+
+def test_linkedin_is_a_prefilled_search_not_a_profile_url():
+    """LinkedIn has no public search API, so this is the query she would type."""
+    url = _contact().linkedin_search
+    assert url.startswith("https://www.linkedin.com/search/results/people/?keywords=")
+    assert "Ada+Lovelace" in url
+    assert "Deloitte" in url
+
+
+def test_the_openalex_country_suffix_is_stripped_from_lookups():
+    """"(United States)" matches nothing on LinkedIn or Scholar."""
+    for url in (_contact().linkedin_search, _contact().scholar_search):
+        assert "United" not in url, url
+
+
+def test_scholar_search_targets_author_profiles():
+    url = _contact().scholar_search
+    assert "view_op=search_authors" in url
+    assert "Ada+Lovelace" in url
+
+
+def test_a_name_with_punctuation_is_encoded():
+    url = _contact(person="Jean-Luc O'Brien", institution="St. Jude").linkedin_search
+    assert " " not in url
+    assert "O%27Brien" in url or "O%27" in url
+
+
+def test_orcid_is_carried_when_openalex_has_one(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        {"author_position": "last",
+         "author": {"id": "https://openalex.org/A1", "display_name": "Ada Lovelace",
+                    "orcid": "https://orcid.org/0000-0002-1825-0097"},
+         "institutions": [{"display_name": "Midsize Analytics", "type": "company",
+                           "country_code": "US"}]}]))
+    assert contacts.find("x")[0].orcid == "https://orcid.org/0000-0002-1825-0097"
+
+
+def test_a_missing_orcid_is_empty_not_none(fake_works, fake_table):
+    """The page renders this straight into an href, so None would read "null"."""
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("No Orcid", "last", "Midsize Analytics")]))
+    assert contacts.find("x")[0].orcid == ""
+
+
+def test_csv_carries_the_lookup_links(tmp_path, fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    path = tmp_path / "contacts.csv"
+    contacts.write_csv(contacts.find("x"), path)
+    text = path.read_text()
+    head = text.splitlines()[0]
+    for column in ("ORCID", "LinkedIn", "Scholar"):
+        assert column in head
+    assert "linkedin.com/search" in text
+    assert "scholar.google.com" in text
+
+
+def test_as_dict_carries_the_links_for_the_page(fake_works, fake_table):
+    fake_works.append(_work("A paper", "2026-09-01", [
+        _authorship("Senior Person", "last", "Midsize Analytics")]))
+    d = contacts.find("x")[0].as_dict()
+    assert d["linkedin"].startswith("https://www.linkedin.com/search")
+    assert d["scholar"].startswith("https://scholar.google.com")
+    assert "email" not in d

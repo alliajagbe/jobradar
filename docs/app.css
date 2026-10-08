@@ -456,3 +456,11 @@ dialog dd { margin: 0; color: var(--ink-dim); }
 @media (max-width: 720px) {
   .candopts button[type="submit"] { margin-left: 0; width: 100%; }
 }
+
+/* Ways to find the person. Small and quiet: they are tools, not content. */
+.findrow { display: inline-flex; gap: 7px; margin-top: 2px; }
+.findrow a {
+  font-size: 11px; font-weight: 400; color: var(--ink-dim);
+  text-decoration: none; border-bottom: 1px dotted var(--line);
+}
+.findrow a:hover { color: var(--accent); border-bottom-color: var(--accent); }

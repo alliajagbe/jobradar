@@ -392,6 +392,32 @@ merges every file newest-first and dedupes on the author id. An unreadable or
 half-written CSV is skipped rather than failing the request. Use the CLI when
 you want the fuzzy matching the browser cannot do.
 
+### Reaching the person, and why there is no email column
+
+Each contact carries three ways to find them. The **name** links to their
+**ORCID** when OpenAlex has one, which is a profile they curated: employment
+history, often a personal site. Coverage runs about two in three. **LinkedIn**
+is a prefilled people search on their name and employer, and **Scholar** an
+author-profile search, whose page shows a verified institutional email
+*domain*. The **paper** link is the thing to open with. A promoted row keeps the
+profile link, because after writing to somebody the next thing you want is the
+way back to them.
+
+**There is deliberately no email address**, and that is a limit of the data
+rather than a choice to do less. OpenAlex carries no emails. Europe PMC's API
+returns none for any author and refuses browser requests outright. ORCID public
+emails were empty for every author sampled, because almost nobody marks them
+public. What remains is parsing corresponding-author lines out of PDFs, which
+covers essentially no industry paper and so misses the sector that matters most
+here, or generating `firstname.lastname@company.com` permutations and testing
+them, which is an email harvester regardless of the intent behind it. The links
+above go to places each person chose to publish about themselves. LinkedIn is a
+search URL and not a scrape for the same reason: it has no public search API,
+and scraping it puts the scraping account at risk.
+
+A test asserts the absence of the field, so if an email column ever appears it
+is because somebody decided to add one rather than because it crept in.
+
 When the panel is empty it says why: nothing searched yet, no match for that
 topic, helper offline, helper running an older build with no `/api/contacts`
 route, no CSVs on disk, or the browser blocking the call. Those used to be one

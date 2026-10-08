@@ -88,7 +88,7 @@ const CAND_COLS = {
   id: "Author ID", person: "Person", role: "Their role", org: "Organisation",
   sector: "Sector", cap: "H-1B cap", pool: "Pool", hook: "Hook", link: "Link",
   published: "Published", certified: "Certified filings",
-  analyst: "In analyst roles",
+  analyst: "In analyst roles", orcid: "ORCID",
 };
 
 let CARDS = [];
@@ -264,6 +264,7 @@ function toCandidate(row) {
     published: get("published"),
     certified: Number(get("certified")) || 0,
     analyst: Number(get("analyst")) || 0,
+    orcid: get("orcid"),
   };
 }
 
@@ -1464,6 +1465,9 @@ function outreachRows() {
     hook: v.hook || "", link: v.link || "",
     sent: v.sent || "", followup: v.followup || "",
     stage: STAGES.includes(v.stage) ? v.stage : "sent",
+    // Promoted candidates carry these; a hand-typed contact has neither, and
+    // the row just renders without the link.
+    orcid: v.orcid || "", linkedin: v.linkedin || "",
   }));
 }
 
@@ -1514,14 +1518,33 @@ function renderOutreach() {
     if (r.stage === "dead") tr.classList.add("closed");
 
     const who = el("td", "who");
-    who.appendChild(el("span", null, r.person));
+    // Having written to somebody, the next thing wanted is the way back to
+    // them, so the name links to their profile where one was carried over.
+    const profile = r.orcid || r.linkedin;
+    if (profile) {
+      const a = el("a", null, r.person);
+      a.href = profile; a.target = "_blank"; a.rel = "noopener";
+      a.title = r.orcid ? "ORCID profile" : "Search LinkedIn for this person";
+      who.appendChild(a);
+    } else {
+      who.appendChild(el("span", null, r.person));
+    }
     if (r.role) { who.appendChild(el("br")); who.appendChild(el("span", "muted", r.role)); }
+    if (r.linkedin && r.orcid) {
+      who.appendChild(el("br"));
+      const row = el("span", "findrow");
+      const a = el("a", null, "LinkedIn");
+      a.href = r.linkedin; a.target = "_blank"; a.rel = "noopener";
+      row.appendChild(a);
+      who.appendChild(row);
+    }
     tr.appendChild(who);
 
     const org = el("td");
     if (r.link) {
       const a = el("a", null, r.org);
       a.href = r.link; a.target = "_blank"; a.rel = "noopener";
+      a.title = "The work you opened with";
       org.appendChild(a);
     } else org.textContent = r.org;
     tr.appendChild(org);
@@ -1773,6 +1796,7 @@ async function searchContacts({ topic, sectors, positions, since }) {
           "Published": work.publication_date || "",
           "Certified filings": String(stats.certified),
           "In analyst roles": String(stats.analyst),
+          "ORCID": author.orcid || "",
           "_tier": sponsorTier(stats.certified, stats.analyst),
         };
         break;
@@ -1796,6 +1820,32 @@ async function searchContacts({ topic, sectors, positions, since }) {
     else rest.push(row);
   }
   return first.concat(rest).slice(0, 40);
+}
+
+/* ---- finding the person ----
+   There is deliberately no email here. Nothing public and reliable provides
+   one: OpenAlex carries no emails, Europe PMC's API returns none and refuses
+   browser requests outright, and ORCID public emails were empty for every
+   author sampled, because almost nobody marks them public. What is left is
+   reading corresponding-author lines out of PDFs, which covers no industry
+   paper at all, or generating firstname.lastname guesses against a company
+   domain, which is an email harvester. These go to places the person chose to
+   publish about themselves instead.
+
+   LinkedIn has no public search API and scraping it risks the account doing
+   the scraping, so this is the query she would type by hand, prefilled. */
+function lookupLinks(c) {
+  // OpenAlex suffixes company names with "(United States)", which matches
+  // nothing on either site.
+  const org = String(c.org || "").replace(/\s*\([^)]*\)/g, "").trim();
+  const who = encodeURIComponent(`${c.person} ${org}`.trim()).replace(/%20/g, "+");
+  return {
+    linkedin: "https://www.linkedin.com/search/results/people/?keywords=" + who,
+    // A Scholar profile shows a verified institutional email DOMAIN, which is
+    // the closest legitimate thing to an address that exists without guessing.
+    scholar: "https://scholar.google.com/citations?view_op=search_authors&mauthors=" + who,
+    orcid: c.orcid || "",
+  };
 }
 
 /* ---- the candidates panel ---- */
@@ -1886,18 +1936,36 @@ function renderCandidates() {
   for (const c of sorted) {
     const tr = el("tr");
 
+    const links = lookupLinks(c);
     const who = el("td", "who");
-    who.appendChild(el("span", null, c.person));
+    // The name goes to their ORCID when there is one: a profile they curated
+    // themselves, with employment history and often a personal site.
+    if (links.orcid) {
+      const a = el("a", null, c.person);
+      a.href = links.orcid; a.target = "_blank"; a.rel = "noopener";
+      a.title = "ORCID profile";
+      who.appendChild(a);
+    } else {
+      who.appendChild(el("span", null, c.person));
+    }
     if (c.role) { who.appendChild(el("br")); who.appendChild(el("span", "muted", c.role)); }
+    who.appendChild(el("br"));
+    const row = el("span", "findrow");
+    for (const [label, href, title] of [
+      ["LinkedIn", links.linkedin, "Search LinkedIn for this person"],
+      ["Scholar", links.scholar, "Their Scholar profile shows a verified email domain"],
+      ["paper", c.link, "The work to open with"],
+    ]) {
+      if (!href) continue;
+      const a = el("a", null, label);
+      a.href = href; a.target = "_blank"; a.rel = "noopener"; a.title = title;
+      row.appendChild(a);
+    }
+    who.appendChild(row);
     tr.appendChild(who);
 
-    const org = el("td");
-    if (c.link) {
-      const a = el("a", null, c.org);
-      a.href = c.link; a.target = "_blank"; a.rel = "noopener";
-      org.appendChild(a);
-    } else org.textContent = c.org;
-    tr.appendChild(org);
+    // Plain text now that the paper has its own link in the row above.
+    tr.appendChild(el("td", null, c.org));
 
     const cap = el("td");
     const label = { exempt: "cap-exempt", subject: "lottery", check: "check" }[c.cap] || c.cap;
@@ -1954,12 +2022,16 @@ function promoteCandidate(id) {
   const c = candidates[id];
   if (!c) return;
   const sent = today();
+  const links = lookupLinks(c);
   outreachAdd({
     person: c.person, org: c.org, role: c.role,
     pool: c.pool, channel: "email",
     hook: c.hook, link: c.link,
     sent, followup: addDays(sent, FOLLOWUP_DAYS),
     stage: "sent",
+    // Carried over so the logged row can still reach them: after writing to
+    // somebody the next thing wanted is the way back to their profile.
+    orcid: c.orcid || "", linkedin: links.linkedin,
     // Keeps the panel and the table in agreement without matching on a name.
     candidateId: c.id,
   });
