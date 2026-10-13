@@ -82,9 +82,43 @@ class Person:
 _EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 _YEAR = re.compile(r"\b(19[5-9]\d|20[0-4]\d)\b")
 # Lines a directory or LinkedIn page pastes in that carry no information.
+# "Showing 1-20 of 312 results" and "Page 2 of 16" are the pagination forms
+# that became contacts named "Showing 1-4 of 312 results" before they were
+# matched here.
 _NOISE = re.compile(
     r"^(?:\d+(?:st|nd|rd|th)(?:\s*degree)?|connect|message|follow|view profile|"
-    r"shared connections?|·|•|\||see more|load more|results?|page \d+)$", re.I)
+    r"shared connections?|·|•|\||see more|load more|results?|next|previous|"
+    r"showing\b.*|page \d+(?:\s+of\s+\d+)?|\d+\s+results?(?:\s+found)?|"
+    r"sort by\b.*|filters?|clear all)$", re.I)
+
+# A pasted table leads with its column headings, and a heading row parses as a
+# perfectly plausible person: the first real paste produced a contact called
+# "Name" whose employer was "Company".
+_HEADER_CELL = frozenset("""
+name names fullname full first last firstname lastname title titles role roles
+position job company companies employer organisation organization org
+class year grad graduation email emails address contact phone location city
+state country degree degrees program major industry function level
+""".split())
+
+
+def _is_header(cells: list) -> bool:
+    """Whether a row is a table's heading rather than somebody in it.
+
+    Judged on the row as a whole: a real person can be called Grace Position,
+    but a row where every cell is a column label is a header. Requiring at
+    least two cells keeps a one-word line from being thrown away.
+    """
+    if len([c for c in cells if c]) < 2:
+        return False
+    # Split each cell into words rather than stripping its spaces: "Grad Year"
+    # collapsed to "gradyear", which is in no vocabulary anybody would think to
+    # write down, so that heading sailed through as a person.
+    for cell in cells:
+        words = [w for w in re.split(r"[^a-z]+", cell.lower()) if w]
+        if not words or any(w not in _HEADER_CELL for w in words):
+            return False
+    return True
 
 
 def _clean(cell: str) -> str:
@@ -102,7 +136,7 @@ def _row_to_person(cells: list) -> Person | None:
     """
     cells = [_clean(c) for c in cells]
     cells = [c for c in cells if c and not _NOISE.match(c)]
-    if not cells:
+    if not cells or _is_header(cells):
         return None
 
     email = next((c for c in cells if _EMAIL.fullmatch(c)), "")
@@ -169,8 +203,12 @@ def parse_paste(text: str) -> list:
                 person = _row_to_person(row)
                 if person:
                     out.append(person)
-            if out:
-                return out
+            # Returned even when empty. A delimited paste that yields nobody
+            # genuinely holds nobody — a heading row on its own, say — and
+            # falling through to the line-per-field strategy re-read that
+            # heading as a single cell and produced a contact named
+            # "Name Title Company Class Email".
+            return out
 
     # Otherwise: blocks separated by blank lines, or a fixed run of lines per
     # person. Blank-line separation is checked first because it is unambiguous.

@@ -243,3 +243,62 @@ def test_the_hook_falls_back_to_their_own_role(tmp_path):
     row = next(csv.DictReader(out.open()))
     assert row["Hook"] == "Manager, BI"
     assert row["Certified filings"] == "1584"
+
+
+# ---- what a real copied page drags in ----
+
+MESSY = """Name\tTitle\tCompany\tClass\tEmail
+Showing 1-4 of 312 results
+
+Jane Okafor\tSenior Data Analyst\tCapital One\t2021\tjokafor@example.com
+2nd degree
+Connect
+
+Marcus Webb\tDirector, Analytics\tApplied Materials\t2016\tmwebb@example.com
+Message
+Load more
+"""
+
+
+def test_a_copied_table_yields_only_the_people():
+    """The first real paste produced six contacts from four people.
+
+    A heading row parses as a perfectly plausible person — the batch had a
+    contact called "Name" whose employer was "Company" — and so does
+    "Showing 1-4 of 312 results".
+    """
+    people = O.parse_paste(MESSY)
+    assert [p.name for p in people] == ["Jane Okafor", "Marcus Webb"]
+    assert people[0].company == "Capital One"
+    assert people[0].email == "jokafor@example.com"
+
+
+@pytest.mark.parametrize("row", [
+    ["Name", "Title", "Company", "Class", "Email"],
+    ["Full Name", "Position", "Employer", "Grad Year"],
+    ["first", "last", "organization", "location"],
+])
+def test_a_heading_row_is_not_a_person(row):
+    assert O.parse_paste("\t".join(row)) == []
+
+
+@pytest.mark.parametrize("line", [
+    "Showing 1-20 of 312 results", "Page 2 of 16", "312 results",
+    "48 results found", "Sort by: relevance", "Clear all", "Next", "Previous",
+])
+def test_pagination_and_controls_are_not_people(line):
+    assert O.parse_paste(line) == []
+
+
+def test_a_person_whose_name_matches_a_column_word_survives():
+    """A header is judged on the whole row, not on one cell. Somebody really
+    can be called Grace Price, and throwing her away would be worse than
+    keeping a stray heading."""
+    people = O.parse_paste("Grace Price\tAnalyst\tAcme Corp")
+    assert [p.name for p in people] == ["Grace Price"]
+
+
+def test_a_single_heading_word_is_kept():
+    """One word is not enough to call a row a header, and discarding it would
+    silently drop a one-word name."""
+    assert [p.name for p in O.parse_paste("Name")] == ["Name"]
