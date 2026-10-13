@@ -871,3 +871,38 @@ def test_an_accommodation_or_compliance_address_is_refused(addr):
 
 def test_an_address_is_lowercased():
     assert contacts.careers_email("Write to Careers@Example.COM") == "careers@example.com"
+
+
+# ---- regional and legal suffixes on an employer name ----
+
+@pytest.mark.parametrize("name,expected", [
+    # The miss that prompted this: a directory writes "ABB Americas" where the
+    # filing table says "ABB", and that one word was the whole difference
+    # between 104 certified petitions and "no filing record found".
+    ("ABB Americas", "ABB"),
+    ("ABB Americas Inc", "ABB"),
+    ("Siemens USA", "Siemens"),
+    ("Deloitte LLP", "Deloitte"),
+    ("Acme Holdings Limited", "Acme"),
+])
+def test_a_trailing_region_or_legal_word_is_peeled_off(name, expected):
+    assert expected in contacts.institution_variants(name)
+
+
+def test_peeling_never_reaches_nothing():
+    """One token always survives, or the lookup would match everything."""
+    for name in ("Inc", "Holdings", "Global Inc"):
+        variants = contacts.institution_variants(name)
+        assert variants and all(v.strip() for v in variants)
+
+
+def test_a_real_word_in_the_name_is_not_peeled():
+    """"Capital One" ends in nothing removable; "General Motors" likewise."""
+    assert contacts.institution_variants("Capital One") == ["Capital One"]
+    assert contacts.institution_variants("General Motors") == ["General Motors"]
+
+
+def test_the_full_name_is_still_tried_first():
+    """A company really called "X Americas" in the filing table must win over
+    the peeled form, so order matters."""
+    assert contacts.institution_variants("ABB Americas")[0] == "ABB Americas"

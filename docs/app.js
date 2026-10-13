@@ -1751,14 +1751,31 @@ function simpleKey(name) {
   return tokens.join(" ");
 }
 
-/* Mirrors contacts.institution_variants: plainer spellings of one name. Two
-   regexes, safe to duplicate, and the reason "Washington University in St.
-   Louis" finds the entry written for "Washington University". */
+/* Mirrors contacts.institution_variants: plainer spellings of one name, and
+   the reason "Washington University in St. Louis" finds the entry written for
+   "Washington University". */
+// Trailing words that name a region or a legal wrapper rather than the
+// employer. A directory writes "ABB Americas" where the filing table says
+// "ABB", and that one word was the difference between 104 certified petitions
+// and "no filing record".
+const TRAILING_QUALIFIER = new Set(("AMERICAS AMERICA USA NA EMEA APAC LATAM GLOBAL "
+  + "WORLDWIDE INTERNATIONAL GROUP HOLDINGS HOLDING CORPORATION CORP COMPANY "
+  + "INCORPORATED INC LLC LLP LTD LIMITED PLC GMBH AG NV SA").split(" "));
+
 function institutionVariants(name) {
   const out = [], seen = new Set();
   const noParens = String(name || "").replace(/\s*\([^)]*\)/g, "");
-  const noCity = noParens.replace(/\s+(?:in|at)\s+[A-Z][\w.-]*(?:\s+[A-Z][\w.-]*){0,2}$/, "");
-  for (const candidate of [name, noParens, noCity]) {
+  const base = noParens.replace(/\s+(?:in|at)\s+[A-Z][\w.-]*(?:\s+[A-Z][\w.-]*){0,2}$/, "");
+  const candidates = [name, noParens, base];
+  // Then peel trailing region and legal words one at a time, never down to
+  // nothing: at least one token always survives.
+  let words = base.split(/\s+/).filter(Boolean);
+  while (words.length > 1
+         && TRAILING_QUALIFIER.has(words[words.length - 1].toUpperCase().replace(/[.,]/g, ""))) {
+    words = words.slice(0, -1);
+    candidates.push(words.join(" "));
+  }
+  for (const candidate of candidates) {
     const plain = String(candidate || "").replace(/^The\s+/i, "").trim();
     if (plain && !seen.has(plain.toLowerCase())) { seen.add(plain.toLowerCase()); out.push(plain); }
   }

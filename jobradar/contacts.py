@@ -76,6 +76,15 @@ INNOVATIONS CLOUD CYBER SMART GROUP COMPANY CORP INCORPORATED
 # employer. "University of Washington" is not either of them, which is why the
 # merge below is by ordered token prefix and never by token set.
 _CITY_TAIL = re.compile(r"\s+(?:in|at)\s+[A-Z][\w.\-]*(?:\s+[A-Z][\w.\-]*){0,2}$")
+# Trailing words that name a region or a legal wrapper rather than the
+# employer. A directory writes "ABB Americas" where the filing table says
+# "ABB", and that one word was the whole difference between 104 certified
+# petitions and "no filing record found".
+_TRAILING_QUALIFIER = frozenset("""
+AMERICAS AMERICA USA NA EMEA APAC LATAM GLOBAL WORLDWIDE INTERNATIONAL
+GROUP HOLDINGS HOLDING CORPORATION CORP COMPANY INCORPORATED INC
+LLC LLP LTD LIMITED PLC GMBH AG NV SA
+""".split())
 _PARENS = re.compile(r"\s*\([^)]*\)")
 
 # OpenAlex institution types, grouped by whether the employer is exempt from
@@ -219,7 +228,18 @@ def institution_variants(name: str) -> list[str]:
     unqueried.
     """
     seen, out = set(), []
-    for candidate in (name, _PARENS.sub("", name), _CITY_TAIL.sub("", _PARENS.sub("", name))):
+    base = _CITY_TAIL.sub("", _PARENS.sub("", name or ""))
+    candidates = [name, _PARENS.sub("", name or ""), base]
+
+    # Then the same name with its trailing region or legal words peeled off,
+    # one at a time, so "ABB Americas Inc" also tries "ABB Americas" and "ABB".
+    # Never down to nothing: at least one token always survives.
+    words = base.split()
+    while len(words) > 1 and words[-1].upper().strip(".,") in _TRAILING_QUALIFIER:
+        words = words[:-1]
+        candidates.append(" ".join(words))
+
+    for candidate in candidates:
         plain = re.sub(r"^The\s+", "", candidate or "").strip()
         if plain and plain.lower() not in seen:
             seen.add(plain.lower())

@@ -458,6 +458,14 @@ seconds of looking. Correct a cell and the correction is what gets added.
 `/outreach` works on it unchanged and the whole path from paste to draft stays
 out of the terminal.
 
+**Employer names carry suffixes the filing table does not.** A directory writes
+"ABB Americas" where the DOL table says "ABB", and that one word was the
+difference between 104 certified petitions and "no filing record found" on the
+first real contact run through this. So `institution_variants` now peels
+trailing region and legal words — Americas, USA, EMEA, Group, Holdings, Inc,
+LLP — one at a time, always trying the full name first and never peeling down to
+nothing. Both the page and the CLI do it, and the cases are pinned.
+
 **The dedupe is the guard that matters most.** Two notes to one alum undoes the
 effort of both, and at twenty a day across weeks that is a matter of when rather
 than whether. `~/.jobradar/outreach/sent.csv` is an append-only ledger of who
