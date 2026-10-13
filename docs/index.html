@@ -137,7 +137,8 @@
            with no local helper and no terminal. -->
       <div class="candmodes" role="group">
         <button type="button" id="mode_topic" class="on">By topic</button><button
-                type="button" id="mode_company">By company</button>
+                type="button" id="mode_company">By company</button><button
+                type="button" id="mode_paste">Paste alumni</button>
       </div>
 
       <form class="candsearch" id="candsearch" autocomplete="off">
@@ -182,6 +183,37 @@
         </div>
       </form>
       <div id="comppaths" class="comppaths" hidden></div>
+
+      <!-- Paste alumni straight off the directory page. The parse is
+           deliberately simple and the result is shown for confirmation before
+           anything is added: a glance costs five seconds and catches the whole
+           class of "the parser mislabelled somebody", which matters because
+           these names end up in a note a real person reads. -->
+      <form class="candsearch" id="pastesearch" autocomplete="off" hidden>
+        <p class="note">Search <a href="https://wakenetwork.wfu.edu" target="_blank"
+          rel="noopener">WakeNetwork</a> or a LinkedIn alumni page, select the results,
+          copy, and paste below. Headings, "Connect", "2nd degree" and result counts
+          are thrown away.</p>
+        <textarea id="q_paste" rows="6" spellcheck="false"
+          placeholder="Paste the copied rows here&#10;&#10;Jane Okafor&#9;Senior Data Analyst&#9;Capital One&#9;2021&#9;jokafor@example.com"></textarea>
+        <div class="candopts">
+          <span class="note" id="pastecount"></span>
+          <button class="btn" type="submit" id="p_go">Read it</button>
+        </div>
+      </form>
+      <div id="pastereview" class="pastereview" hidden>
+        <div class="candhead">
+          <span id="pastesummary" class="muted"></span>
+          <button class="btn" id="pastedownload" type="button">Download for drafting</button>
+          <button class="btn" id="pasteadd" type="button">Add to the list</button>
+        </div>
+        <table id="pastetable"><thead><tr>
+          <th>Name</th><th>Their role</th><th>Organisation</th><th>Email</th>
+          <th>What we know about the employer</th><th></th>
+        </tr></thead><tbody></tbody></table>
+        <p class="note">Anything wrong is editable here before it is added. Blank
+          the name to drop a row.</p>
+      </div>
       <table id="candidatestable"><thead><tr>
         <th data-sort="person">Person</th>
         <th data-sort="org">Organisation</th>

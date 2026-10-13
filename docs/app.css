@@ -502,3 +502,30 @@ dialog dd { margin: 0; color: var(--ink-dim); }
 .path a.go:hover { background: var(--accent-soft); }
 .complist { margin: 10px 0 0; font-size: 12px; color: var(--ink-dim); }
 .complist li { margin: 2px 0; }
+
+/* ---- paste review ----
+   The confirmation step. Editable because the parse is best-effort and these
+   names end up in a note somebody reads. */
+#q_paste {
+  width: 100%; font: inherit; font-size: 13px; padding: 7px 9px;
+  background: var(--bg); color: var(--ink); resize: vertical;
+  border: 1px solid var(--line); border-radius: 6px;
+}
+.pastereview { margin: 4px 0 14px; }
+#pastetable { width: 100%; border-collapse: collapse; font-size: 13px; }
+#pastetable th {
+  text-align: left; font-weight: 600; font-size: 11px; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--ink-dim); padding: 5px 6px;
+  border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+#pastetable td { padding: 3px 6px; border-bottom: 1px solid var(--line); }
+#pastetable input {
+  width: 100%; font: inherit; font-size: 12px; padding: 3px 5px;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid transparent; border-radius: 4px;
+}
+#pastetable input:hover { border-color: var(--line); }
+#pastetable input:focus { border-color: var(--accent); outline: none; }
+#pastetable td.known { font-size: 12px; color: var(--ink-dim); }
+#pastetable tr.dupe { opacity: .55; }
+#pastetable tr.dupe td.known { color: var(--warn); }

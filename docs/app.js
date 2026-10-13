@@ -1066,6 +1066,67 @@ function wire() {
 
   $("#mode_topic").addEventListener("click", () => setCandMode("topic"));
   $("#mode_company").addEventListener("click", () => setCandMode("company"));
+  $("#mode_paste").addEventListener("click", () => setCandMode("paste"));
+
+  $("#pastesearch").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const people = parsePastedPeople($("#q_paste").value);
+    if (!people.length) {
+      banner("Nothing readable in that paste. Copy the result rows themselves, "
+             + "not the whole page.");
+      return;
+    }
+    // Needed for the filing counts in the review table.
+    await loadSponsors();
+    PASTED = people;
+    renderPasteReview();
+    $("#pastecount").textContent = `${people.length} read`;
+  });
+
+  $("#pasteadd").addEventListener("click", () => {
+    const usable = PASTED.filter((p) => p.name && p.name.trim() && !alreadyKnown(p));
+    if (!usable.length) { banner("Nothing left to add."); return; }
+    // Through addCandidates, so these land in the same store as everything
+    // else and `Log it` works on them unchanged.
+    const added = addCandidates(usable.map((person) => {
+      const facts = person.company ? companyFacts(person.company) : null;
+      const info = describeEmployer(person.company);
+      return {
+        "Author ID": `wfu|${(person.email || person.name + "|" + person.company).toLowerCase()}`,
+        "Person": person.name.trim(),
+        "Their role": person.title || "alum",
+        "Organisation": person.company || "",
+        "Sector": "", "H-1B cap": "", "Pool": "alumni",
+        // The hook is what the note will reference: their employer's open req
+        // if there is one, else their own role.
+        "Hook": info.roles[0] || person.title || "",
+        "Link": person.email ? "mailto:" + person.email : "",
+        "Published": today(),
+        "Certified filings": facts && facts.certified != null ? String(facts.certified) : "",
+        "In analyst roles": facts && facts.analyst != null ? String(facts.analyst) : "",
+        "ORCID": "",
+      };
+    }));
+    PASTED = [];
+    renderPasteReview();
+    $("#q_paste").value = "";
+    setCandMode("topic");
+    renderCandidates();
+    banner(`Added ${added} alum${added === 1 ? "" : "ni"} to the list. `
+           + "Download the batch to have them drafted.");
+  });
+
+  $("#pastedownload").addEventListener("click", () => {
+    const usable = PASTED.filter((p) => p.name && p.name.trim() && !alreadyKnown(p));
+    if (!usable.length) { banner("Nothing to draft."); return; }
+    const blob = new Blob([batchMarkdown(usable)], { type: "text/markdown" });
+    const a = el("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `batch-${today()}.md`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    banner("Saved. In a Claude session run /outreach and point it at that file.");
+  });
   $("#compsearch").addEventListener("submit", (e) => {
     e.preventDefault();
     const name = $("#q_company").value.trim();
@@ -1864,6 +1925,229 @@ function lookupLinks(c) {
   };
 }
 
+/* ---- pasting alumni off a directory page ----
+   The terminal version of this lives in jobradar/outreach.py and is the more
+   careful parser. This one is deliberately simpler, because it does not have to
+   be right on its own: what it produces is shown in an editable table before
+   anything is added, so a glance catches a mislabelled row.
+
+   That is the trade made on purpose. The alternative was porting 150 lines of
+   shape-matching logic that six bugs had already been found in, and keeping two
+   copies of it honest forever. Five seconds of looking is a better guard than a
+   second implementation. */
+
+// Chrome a directory or LinkedIn page drags along with the rows.
+const PASTE_NOISE = /^(?:\d+(?:st|nd|rd|th)(?:\s*degree)?|connect|message|follow|view profile|shared connections?|see more|load more|next|previous|results?|\d+\s+results?(?:\s+found)?|showing\b.*|page \d+(?:\s+of\s+\d+)?|sort by\b.*|filters?|clear all|[·•|])$/i;
+// Words that mean a row is a table heading rather than somebody in it.
+const PASTE_HEADING = new Set(("name names fullname full first last firstname lastname "
+  + "title titles role roles position job company companies employer organisation "
+  + "organization org class year grad graduation email emails address contact phone "
+  + "location city state country degree degrees program major industry function level"
+).split(" "));
+
+function isHeadingRow(cells) {
+  const filled = cells.filter(Boolean);
+  if (filled.length < 2) return false;
+  return filled.every((cell) => {
+    const words = cell.toLowerCase().split(/[^a-z]+/).filter(Boolean);
+    return words.length && words.every((w) => PASTE_HEADING.has(w));
+  });
+}
+
+const PASTE_EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+const PASTE_YEAR = /^(?:19[5-9]\d|20[0-4]\d)$/;
+
+/* One row of cells into a person, identified by shape rather than by column
+   order: directory exports disagree about order, and guessing wrong swaps
+   somebody's employer for their job title. */
+function cellsToPerson(cells) {
+  let clean = cells.map((c) => String(c || "").replace(/\u00a0/g, " ").trim()
+                                .replace(/^[,;|\s]+|[,;|\s]+$/g, ""));
+  clean = clean.filter((c) => c && !PASTE_NOISE.test(c));
+  if (!clean.length || isHeadingRow(clean)) return null;
+
+  let email = "";
+  for (const cell of clean) {
+    const found = cell.match(PASTE_EMAIL);
+    if (found) { email = found[0]; break; }
+  }
+  const year = clean.find((c) => PASTE_YEAR.test(c)) || "";
+  const rest = clean.filter((c) => c !== year && !(email && c.includes(email)));
+  if (!rest.length) return null;
+  // One field left is the employer, not the title: that is the field the
+  // enrichment needs, and a wrong title costs a hook while a wrong employer
+  // costs a wrong fact in the note.
+  const [name, ...others] = rest;
+  return {
+    name, grad_year: year, email,
+    title: others.length >= 2 ? others[0] : "",
+    company: others.length >= 2 ? others[1] : (others[0] || ""),
+  };
+}
+
+function parsePastedPeople(text) {
+  const raw = String(text || "").split(/\r?\n/);
+  const kept = raw.filter((ln) => ln.trim() && !PASTE_NOISE.test(ln.trim()));
+  if (!kept.length) return [];
+
+  for (const delim of ["\t", ","]) {
+    const hits = kept.filter((ln) => ln.includes(delim));
+    if (hits.length >= Math.max(1, Math.floor(kept.length / 2))) {
+      // Returned even when empty: a delimited paste that yields nobody really
+      // holds nobody, and falling through re-reads a heading row as one cell.
+      return hits.map((ln) => cellsToPerson(ln.split(delim))).filter(Boolean);
+    }
+  }
+
+  // Blocks separated by blank lines, else a fixed run of lines per person.
+  const blocks = [];
+  let current = [];
+  for (const line of raw.map((l) => l.trim())) {
+    if (!line) { if (current.length) { blocks.push(current); current = []; } continue; }
+    if (!PASTE_NOISE.test(line)) current.push(line);
+  }
+  if (current.length) blocks.push(current);
+  if (blocks.length > 1) {
+    const out = blocks.map(cellsToPerson).filter(Boolean);
+    if (out.length) return out;
+  }
+  const only = blocks[0] || kept.map((l) => l.trim());
+  for (const size of [3, 2]) {
+    if (only.length >= size * 2 && only.length % size === 0) {
+      const groups = [];
+      for (let i = 0; i < only.length; i += size) groups.push(only.slice(i, i + size));
+      const out = groups.map(cellsToPerson).filter(Boolean);
+      if (out.length === groups.length) return out;
+    }
+  }
+  return only.map((line) => cellsToPerson([line])).filter(Boolean);
+}
+
+/* What the page already knows about their employer. No new data source: CARDS
+   is the open-roles feed and SPONSORS the published filing index, both already
+   loaded for the other two modes. */
+function describeEmployer(company) {
+  if (!company) return { text: "no employer given", roles: [] };
+  const facts = companyFacts(company);
+  const roles = facts.cards.slice(0, 4).map((c) => c.title);
+  const bits = [];
+  if (facts.certified != null) {
+    bits.push(`${facts.certified} certified, ${facts.analyst || 0} in analyst roles`);
+  } else {
+    bits.push("no filing record");
+  }
+  bits.push(roles.length ? `${facts.cards.length} open role${facts.cards.length === 1 ? "" : "s"}`
+                         : "no open roles in the feed");
+  return { text: bits.join(" · "), roles };
+}
+
+/* Already written to? The page's own stores answer this better than the CLI
+   ledger can: the tracker is the real record of who has been contacted. */
+function alreadyKnown(person) {
+  const email = (person.email || "").trim().toLowerCase();
+  const pair = `${(person.name || "").trim().toLowerCase()}|${(person.company || "").trim().toLowerCase()}`;
+  for (const v of Object.values(outreach)) {
+    const vEmail = String(v.link || "").replace(/^mailto:/, "").trim().toLowerCase();
+    if (email && vEmail === email) return "already in your outreach";
+    if (`${String(v.person || "").trim().toLowerCase()}|${String(v.org || "").trim().toLowerCase()}` === pair) {
+      return "already in your outreach";
+    }
+  }
+  for (const c of Object.values(candidates)) {
+    if (email && String(c.link || "").replace(/^mailto:/, "").toLowerCase() === email) {
+      return "already on the list";
+    }
+    if (`${String(c.person || "").toLowerCase()}|${String(c.org || "").toLowerCase()}` === pair) {
+      return "already on the list";
+    }
+  }
+  return "";
+}
+
+let PASTED = [];
+
+function renderPasteReview() {
+  const body = $("#pastetable tbody");
+  body.textContent = "";
+  PASTED.forEach((person, i) => {
+    const tr = el("tr");
+    const dupe = alreadyKnown(person);
+    if (dupe) tr.classList.add("dupe");
+    for (const key of ["name", "title", "company", "email"]) {
+      const td = el("td");
+      const input = el("input");
+      input.value = person[key] || "";
+      input.placeholder = key === "name" ? "(blank to drop)" : "";
+      input.addEventListener("input", () => {
+        PASTED[i][key] = input.value;
+        if (key === "company" || key === "name" || key === "email") renderPasteReview();
+      });
+      td.appendChild(input);
+      tr.appendChild(td);
+    }
+    const known = el("td", "known");
+    known.textContent = dupe || describeEmployer(person.company).text;
+    tr.appendChild(known);
+    const act = el("td");
+    const rm = el("button", "rmbtn", "drop");
+    rm.addEventListener("click", () => { PASTED.splice(i, 1); renderPasteReview(); });
+    act.appendChild(rm);
+    tr.appendChild(act);
+    body.appendChild(tr);
+  });
+
+  const usable = PASTED.filter((p) => p.name && p.name.trim() && !alreadyKnown(p));
+  const dupes = PASTED.filter((p) => alreadyKnown(p)).length;
+  $("#pastesummary").textContent =
+    `${usable.length} to add` + (dupes ? ` · ${dupes} already contacted` : "")
+    + ` · ${PASTED.length} row${PASTED.length === 1 ? "" : "s"} read`;
+  $("#pastereview").hidden = PASTED.length === 0;
+}
+
+/* The batch file the /outreach drafting skill reads. Written here so the whole
+   paste-to-draft path stays in the browser: the terminal command produces the
+   same shape, and this is a download rather than a file on disk. */
+function batchMarkdown(people) {
+  const stamp = today();
+  const lines = [
+    "<!-- A batch to draft. One block per person.",
+    "",
+    "Fill the `draft:` line under each person and nothing else. Keep each note",
+    "under 120 words, plain text, one ask, and make the ask a short conversation",
+    "rather than a job. If somebody has no usable hook, leave their draft empty",
+    "and say so in `note:` — a generic message is worse than none.",
+    "-->",
+    "",
+    `# Outreach batch ${stamp}`,
+    "",
+    `${people.length} to draft`,
+    "",
+  ];
+  for (const person of people) {
+    lines.push(`## ${person.name}`);
+    for (const [label, value] of [["title", person.title], ["company", person.company],
+                                  ["class of", person.grad_year], ["email", person.email]]) {
+      if (value) lines.push(`- ${label}: ${value}`);
+    }
+    const info = describeEmployer(person.company);
+    const facts = person.company ? companyFacts(person.company) : null;
+    if (facts && facts.certified != null) {
+      lines.push(`- sponsorship: ${facts.certified} certified, `
+                 + `${facts.analyst || 0} in analyst roles`);
+    } else if (person.company) {
+      lines.push("- sponsorship: no filing record found");
+    }
+    if (info.roles.length) {
+      lines.push("- open roles there now:");
+      for (const role of info.roles) lines.push(`    - ${role}`);
+    } else if (person.company) {
+      lines.push("- open roles there now: none found in the feed");
+    }
+    lines.push("", "draft: ", "note: ", "");
+  }
+  return lines.join("\n");
+}
+
 /* ---- ways into a company ----
    The topic search finds people who publish, which is useless for most of the
    market: recruiters do not write papers. These are the people who can open a
@@ -2037,12 +2321,16 @@ function prefillOutreach({ org, pool, hook }) {
 
 function setCandMode(which) {
   const company = which === "company";
-  $("#mode_topic").classList.toggle("on", !company);
+  const paste = which === "paste";
+  $("#mode_topic").classList.toggle("on", which === "topic");
   $("#mode_company").classList.toggle("on", company);
-  $("#candsearch").hidden = company;
+  $("#mode_paste").classList.toggle("on", paste);
+  $("#candsearch").hidden = which !== "topic";
   $("#compsearch").hidden = !company;
+  $("#pastesearch").hidden = !paste;
   $("#comppaths").hidden = true;
-  $("#candidatestable").hidden = company || candidateRows().length === 0;
+  $("#pastereview").hidden = !paste || PASTED.length === 0;
+  $("#candidatestable").hidden = which !== "topic" || candidateRows().length === 0;
   if (company) {
     // Tracked companies first: a datalist of all 972 in the feed is a wall,
     // and the ones she is tracking are the ones she means.

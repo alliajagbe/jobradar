@@ -885,6 +885,110 @@ setTimeout(() => {
       check("switching back restores the topic form",
             !$("#candsearch").hidden && $("#compsearch").hidden);
 
+      /* ---- pasting alumni off a directory page ----
+         The step Alli asked to move out of the terminal. The parse is
+         deliberately simple here and the review table is the guard, so these
+         checks are about what reaches the table and what gets filtered. */
+      $("#mode_paste").click();
+      check("paste mode swaps the forms",
+            !$("#pastesearch").hidden && $("#candsearch").hidden
+            && $("#compsearch").hidden);
+
+      const messy = [
+        "Name\tTitle\tCompany\tClass\tEmail",
+        "Showing 1-4 of 312 results",
+        "",
+        "Jane Okafor\tSenior Data Analyst\tBig Analytics\t2021\tjokafor@example.com",
+        "2nd degree",
+        "Connect",
+        "",
+        "Marcus Webb\tDirector, Analytics\tSmall Shop\t2016\tmwebb@example.com",
+        "Message",
+        "Load more",
+      ].join("\n");
+
+      const readPaste = async (text) => {
+        $("#q_paste").value = text;
+        $("#pastesearch").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+        for (let n = 0; n < 6; n++) await new Promise((r) => setTimeout(r, 0));
+      };
+      const pasteRows = () => q("#pastetable tbody tr");
+      const cellValue = (row, n) => (pasteRows()[row].querySelectorAll("input")[n] || {}).value;
+
+      await readPaste(messy);
+      check("only the people survive a copied table", pasteRows().length === 2,
+            pasteRows().length + " rows");
+      check("a heading row is not a person",
+            cellValue(0, 0) === "Jane Okafor", cellValue(0, 0));
+      check("the columns are not swapped",
+            cellValue(0, 1) === "Senior Data Analyst"
+            && cellValue(0, 2) === "Big Analytics"
+            && cellValue(0, 3) === "jokafor@example.com",
+            [cellValue(0,1), cellValue(0,2), cellValue(0,3)].join(" | "));
+      check("what the page knows about the employer is shown",
+            pasteRows()[0].querySelector("td.known").textContent.includes("900 certified"),
+            pasteRows()[0].querySelector("td.known").textContent);
+
+      // Nothing is added until she says so. The review step exists because the
+      // parse is best-effort and these names reach a real person.
+      const candsBefore = Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).length;
+      check("reading a paste adds nobody on its own",
+            Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).length === candsBefore);
+
+      // A correction in the table is what gets added, not what was parsed.
+      pasteRows()[1].querySelectorAll("input")[2].value = "Big Analytics";
+      pasteRows()[1].querySelectorAll("input")[2].dispatchEvent(new w.Event("input", {bubbles:true}));
+      $("#pasteadd").click();
+      const afterAdd = JSON.parse(store["jobradar.candidates.v1"] || "{}");
+      const webb = Object.values(afterAdd).find((c) => c.person === "Marcus Webb");
+      check("the edited employer is the one added",
+            !!webb && webb.org === "Big Analytics", webb ? webb.org : "missing");
+      check("pasted alumni land in the alumni pool",
+            !!webb && webb.pool === "alumni", webb ? webb.pool : "missing");
+      check("and carry the employer's filing counts",
+            !!webb && webb.certified === 900, webb ? webb.certified : "missing");
+
+      // Re-pasting the same page must not duplicate anyone.
+      await readPaste(messy);
+      $("#mode_paste").click();
+      await readPaste(messy);
+      check("someone already on the list is flagged as a duplicate",
+            q("#pastetable tbody tr.dupe").length === 2,
+            q("#pastetable tbody tr.dupe").length + " flagged");
+      check("and the summary says none are left to add",
+            $("#pastesummary").textContent.startsWith("0 to add"),
+            $("#pastesummary").textContent);
+      const beforeDupeAdd = Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).length;
+      $("#pasteadd").click();
+      check("adding duplicates is a no-op",
+            Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).length === beforeDupeAdd);
+
+      // One field per line, the other shape a directory pastes in.
+      await readPaste("Ada Fresh\nData Analyst\nBig Analytics\nBo Fresh\nAnalyst\nSmall Shop");
+      check("one field per line also reads", pasteRows().length === 2,
+            pasteRows().length + " rows");
+      check("and assigns the fields the same way",
+            cellValue(0, 0) === "Ada Fresh" && cellValue(0, 2) === "Big Analytics",
+            [cellValue(0,0), cellValue(0,2)].join(" | "));
+
+      // The batch file the drafting skill reads.
+      $("#pastedownload").click();
+      const batch = lastBlob ? await lastBlob.text() : "";
+      check("the batch carries the enrichment a draft needs",
+            batch.includes("## Ada Fresh") && batch.includes("draft:")
+            && batch.includes("900 certified") && batch.includes("open roles there now"),
+            batch.split("\n").slice(0, 2).join(" ").slice(0, 60));
+      check("an employer with no record says so rather than guessing",
+            batch.includes("no filing record found")
+            || batch.includes("none found in the feed"), "stated");
+
+      await readPaste("");
+      check("an empty paste is refused with a reason",
+            $("#banner").textContent.includes("Nothing readable"),
+            $("#banner").textContent.slice(0, 50));
+
+      $("#mode_topic").click();
+
       // THE invariant. A candidate is somebody suggested, not somebody written
       // to. If loading a CSV moved the outreach numbers, then "sent this week",
       // the due list and every per-pool reply rate would be counting messages

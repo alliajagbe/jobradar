@@ -394,9 +394,12 @@ you want the fuzzy matching the browser cannot do.
 
 ### The alumni outreach loop
 
+The **Paste alumni** mode in the Outreach tab is the normal way in: search
+[WakeNetwork](https://wakenetwork.wfu.edu) or a LinkedIn alumni page, select the
+results, copy, paste. No terminal. There is a CLI equivalent for scripted use:
+
 ```
 python -m jobradar outreach batch < pasted-alumni.txt
-# draft them in a Claude session with /outreach
 python -m jobradar outreach log
 ```
 
@@ -422,13 +425,25 @@ tool could not call a model even if that were a good idea, and templated prose
 reads templated. Automate the boring half; leave the half that needs judgment to
 a reader who can exercise it.
 
-`parse_paste` is tolerant because a directory page pastes as whatever that site
-and that browser agreed on: tab-separated, comma-separated, or one field per
-line, with LinkedIn chrome like "2nd degree" and "Connect" mixed in. Fields are
-identified by shape rather than column order, since guessing wrong does not
-produce a cosmetic error — it mislabels a real person in a note they will read.
-Nothing is invented: a missing employer stays empty and the note has one fewer
-hook.
+A directory page pastes as whatever that site and that browser agreed on:
+tab-separated, comma-separated, or one field per line, with chrome like "2nd
+degree", "Connect", "Showing 1-4 of 312 results" and a heading row mixed in.
+Fields are identified by shape rather than column order — the cell with an `@` is
+the address, a bare four-digit year is the class, the first cell is the name —
+because guessing wrong is not a cosmetic error: it mislabels a real person in a
+note they are about to read. Nothing is invented: a missing employer stays empty
+and the note has one fewer hook.
+
+**The page shows what it read before adding anything**, in an editable table
+with what it knows about each employer beside them. That review step is the
+guard, and it is why the browser parser is allowed to be simpler than the
+Python one: porting 150 lines of shape-matching that six bugs had already been
+found in, and keeping two copies honest forever, is a worse trade than five
+seconds of looking. Correct a cell and the correction is what gets added.
+
+**Download for drafting** writes the same batch file the CLI produces, so
+`/outreach` works on it unchanged and the whole path from paste to draft stays
+out of the terminal.
 
 **The dedupe is the guard that matters most.** Two notes to one alum undoes the
 effort of both, and at twenty a day across weeks that is a matter of when rather
