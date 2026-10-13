@@ -425,9 +425,22 @@ tool could not call a model even if that were a good idea, and templated prose
 reads templated. Automate the boring half; leave the half that needs judgment to
 a reader who can exercise it.
 
-A directory page pastes as whatever that site and that browser agreed on:
-tab-separated, comma-separated, or one field per line, with chrome like "2nd
-degree", "Connect", "Showing 1-4 of 312 results" and a heading row mixed in.
+A directory page pastes as whatever that site and that browser agreed on. The
+shapes handled, each from a real paste:
+
+- **One line per person with the address in the middle** —
+  `Steve Whitfield Blankenship deaconfan90@gmail.com HR Data Analyst at ABB
+  Americas`. This is what WakeNetwork gives, and the address is the anchor:
+  what precedes it is the name, what follows it is the role.
+- **`Role at Employer` in one cell**, split on the *last* " at ", because the
+  employer is the trailing part and a title can contain the word
+  ("Manager at Large at Acme").
+- **One profile across several lines** — name, role, address — which is the raw
+  shape before the segments are joined up. Taken as one person only when the
+  block carries an address or an " at " role, because three bare names in a row
+  are three people and not one person with three fields.
+- Tab-separated, comma-separated, or one field per line, with chrome like "2nd
+  degree", "Connect", "Showing 1-4 of 312 results" and a heading row mixed in.
 Fields are identified by shape rather than column order — the cell with an `@` is
 the address, a bare four-digit year is the class, the first cell is the name —
 because guessing wrong is not a cosmetic error: it mislabels a real person in a

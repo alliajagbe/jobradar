@@ -1957,6 +1957,32 @@ function isHeadingRow(cells) {
 const PASTE_EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 const PASTE_YEAR = /^(?:19[5-9]\d|20[0-4]\d)$/;
 
+/* "HR Data Analyst at ABB Americas" is one cell holding two fields, which is
+   how a directory writes a role and how LinkedIn writes a headline. Split on
+   the LAST " at ", because the employer is the trailing part and a title can
+   contain the word itself ("Manager at Large at Acme"). */
+function splitRole(blob) {
+  const text = String(blob || "").trim();
+  const cut = text.toLowerCase().lastIndexOf(" at ");
+  if (cut < 1) return { title: text, company: "" };
+  return { title: text.slice(0, cut).trim(), company: text.slice(cut + 4).trim() };
+}
+
+/* One line holding a whole person: "Steve Blankenship x@y.com HR Data Analyst
+   at ABB Americas". This is what a directory profile looks like once its
+   segments are copied together, and without it the entire line was read as
+   somebody's name. The address is the anchor: what precedes it is the name and
+   what follows it is the role. */
+function lineWithEmailToCells(line) {
+  const found = String(line).match(PASTE_EMAIL);
+  if (!found) return null;
+  const before = line.slice(0, found.index).trim().replace(/[,;|]+$/, "");
+  const after = line.slice(found.index + found[0].length).trim().replace(/^[,;|–-]+/, "");
+  if (!before) return null;
+  const role = splitRole(after);
+  return [before, found[0], role.title, role.company].filter((c, i) => i < 2 || c);
+}
+
 /* One row of cells into a person, identified by shape rather than by column
    order: directory exports disagree about order, and guessing wrong swaps
    somebody's employer for their job title. */
@@ -1978,11 +2004,19 @@ function cellsToPerson(cells) {
   // enrichment needs, and a wrong title costs a hook while a wrong employer
   // costs a wrong fact in the note.
   const [name, ...others] = rest;
-  return {
-    name, grad_year: year, email,
-    title: others.length >= 2 ? others[0] : "",
-    company: others.length >= 2 ? others[1] : (others[0] || ""),
-  };
+  let title = others.length >= 2 ? others[0] : "";
+  let company = others.length >= 2 ? others[1] : (others[0] || "");
+  // A single remaining field that reads "Role at Employer" is both fields.
+  if (!title && / at /i.test(company)) {
+    const role = splitRole(company);
+    title = role.title;
+    company = role.company;
+  } else if (title && !company && / at /i.test(title)) {
+    const role = splitRole(title);
+    title = role.title;
+    company = role.company;
+  }
+  return { name, grad_year: year, email, title, company };
 }
 
 function parsePastedPeople(text) {
@@ -2012,6 +2046,30 @@ function parsePastedPeople(text) {
     if (out.length) return out;
   }
   const only = blocks[0] || kept.map((l) => l.trim());
+
+  // Every line carries an address: one person per line, with the address as
+  // the anchor between their name and their role.
+  const withEmail = only.filter((ln) => PASTE_EMAIL.test(ln));
+  if (withEmail.length && withEmail.length === only.length) {
+    const out = only.map((ln) => cellsToPerson(lineWithEmailToCells(ln) || [ln]))
+                    .filter(Boolean);
+    if (out.length === only.length) return out;
+  }
+
+  /* A single short block holding one profile: name on one line, "Role at
+     Employer" on another, the address on a third. The repeating-run check
+     below needs at least two people to work from, so one profile on its own
+     fell through and became three contacts, one per line.
+
+     Only taken when the block actually carries a person-shaped signal — an
+     address or an " at " role — because three bare names in a row are three
+     people, not one person with a name, a title and an employer. */
+  if (blocks.length === 1 && only.length >= 2 && only.length <= 4
+      && only.some((ln) => PASTE_EMAIL.test(ln) || / at /i.test(ln))) {
+    const person = cellsToPerson(only);
+    if (person) return [person];
+  }
+
   for (const size of [3, 2]) {
     if (only.length >= size * 2 && only.length % size === 0) {
       const groups = [];

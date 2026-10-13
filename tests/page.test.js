@@ -963,6 +963,39 @@ setTimeout(() => {
       check("adding duplicates is a no-op",
             Object.keys(JSON.parse(store["jobradar.candidates.v1"] || "{}")).length === beforeDupeAdd);
 
+      /* The shape the directory actually produced: one line per person with
+         the address in the middle. The parser read the whole line as somebody's
+         name, which is the worst failure available here — that name goes into
+         a note they read. */
+      await readPaste("Steve Whitfield Blankenship deaconfan90@gmail.com "
+                      + "HR Data Analyst at Big Analytics");
+      check("a one-line profile splits on the address",
+            pasteRows().length === 1 && cellValue(0, 0) === "Steve Whitfield Blankenship",
+            cellValue(0, 0));
+      check("the role and the employer come apart at \" at \"",
+            cellValue(0, 1) === "HR Data Analyst" && cellValue(0, 2) === "Big Analytics",
+            [cellValue(0, 1), cellValue(0, 2)].join(" | "));
+      check("the address is picked out of the middle",
+            cellValue(0, 3) === "deaconfan90@gmail.com", cellValue(0, 3));
+      check("a name never swallows the whole line",
+            !cellValue(0, 0).includes("@") && !cellValue(0, 0).includes(" at "),
+            cellValue(0, 0));
+      check("and the employer still resolves to its filing record",
+            pasteRows()[0].querySelector("td.known").textContent.includes("900 certified"),
+            pasteRows()[0].querySelector("td.known").textContent);
+
+      // One profile spread over its own lines, which is the raw shape before
+      // the segments are joined up.
+      await readPaste("Ada Block\nSenior Data Analyst at Big Analytics\nada@example.com");
+      check("a single profile block is one person, not three",
+            pasteRows().length === 1 && cellValue(0, 2) === "Big Analytics",
+            pasteRows().length + " rows, company=" + cellValue(0, 2));
+
+      // The guard on that rule.
+      await readPaste("Ima Name\nAnother Person\nThird Person");
+      check("three bare names stay three people", pasteRows().length === 3,
+            pasteRows().length + " rows");
+
       // One field per line, the other shape a directory pastes in.
       await readPaste("Ada Fresh\nData Analyst\nBig Analytics\nBo Fresh\nAnalyst\nSmall Shop");
       check("one field per line also reads", pasteRows().length === 2,

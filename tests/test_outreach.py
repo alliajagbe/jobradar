@@ -302,3 +302,81 @@ def test_a_single_heading_word_is_kept():
     """One word is not enough to call a row a header, and discarding it would
     silently drop a one-word name."""
     assert [p.name for p in O.parse_paste("Name")] == ["Name"]
+
+
+# ---- the shape the directory actually produces ----
+#
+# Alli's real paste was a single line per person with the address in the
+# middle: "Steve Whitfield Blankenship deaconfan90@gmail.com HR Data Analyst at
+# ABB Americas". The parser read the entire line as somebody's name, which is
+# the worst possible failure here — that name goes into a note they read.
+
+HER_LINE = ("Steve Whitfield Blankenship deaconfan90@gmail.com "
+            "HR Data Analyst at ABB Americas")
+
+
+def test_one_line_per_person_with_the_address_in_the_middle():
+    person = O.parse_paste(HER_LINE)[0]
+    assert person.name == "Steve Whitfield Blankenship"
+    assert person.email == "deaconfan90@gmail.com"
+    assert person.title == "HR Data Analyst"
+    assert person.company == "ABB Americas"
+
+
+def test_several_of_those_lines():
+    text = HER_LINE + "\nJane Okafor jane@example.com Senior Analyst at Capital One"
+    people = O.parse_paste(text)
+    assert [p.name for p in people] == ["Steve Whitfield Blankenship", "Jane Okafor"]
+    assert people[1].company == "Capital One"
+
+
+@pytest.mark.parametrize("blob,title,company", [
+    ("HR Data Analyst at ABB Americas", "HR Data Analyst", "ABB Americas"),
+    ("Senior Analyst, Risk at Capital One", "Senior Analyst, Risk", "Capital One"),
+    # The last " at " wins: the employer is the trailing part, and a title can
+    # contain the word itself.
+    ("Manager at Large at Acme", "Manager at Large", "Acme"),
+    ("Consultant", "Consultant", ""),
+    ("", "", ""),
+])
+def test_a_role_and_an_employer_in_one_cell(blob, title, company):
+    assert O._split_role(blob) == (title, company)
+
+
+def test_a_role_cell_is_split_even_without_an_address():
+    person = O.parse_paste("Jane Okafor\nSenior Data Analyst at Capital One")[0]
+    assert person.name == "Jane Okafor"
+    assert person.title == "Senior Data Analyst"
+    assert person.company == "Capital One"
+
+
+def test_a_single_profile_block_is_one_person():
+    """The repeating-run check needs two people to work from, so one profile on
+    its own fell through and became one contact per line."""
+    people = O.parse_paste("Jane Okafor\nSenior Data Analyst at Capital One\njane@example.com")
+    assert len(people) == 1
+    assert people[0].email == "jane@example.com"
+    assert people[0].company == "Capital One"
+
+
+def test_bare_names_stay_separate_people():
+    """The guard on the single-block rule. Three names in a row are three
+    people, not one person with a name, a title and an employer."""
+    people = O.parse_paste("Jane Okafor\nMarcus Webb\nPriya Rao")
+    assert [p.name for p in people] == ["Jane Okafor", "Marcus Webb", "Priya Rao"]
+    assert all(p.company == "" for p in people)
+
+
+def test_two_profile_blocks():
+    text = ("Jane Okafor\nAnalyst at Capital One\njane@example.com\n\n"
+            "Bo Lee\nAnalyst at ABB\nbo@example.com")
+    people = O.parse_paste(text)
+    assert [p.name for p in people] == ["Jane Okafor", "Bo Lee"]
+    assert [p.company for p in people] == ["Capital One", "ABB"]
+
+
+def test_a_name_is_never_the_whole_line():
+    """The failure that prompted this: everything in one cell, as a name."""
+    for text in [HER_LINE, "Jane Okafor jane@example.com Analyst at Acme"]:
+        assert "@" not in O.parse_paste(text)[0].name
+        assert " at " not in O.parse_paste(text)[0].name

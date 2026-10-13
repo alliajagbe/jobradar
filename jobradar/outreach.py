@@ -121,6 +121,39 @@ def _is_header(cells: list) -> bool:
     return True
 
 
+def _split_role(blob: str) -> tuple:
+    """"HR Data Analyst at ABB Americas" is one cell holding two fields.
+
+    That is how a directory writes a role and how LinkedIn writes a headline.
+    Split on the LAST " at ", because the employer is the trailing part and a
+    title can contain the word ("Manager at Large at Acme").
+    """
+    text = (blob or "").strip()
+    cut = text.lower().rfind(" at ")
+    if cut < 1:
+        return text, ""
+    return text[:cut].strip(), text[cut + 4:].strip()
+
+
+def _line_with_email(line: str) -> list | None:
+    """One line holding a whole person, with the address as the anchor.
+
+    "Steve Blankenship x@y.com HR Data Analyst at ABB Americas" is what a
+    directory profile looks like once its segments are copied together, and it
+    is the shape Alli actually had. Without this the whole line was read as
+    somebody's name.
+    """
+    found = _EMAIL.search(line or "")
+    if not found:
+        return None
+    before = line[:found.start()].strip().strip(",;|")
+    after = line[found.end():].strip().lstrip(",;|-\u2013 ")
+    if not before:
+        return None
+    title, company = _split_role(after)
+    return [before, found.group(0)] + [c for c in (title, company) if c]
+
+
 def _clean(cell: str) -> str:
     return " ".join(str(cell or "").replace(" ", " ").split()).strip(" ,;|")
 
@@ -167,6 +200,11 @@ def _row_to_person(cells: list) -> Person | None:
         company = others[0]
     elif len(others) >= 2:
         title, company = others[0], others[1]
+    # A remaining field that reads "Role at Employer" is both fields.
+    if not title and " at " in company.lower():
+        title, company = _split_role(company)
+    elif title and not company and " at " in title.lower():
+        title, company = _split_role(title)
     return Person(name=name, title=title, company=company, grad_year=year, email=email)
 
 
@@ -229,9 +267,27 @@ def parse_paste(text: str) -> list:
         if out:
             return out
 
-    # One block: treat a repeating run as one person per group. Three lines per
-    # person (name, title, company) is the common LinkedIn shape.
     only = blocks[0] if blocks else lines
+
+    # Every line carries an address: one person per line, the address marking
+    # where their name ends and their role begins.
+    with_email = [ln for ln in only if _EMAIL.search(ln)]
+    if with_email and len(with_email) == len(only):
+        out = [p for p in (_row_to_person(_line_with_email(ln) or [ln]) for ln in only) if p]
+        if len(out) == len(only):
+            return out
+
+    # A single short block holding one profile. The repeating-run check below
+    # needs two people to work from, so one profile alone fell through and
+    # became one contact per line. Requires a person-shaped signal, because
+    # three bare names are three people and not one person with three fields.
+    if len(blocks) == 1 and 2 <= len(only) <= 4 and any(
+            _EMAIL.search(ln) or " at " in ln.lower() for ln in only):
+        person = _row_to_person(only)
+        if person:
+            return [person]
+
+    # Otherwise a repeating run: three lines per person is the common shape.
     for size in (3, 2):
         if len(only) >= size * 2 and len(only) % size == 0:
             groups = [only[i:i + size] for i in range(0, len(only), size)]
