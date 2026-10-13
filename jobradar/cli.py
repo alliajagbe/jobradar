@@ -10,6 +10,7 @@ Usage:
   python -m jobradar tailor render --slug IntelDataAnalyst
   python -m jobradar sponsorship [--years N] [--row-limit N] [--keep-xlsx]
   python -m jobradar contacts --topic "clinical information extraction"
+  python -m jobradar outreach batch < alumni.txt
   python -m jobradar verify-boards
 
 Discovery and anything that rewrites a seed file is a dry run until --apply.
@@ -151,6 +152,82 @@ def cmd_sponsorship(args: argparse.Namespace) -> int:
             path.unlink(missing_ok=True)
         _log("removed the source workbooks")
     return 0
+
+
+def cmd_outreach(args: argparse.Namespace) -> int:
+    """Prepare a batch of alumni to write to, or log one that has been drafted."""
+    from . import outreach as O
+
+    if args.action == "batch":
+        if args.paste:
+            text = pathlib.Path(args.paste).read_text(encoding="utf-8")
+        else:
+            _log("Paste the alumni rows, then press Ctrl-D:")
+            text = sys.stdin.read()
+        people = O.parse_paste(text)
+        if not people:
+            _log("Nothing parsed. Paste name/title/company rows, tab- or "
+                 "comma-separated, or one field per line.")
+            return 1
+        people = O.enrich(people, skip_contacted=not args.include_contacted)
+        drafting = [p for p in people if not p.skip]
+
+        # The cap is the point of the design, not a limitation of it. Twenty
+        # personal notes a day from a .edu address is unremarkable; a few
+        # hundred near-identical ones is a mail blast that Gmail flags and
+        # recipients recognise.
+        if len(drafting) > args.limit:
+            _log(f"{len(drafting)} people parsed; keeping the first {args.limit}. "
+                 f"Paste the rest into tomorrow's batch.")
+            for extra in drafting[args.limit:]:
+                extra.skip = "over today's limit"
+            drafting = drafting[:args.limit]
+
+        path = O.write_batch(people)
+        _log(f"\n{len(drafting)} to draft, {sum(1 for p in people if p.skip)} skipped")
+        with_hook = sum(1 for p in drafting if p.open_roles or p.certified is not None)
+        _log(f"{with_hook} of {len(drafting)} have an employer hook "
+             f"(open roles or a filing record)")
+        _log(f"\nwrote {path}")
+        _log("next: open a Claude session and run /outreach to draft them")
+        return 0
+
+    if args.action == "log":
+        path = pathlib.Path(args.batch) if args.batch else O.resolve(
+            "outreach", f"batch-{_dt.date.today().isoformat()}.md")
+        if not path.exists():
+            _log(f"no batch at {path}")
+            return 1
+        rows = O.read_batch(path)
+        drafted = [(p, d, n) for p, d, n in rows if d]
+        missing = [p for p, d, _ in rows if not d]
+        if not drafted:
+            _log("No drafts written in that batch yet.")
+            return 1
+        people = [p for p, _, _ in drafted]
+        O.append_ledger(people, batch=path.name)
+        out = pathlib.Path(args.csv) if args.csv else (
+            config.CONTACTS_DIR / f"outreach-{_dt.date.today().isoformat()}.csv")
+        O.to_candidates_csv(people, out)
+        _log(f"logged {len(people)} to the ledger")
+        if missing:
+            _log(f"{len(missing)} left undrafted: "
+                 + ", ".join(p.name for p in missing[:6]))
+        _log(f"wrote {out}")
+        _log(f"follow-ups fall due {O.followup_date()}")
+        _log("next: load that CSV in the Outreach tab with Choose CSV")
+        return 0
+
+    if args.action == "ledger":
+        seen = O.load_ledger()
+        _log(f"{len(seen)} people written to")
+        for row in list(seen.values())[-args.limit:]:
+            _log(f"  {row.get('sent','')}  {row.get('name','')[:26]:28s} "
+                 f"{row.get('company','')[:24]}")
+        return 0
+
+    _log(f"unknown action {args.action}")
+    return 1
 
 
 def cmd_contacts(args: argparse.Namespace) -> int:
@@ -408,6 +485,20 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("serve", help="local helper the page's Tailor button talks to")
     p.add_argument("--port", type=int, default=config.HELPER_PORT)
     p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("outreach", help="prepare and log batches of alumni outreach")
+    p.add_argument("action", choices=["batch", "log", "ledger"],
+                   help="batch: parse and enrich a pasted list; log: record a drafted "
+                        "batch; ledger: who has been written to")
+    p.add_argument("--paste", help="file holding the pasted rows (default: stdin)")
+    p.add_argument("--batch", help="the batch file to log (default: today's)")
+    p.add_argument("--csv", help="where to write the CSV for the Outreach tab")
+    p.add_argument("--limit", type=int, default=20,
+                   help="people per batch (default 20; see the module docstring "
+                        "on why this is capped)")
+    p.add_argument("--include-contacted", action="store_true",
+                   help="keep people already in the ledger, normally skipped")
+    p.set_defaults(func=cmd_outreach)
 
     p = sub.add_parser("contacts", help="named people to write to, with their employer's filing record")
     p.add_argument("--topic", action="append", default=[], required=True,

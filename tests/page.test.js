@@ -3,7 +3,23 @@ const { JSDOM } = require("jsdom");
 const ROOT = "/Users/alli/dev/jobCollections/jobradar/docs";
 
 const cards    = JSON.parse(fs.readFileSync(path.join(ROOT, "data/jobs.json")));
+/* The page defaults to "posted in the last 3 days", so every card in a feed
+   older than that is filtered out and the card checks below fail — not because
+   anything is broken, but because of when the test happens to run. That made
+   the suite pass or fail by the calendar: it went green on the day the feed was
+   refreshed and red six days later with no code change in between.
+
+   So the fixture's posting dates are shifted to now. The age filter itself is
+   covered by its own checks further down, which set the window explicitly. */
+const DAY = 86400000;
+const freshen = (list) => list.forEach((card, i) => {
+  if (card.posted_at) {
+    card.posted_at = new Date(Date.now() - (i % 3) * DAY).toISOString();
+  }
+});
+freshen(cards);
 const filtered = JSON.parse(fs.readFileSync(path.join(ROOT, "data/filtered.json")));
+freshen(filtered);
 const meta     = JSON.parse(fs.readFileSync(path.join(ROOT, "data/meta.json")));
 
 const dom = new JSDOM(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"), {
@@ -502,7 +518,11 @@ setTimeout(() => {
       check("an overdue follow-up is marked on the row",
             q("#outreachtable tr.due").length === 1, q("#outreachtable tr.due").length + " due rows");
       check("the summary counts what is due",
-            $("#outreachsummary").textContent.includes("1 due now"), $("#outreachsummary").textContent);
+            $("#outreachsummary").textContent.includes("1 to follow up"),
+            $("#outreachsummary").textContent);
+      check("and leads with today, so a sitting visibly ends",
+            $("#outreachsummary").textContent.startsWith("today:"),
+            $("#outreachsummary").textContent.slice(0, 40));
       check("the due filter only appears when something is due",
             !$("#outreachdueonly").hidden && $("#outreachdueonly").textContent.includes("1 due"),
             $("#outreachdueonly").textContent);
@@ -520,7 +540,7 @@ setTimeout(() => {
       stageSel.dispatchEvent(new w.Event("change", {bubbles:true}));
       check("a replied contact is no longer due however old the date",
             q("#outreachtable tr.due").length === 0
-            && !$("#outreachsummary").textContent.includes("due now"),
+            && !$("#outreachsummary").textContent.includes("to follow up"),
             $("#outreachsummary").textContent);
       check("the reply shows in the summary",
             $("#outreachsummary").textContent.includes("1 replied (100%)"),

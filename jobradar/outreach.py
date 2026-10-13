@@ -1,0 +1,482 @@
+"""The alumni outreach loop: parse a pasted list, enrich it, draft, log.
+
+Direct applications stopped converting, so outreach became the main channel.
+Finding people and tracking them already worked — the Outreach tab has pools, a
+seven-day follow-up and per-pool reply rates. What was missing was the step in
+between: writing twenty genuinely different notes a day, which by hand takes two
+hours and is deadening, and is therefore the step that decides whether any of
+this happens at all.
+
+This module does the mechanical half. It never writes prose: a session does
+that, because templated prose reads templated and this project has no API key
+to call a model with. The split is deliberate — automate the boring half and
+leave the half that needs judgment to a reader who can exercise it.
+
+WHY THE VOLUME IS CAPPED. Twenty personal notes a day from a .edu address is
+unremarkable; a few hundred near-identical ones in a sitting is a mail blast,
+which Gmail flags, recipients recognise, and which risks a student account. The
+alumni directory exists for networking, which is exactly this use; a mail-merge
+to everyone in it is not. So nothing here makes the batch bigger. It makes each
+note cheap.
+
+PERSONAL DATA. A batch holds real names, employers and email addresses, and this
+repository is public with four scheduled workflows that run `git add`. So every
+path goes through resume.paths.resolve, which raises if a path would land inside
+the repository tree. Same defence as the master resume, for the same reason.
+"""
+
+from __future__ import annotations
+
+import csv
+import json
+import re
+from dataclasses import dataclass, field, asdict
+from datetime import date, timedelta
+from pathlib import Path
+
+from . import config, contacts
+from .resume.paths import resolve
+
+# One follow-up, seven days out, matching the page's FOLLOWUP_DAYS. Changing it
+# in one place and not the other would put the tracker and the drafts out of
+# step on the only date either of them cares about.
+FOLLOWUP_DAYS = 7
+
+# The append-only record of who has been written to. The page's tracker lives in
+# localStorage, which Python cannot read, so the tool keeps its own ledger and
+# treats it as the answer to "have I already contacted this person".
+LEDGER = ("outreach", "sent.csv")
+LEDGER_HEAD = ["name", "email", "company", "sent", "batch"]
+
+
+@dataclass
+class Person:
+    """One alum, as pasted and then as enriched."""
+    name: str
+    title: str = ""
+    company: str = ""
+    grad_year: str = ""
+    email: str = ""
+    location: str = ""
+    # Filled by enrich(), never by the parser.
+    open_roles: list = field(default_factory=list)
+    certified: int | None = None
+    analyst_certified: int | None = None
+    skip: str = ""              # why this person was dropped, if they were
+
+    def as_dict(self) -> dict:
+        return asdict(self)
+
+    @property
+    def key(self) -> str:
+        """Dedupe key. Email when there is one, else name plus employer.
+
+        Name alone is too loose — two alumni share a name eventually — and
+        email alone misses the LinkedIn-only people entirely.
+        """
+        if self.email:
+            return self.email.strip().lower()
+        return f"{self.name.strip().lower()}|{self.company.strip().lower()}"
+
+
+_EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+_YEAR = re.compile(r"\b(19[5-9]\d|20[0-4]\d)\b")
+# Lines a directory or LinkedIn page pastes in that carry no information.
+_NOISE = re.compile(
+    r"^(?:\d+(?:st|nd|rd|th)(?:\s*degree)?|connect|message|follow|view profile|"
+    r"shared connections?|·|•|\||see more|load more|results?|page \d+)$", re.I)
+
+
+def _clean(cell: str) -> str:
+    return " ".join(str(cell or "").replace(" ", " ").split()).strip(" ,;|")
+
+
+def _row_to_person(cells: list) -> Person | None:
+    """A delimited row, mapped by shape rather than by a fixed column order.
+
+    Directory exports and copied tables disagree about column order, and
+    guessing wrong silently swaps someone's employer for their job title. So
+    each field is identified by what it looks like: an address is the one with
+    an @, a graduation year is a bare four-digit year, and the first non-empty
+    cell is the name because every format leads with it.
+    """
+    cells = [_clean(c) for c in cells]
+    cells = [c for c in cells if c and not _NOISE.match(c)]
+    if not cells:
+        return None
+
+    email = next((c for c in cells if _EMAIL.fullmatch(c)), "")
+    if not email:
+        # An address can also be embedded in a longer cell.
+        for c in cells:
+            found = _EMAIL.search(c)
+            if found:
+                email = found.group(0)
+                break
+    year = ""
+    for c in cells:
+        if _YEAR.fullmatch(c):
+            year = c
+            break
+    rest = [c for c in cells
+            if c != email and c != year and not (email and email in c)]
+    if not rest:
+        return None
+    name = rest[0]
+    # Of what is left, the longer cell is the job title and the shorter the
+    # employer far more often than the reverse. When only one remains it is
+    # treated as the employer: that is the field the enrichment needs, and a
+    # wrong title costs a hook while a wrong employer costs a wrong fact.
+    others = rest[1:]
+    title = company = ""
+    if len(others) == 1:
+        company = others[0]
+    elif len(others) >= 2:
+        title, company = others[0], others[1]
+    return Person(name=name, title=title, company=company, grad_year=year, email=email)
+
+
+def parse_paste(text: str) -> list:
+    """People out of whatever a directory page pasted.
+
+    Tolerant on purpose. A copied page arrives as tab-separated cells, as CSV,
+    or as consecutive lines of name / title / company, and which one depends on
+    the site and the browser. Guessing wrong is not a cosmetic problem: it
+    mislabels a real person in a note they will read.
+
+    Nothing is invented. A field that is not present stays empty, and the note
+    then has one fewer hook rather than a fabricated one.
+    """
+    raw = [ln for ln in (text or "").splitlines()]
+    kept = [ln for ln in raw if ln.strip() and not _NOISE.match(_clean(ln))]
+    lines = [_clean(ln) for ln in kept]
+    if not lines:
+        return []
+
+    # Delimited, if most lines carry the same delimiter. Checked against the
+    # RAW lines: _clean collapses whitespace, so testing the cleaned ones made
+    # every tab-separated paste look like prose and parse as nothing.
+    #
+    # A majority is what stops one stray comma in a job title from turning a
+    # line-per-person paste into nonsense. The floor is 1, not 2: requiring two
+    # delimited lines meant a one-person paste never took this path and was
+    # read as a single cell, which is the shape of pasting one row.
+    for delim in ("\t", ","):
+        hits = [ln for ln in kept if delim in ln]
+        if len(hits) >= max(1, len(kept) // 2):
+            out = []
+            for row in csv.reader(kept, delimiter=delim):
+                person = _row_to_person(row)
+                if person:
+                    out.append(person)
+            if out:
+                return out
+
+    # Otherwise: blocks separated by blank lines, or a fixed run of lines per
+    # person. Blank-line separation is checked first because it is unambiguous.
+    blocks, current = [], []
+    for line in (_clean(l) for l in raw):
+        if not line:
+            if current:
+                blocks.append(current)
+                current = []
+            continue
+        if not _NOISE.match(line):
+            current.append(line)
+    if current:
+        blocks.append(current)
+
+    if len(blocks) > 1:
+        out = [p for p in (_row_to_person(b) for b in blocks) if p]
+        if out:
+            return out
+
+    # One block: treat a repeating run as one person per group. Three lines per
+    # person (name, title, company) is the common LinkedIn shape.
+    only = blocks[0] if blocks else lines
+    for size in (3, 2):
+        if len(only) >= size * 2 and len(only) % size == 0:
+            groups = [only[i:i + size] for i in range(0, len(only), size)]
+            out = [p for p in (_row_to_person(g) for g in groups) if p]
+            if len(out) == len(groups):
+                return out
+    return [p for p in (_row_to_person([line]) for line in only) if p]
+
+
+# ---- enrichment ----
+
+def _place(primary: str | None) -> str:
+    """The store writes "austin|TX"; a person reads "Austin, TX"."""
+    city, _, state = str(primary or "").partition("|")
+    city = " ".join(w.capitalize() for w in city.split())
+    return ", ".join(part for part in (city, state.upper()) if part)
+
+
+def _feed_by_company() -> dict:
+    """Open roles grouped by a normalised employer key.
+
+    Built from the published feed rather than the store so it matches what the
+    Jobs tab shows. Feed company names are sometimes ATS slugs (`usm2`,
+    `cityofnewyork`), which is why a miss here is ordinary and is reported
+    rather than guessed at.
+    """
+    try:
+        jobs = json.loads(config.PUBLISH_JOBS_JSON.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    out: dict = {}
+    for job in jobs:
+        key = contacts.simple_key(job.get("company") or "")
+        if key:
+            out.setdefault(key, []).append(job)
+    return out
+
+
+def _sponsor_index() -> dict:
+    try:
+        body = json.loads((config.DOCS_DATA_DIR / "sponsors.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return body.get("employers") or {}
+
+
+def load_ledger() -> dict:
+    """Everyone already written to, keyed the way Person.key is."""
+    path = resolve(*LEDGER)
+    if not path.exists():
+        return {}
+    out = {}
+    try:
+        with path.open(newline="") as handle:
+            for row in csv.DictReader(handle):
+                person = Person(name=row.get("name") or "",
+                                email=row.get("email") or "",
+                                company=row.get("company") or "")
+                out[person.key] = row
+    except (OSError, csv.Error):
+        return {}
+    return out
+
+
+def load_page_backup() -> set:
+    """Dedupe keys from the page's exported backup, when one is lying around.
+
+    The tracker lives in localStorage, which Python cannot read, so an export
+    is the only way to see contacts logged by hand on the page. Optional: a
+    missing backup just means the ledger is the whole picture.
+    """
+    keys = set()
+    try:
+        backups = sorted(config.CONTACTS_DIR.glob("jobradar-backup-*.json"),
+                         key=lambda p: p.stat().st_mtime, reverse=True)
+    except OSError:
+        return keys
+    for path in backups[:1]:
+        try:
+            body = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        for entry in (body.get("outreach") or {}).values():
+            person = Person(name=entry.get("person") or "",
+                            company=entry.get("org") or "")
+            keys.add(person.key)
+    return keys
+
+
+def enrich(people: list, *, skip_contacted: bool = True) -> list:
+    """Attach open roles and filing history, and mark anyone already contacted.
+
+    The dedupe is the guard that matters most here. Two notes to one alum
+    undoes the effort of both, and at twenty a day across weeks it is a matter
+    of when rather than whether.
+    """
+    feed = _feed_by_company()
+    sponsors = _sponsor_index()
+    seen = load_ledger()
+    backup_keys = load_page_backup()
+
+    batch_keys: set = set()
+    for person in people:
+        # A duplicate inside one paste is a different problem from somebody
+        # written to last week, and saying "already contacted" for the first
+        # would be a plain lie about what happened.
+        if person.key in batch_keys:
+            person.skip = "listed twice in this batch"
+            continue
+        batch_keys.add(person.key)
+        if skip_contacted and (person.key in seen or person.key in backup_keys):
+            where = "ledger" if person.key in seen else "page backup"
+            person.skip = f"already contacted (in the {where})"
+            continue
+        if not person.company:
+            continue
+        for variant in contacts.institution_variants(person.company):
+            key = contacts.simple_key(variant)
+            if key in feed and not person.open_roles:
+                person.open_roles = [
+                    {"title": j.get("title"), "url": j.get("url"),
+                     "location": _place(j.get("location_primary"))}
+                    for j in feed[key][:4]
+                ]
+            if key in sponsors and person.certified is None:
+                person.certified, person.analyst_certified = sponsors[key]
+    return people
+
+
+# ---- the batch file a session drafts into ----
+
+_BATCH_HELP = """<!-- A batch to draft. One block per person.
+
+Fill the `draft:` line under each person and nothing else. Keep each note under
+120 words, plain text, one ask, and make the ask a short conversation rather
+than a job. If somebody has no usable hook, leave their draft empty and say so
+in `note:` — a generic message is worse than none.
+
+Then: python -m jobradar outreach log --batch THIS_FILE
+-->
+"""
+
+
+def write_batch(people: list, *, path: Path | None = None) -> Path:
+    """The file a session drafts into. Under ~/.jobradar: it holds real names."""
+    path = path or resolve("outreach", f"batch-{date.today().isoformat()}.md",
+                           create_parent=True)
+    lines = [_BATCH_HELP, f"# Outreach batch {date.today().isoformat()}", ""]
+    drafting = [p for p in people if not p.skip]
+    skipped = [p for p in people if p.skip]
+    lines.append(f"{len(drafting)} to draft"
+                 + (f", {len(skipped)} skipped" if skipped else ""))
+    lines.append("")
+
+    for person in drafting:
+        lines.append(f"## {person.name}")
+        for label, value in (("title", person.title), ("company", person.company),
+                             ("class of", person.grad_year), ("email", person.email),
+                             ("location", person.location)):
+            if value:
+                lines.append(f"- {label}: {value}")
+        if person.certified is not None:
+            lines.append(f"- sponsorship: {person.certified} certified, "
+                         f"{person.analyst_certified} in analyst roles")
+        elif person.company:
+            lines.append("- sponsorship: no filing record found")
+        if person.open_roles:
+            lines.append("- open roles there now:")
+            for role in person.open_roles:
+                where = f" ({role['location']})" if role.get("location") else ""
+                lines.append(f"    - {role['title']}{where}")
+        elif person.company:
+            lines.append("- open roles there now: none found in the feed")
+        lines.append("")
+        lines.append("draft: ")
+        lines.append("note: ")
+        lines.append("")
+
+    if skipped:
+        lines.append("## skipped")
+        for person in skipped:
+            lines.append(f"- {person.name}"
+                         + (f" ({person.company})" if person.company else "")
+                         + f" — {person.skip}")
+        lines.append("")
+
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+def read_batch(path: Path) -> list:
+    """People and their drafts back out of the batch file."""
+    text = Path(path).read_text(encoding="utf-8")
+    out = []
+    for block in re.split(r"^## ", text, flags=re.M)[1:]:
+        head, _, body = block.partition("\n")
+        name = _clean(head)
+        if not name or name.lower() == "skipped":
+            continue
+        fields = {}
+        for label in ("title", "company", "email", "location"):
+            found = re.search(rf"^- {label}: (.+)$", body, re.M)
+            if found:
+                fields[label] = _clean(found.group(1))
+        year = re.search(r"^- class of: (.+)$", body, re.M)
+        draft = re.search(r"^draft: ?(.*?)(?=^(?:note|draft): |\Z)", body, re.M | re.S)
+        note = re.search(r"^note: ?(.*?)$", body, re.M)
+        person = Person(name=name, grad_year=_clean(year.group(1)) if year else "",
+                        **fields)
+        # Recover the open role too. It is what the note referenced, and the
+        # tracker's hook column means exactly that: the specific thing said.
+        # Without this the logged row arrives with an empty hook and the reply
+        # rates lose the one field that explains which approach worked.
+        role = re.search(r"^    - (.+)$", body, re.M)
+        if role:
+            person.open_roles = [{"title": _clean(role.group(1)), "url": "",
+                                  "location": ""}]
+        spon = re.search(r"^- sponsorship: (\d+) certified, (\d+)", body, re.M)
+        if spon:
+            person.certified = int(spon.group(1))
+            person.analyst_certified = int(spon.group(2))
+        person.skip = "" if (draft and draft.group(1).strip()) else "no draft written"
+        out.append((person, (draft.group(1).strip() if draft else ""),
+                    _clean(note.group(1)) if note else ""))
+    return out
+
+
+def append_ledger(people: list, *, batch: str = "") -> int:
+    """Record who was written to, so the next batch does not repeat them."""
+    path = resolve(*LEDGER, create_parent=True)
+    fresh = not path.exists()
+    with path.open("a", newline="") as handle:
+        writer = csv.writer(handle)
+        if fresh:
+            writer.writerow(LEDGER_HEAD)
+        for person in people:
+            writer.writerow([person.name, person.email, person.company,
+                             date.today().isoformat(), batch])
+    return len(people)
+
+
+def to_candidates_csv(people: list, path: Path) -> int:
+    """The batch in the column shape the page's CSV import already parses.
+
+    Reuses contacts.CSV_HEAD rather than inventing a second format, so loading
+    a batch into the Outreach tab needs no new import path on the page.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(contacts.CSV_HEAD)
+        for person in people:
+            org = person.company or ""
+            # The open req is the sharpest hook, their own role the next best.
+            # An empty hook column loses the one field that later explains
+            # which approach drew a reply.
+            hook = (person.open_roles[0]["title"] if person.open_roles
+                    else person.title or "")
+            writer.writerow([
+                f"wfu|{person.key}", person.name, person.title, org,
+                "", "", "alumni",
+                hook, person.email and ("mailto:" + person.email) or "",
+                date.today().isoformat(),
+                person.certified if person.certified is not None else "",
+                person.analyst_certified if person.analyst_certified is not None else "",
+                "", _linkedin_search(person.name, org), "", "",
+            ])
+    return len(people)
+
+
+def _linkedin_search(name: str, org: str) -> str:
+    """A prefilled people search, matching Contact.linkedin_search.
+
+    LinkedIn has no public search API and scraping it would risk the account
+    doing the scraping, so this is the query she would type, one click instead
+    of three.
+    """
+    from urllib.parse import quote_plus
+    plain = re.sub(r"\s*\([^)]*\)", "", org or "").strip()
+    return ("https://www.linkedin.com/search/results/people/?keywords="
+            + quote_plus(f"{name} {plain}".strip()))
+
+
+def followup_date(sent: str | None = None) -> str:
+    base = date.fromisoformat(sent) if sent else date.today()
+    return (base + timedelta(days=FOLLOWUP_DAYS)).isoformat()

@@ -392,6 +392,67 @@ merges every file newest-first and dedupes on the author id. An unreadable or
 half-written CSV is skipped rather than failing the request. Use the CLI when
 you want the fuzzy matching the browser cannot do.
 
+### The alumni outreach loop
+
+```
+python -m jobradar outreach batch < pasted-alumni.txt
+# draft them in a Claude session with /outreach
+python -m jobradar outreach log
+```
+
+Finding people and tracking them already worked. The missing step was writing
+twenty genuinely different notes a day, which by hand takes two hours and is
+deadening, and is therefore the step that decided whether any of it happened.
+
+One sitting, about 25 minutes for 20 people:
+
+| | Step | Who |
+|---|---|---|
+| 1 | Copy a page of alumni from the WFU directory, paste it in | you |
+| 2 | Enrich: open roles at their employer, filing record, dedupe | tool |
+| 3 | Draft 20 notes from the batch and your master resume | Claude |
+| 4 | Skim all 20 in one file, send back corrections | you |
+| 5 | Push approved notes into Gmail as drafts | Claude |
+| 6 | Read each, press send | you |
+| 7 | Log the batch, follow-ups fall due in seven days | tool |
+
+**The split is deliberate.** The tool does data and mechanics and never writes
+prose; a session writes the notes. There is no API key for this project, so the
+tool could not call a model even if that were a good idea, and templated prose
+reads templated. Automate the boring half; leave the half that needs judgment to
+a reader who can exercise it.
+
+`parse_paste` is tolerant because a directory page pastes as whatever that site
+and that browser agreed on: tab-separated, comma-separated, or one field per
+line, with LinkedIn chrome like "2nd degree" and "Connect" mixed in. Fields are
+identified by shape rather than column order, since guessing wrong does not
+produce a cosmetic error — it mislabels a real person in a note they will read.
+Nothing is invented: a missing employer stays empty and the note has one fewer
+hook.
+
+**The dedupe is the guard that matters most.** Two notes to one alum undoes the
+effort of both, and at twenty a day across weeks that is a matter of when rather
+than whether. `~/.jobradar/outreach/sent.csv` is an append-only ledger of who
+has been written to, and a page export in `~/Desktop/jobs` is read too when one
+is there, since the tracker itself lives in `localStorage` where Python cannot
+see it. A duplicate inside one paste is reported as "listed twice in this batch"
+rather than as already contacted, because those are different things.
+
+**Why the batch is capped at 20.** Twenty personal notes a day from a `.edu`
+address is unremarkable. A few hundred near-identical ones in a sitting is a
+mail blast: Gmail flags it, recipients recognise it, and a student account is not
+worth risking. The alumni directory exists for networking, which is exactly this
+use; a mail-merge to everyone in it is not. So nothing here makes the batch
+bigger — it makes each note cheap. Ten a day in the first week to warm up.
+
+Batches live under `~/.jobradar/outreach/`, never in the repository. They hold
+real names, employers and addresses, this repo is public, and four scheduled
+workflows run `git add`, so every path goes through `resume.paths.resolve`, which
+raises if a path would land inside the repository tree. A test asserts it.
+
+Drafts are created in Gmail and **never sent programmatically**. That rule is
+written into the drafting skill rather than left to a session's judgment.
+
 ### Ways into a company
 
 The panel's second mode, **by company**, answers a different question from the

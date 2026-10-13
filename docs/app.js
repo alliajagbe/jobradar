@@ -1613,10 +1613,15 @@ function renderOutreach() {
   const waiting = rows.filter((r) => r.stage === "sent").length;
   const replied = rows.filter((r) => ANSWERED.has(r.stage)).length;
   const rate = rows.length ? Math.round((replied / rows.length) * 100) : 0;
+  // Today first. A sitting that visibly ends is the answer to doing this
+  // twenty times a day: an open-ended list is what makes it feel endless, and
+  // the reply rate beside it is what makes it feel worth continuing.
+  const sentToday = rows.filter((r) => r.sent === today()).length;
   $("#outreachsummary").textContent =
-    `${rows.length} contact${rows.length === 1 ? "" : "s"} · ${thisWeek} sent this week`
-    + ` · ${waiting} awaiting reply · ${replied} replied (${rate}%)`
-    + (due.length ? ` · ${due.length} due now` : "");
+    `today: ${sentToday} sent` + (due.length ? `, ${due.length} to follow up` : "")
+    + ` · ${rows.length} contact${rows.length === 1 ? "" : "s"}`
+    + ` · ${thisWeek} this week · ${waiting} awaiting reply`
+    + ` · ${replied} replied (${rate}%)`;
 
   const toggle = $("#outreachdueonly");
   toggle.hidden = due.length === 0;
