@@ -49,6 +49,71 @@ LEDGER = ("outreach", "sent.csv")
 LEDGER_HEAD = ["name", "email", "company", "sent", "batch"]
 
 
+# The column contract. The sheet and this module have to agree on these exact
+# names, because a header reading "Email Address" where the code looks for
+# "email" leaves the row silently without an address — and a draft with no
+# recipient looks like the tool working.
+#
+# Deliberately source-agnostic: the same names are read from a Google Sheet, a
+# downloaded CSV or an .xlsx, so switching where the list lives is not a code
+# change.
+SHEET_COLUMNS = {
+    # filled by Alli
+    "first_name": "her",
+    "last_name": "her",
+    "job_title": "her",
+    "company": "her",
+    "email": "her",
+    "grad_year": "her",
+    "linkedin": "her",
+    # filled by the flow
+    "status": "flow",      # blank -> drafted -> sent -> replied / dead
+    "sent": "flow",
+    "followup": "flow",
+    "sponsorship": "flow",
+    "open_roles": "flow",
+    "draft": "flow",
+    # filled by Alli as replies arrive
+    "reply": "her",
+    "notes": "her",
+}
+HER_COLUMNS = [k for k, v in SHEET_COLUMNS.items() if v == "her"]
+FLOW_COLUMNS = [k for k, v in SHEET_COLUMNS.items() if v == "flow"]
+
+
+def _header_key(name: str) -> str:
+    """A sheet heading to its contract name, forgiving the obvious variations.
+
+    "First Name", "first name", "FIRST_NAME" and "Firstname" are all the same
+    column. This is the one place that tolerance belongs: tolerating it per
+    lookup would mean every caller gets it slightly differently.
+    """
+    return re.sub(r"[^a-z0-9]", "", str(name or "").lower())
+
+
+_COLUMN_BY_KEY = {_header_key(c): c for c in SHEET_COLUMNS}
+# Headings a person would plausibly type for the same column.
+_COLUMN_ALIASES = {
+    "first": "first_name", "firstname": "first_name", "fname": "first_name",
+    "last": "last_name", "lastname": "last_name", "surname": "last_name", "lname": "last_name",
+    "name": "first_name", "fullname": "first_name",
+    "title": "job_title", "jobtitle": "job_title", "role": "job_title", "position": "job_title",
+    "organisation": "company", "organization": "company", "employer": "company", "org": "company",
+    "emailaddress": "email", "mail": "email", "e": "email",
+    "class": "grad_year", "year": "grad_year", "gradyear": "grad_year",
+    "graduationyear": "grad_year", "classof": "grad_year",
+    "linkedinurl": "linkedin", "profile": "linkedin",
+    "followupdue": "followup", "followupdate": "followup",
+    "datesent": "sent", "sentdate": "sent",
+}
+
+
+def column_for(heading: str) -> str:
+    """The contract column a sheet heading means, or "" when it means none."""
+    key = _header_key(heading)
+    return _COLUMN_BY_KEY.get(key) or _COLUMN_ALIASES.get(key, "")
+
+
 @dataclass
 class Person:
     """One alum, as pasted and then as enriched."""
@@ -58,6 +123,12 @@ class Person:
     grad_year: str = ""
     email: str = ""
     location: str = ""
+    # Kept separate from `name` because the greeting needs the first name
+    # alone: "Hi Steve", not "Hi Steve Whitfield Blankenship".
+    first_name: str = ""
+    last_name: str = ""
+    linkedin: str = ""
+    row: int = 0                # 1-based sheet row, for writing status back
     # Filled by enrich(), never by the parser.
     open_roles: list = field(default_factory=list)
     certified: int | None = None
@@ -297,6 +368,88 @@ def parse_paste(text: str) -> list:
     return [p for p in (_row_to_person([line]) for line in only) if p]
 
 
+def read_sheet(path) -> list:
+    """People out of a spreadsheet, CSV or .xlsx, by the column contract.
+
+    Source-agnostic on purpose: a Google Sheet read through the connector, a
+    File > Download > CSV, and an .xlsx on the Desktop all arrive here as the
+    same rows, so where the list lives is not a code change.
+
+    `row` is recorded on each person so status can be written back to the right
+    line later. It is 1-based and counts the header, matching what a
+    spreadsheet shows and what the Sheets API expects.
+    """
+    path = Path(path)
+    if path.suffix.lower() in (".xlsx", ".xlsm"):
+        rows = _rows_from_xlsx(path)
+    else:
+        with path.open(newline="", encoding="utf-8-sig") as handle:
+            rows = [r for r in csv.reader(handle)]
+    return rows_to_people(rows)
+
+
+def _rows_from_xlsx(path) -> list:
+    from openpyxl import load_workbook
+
+    book = load_workbook(path, read_only=True, data_only=True)
+    sheet = book[book.sheetnames[0]]
+    out = []
+    for row in sheet.iter_rows(values_only=True):
+        out.append(["" if c is None else str(c) for c in row])
+    book.close()
+    return out
+
+
+def rows_to_people(rows: list) -> list:
+    """Rows (first one the header) into People, mapped by the column contract."""
+    rows = [r for r in rows if any(str(c).strip() for c in r)]
+    if not rows:
+        return []
+    header = [column_for(c) for c in rows[0]]
+    if not any(h in ("first_name", "email", "company") for h in header):
+        # No recognisable header, so this is not a sheet in the contract's
+        # shape. Saying so beats reading the first person as column names.
+        raise ValueError(
+            "no recognisable header row. Expected columns named like "
+            + ", ".join(HER_COLUMNS[:5])
+        )
+
+    people = []
+    for index, raw in enumerate(rows[1:], start=2):
+        values = {}
+        for column, cell in zip(header, raw):
+            if column and str(cell).strip():
+                values[column] = " ".join(str(cell).split())
+        first = values.get("first_name", "")
+        last = values.get("last_name", "")
+        full = " ".join(part for part in (first, last) if part).strip()
+        if not full and not values.get("email"):
+            continue
+        person = Person(
+            name=full or values.get("email", ""),
+            first_name=first, last_name=last,
+            title=values.get("job_title", ""),
+            company=values.get("company", ""),
+            email=values.get("email", ""),
+            grad_year=values.get("grad_year", ""),
+            linkedin=values.get("linkedin", ""),
+            row=index,
+        )
+        # A row already sent is not a candidate for drafting again. This is the
+        # sheet's own answer to the dedupe question, and it beats the ledger
+        # because it is the thing Alli actually looks at.
+        status = (values.get("status") or "").strip().lower()
+        if status in ("sent", "replied", "dead", "drafted"):
+            person.skip = f"status is {status}"
+        people.append(person)
+    return people
+
+
+def sheet_template() -> str:
+    """The header row, as CSV, for creating the sheet with the right names."""
+    return ",".join(SHEET_COLUMNS) + "\n"
+
+
 # ---- enrichment ----
 
 def _place(primary: str | None) -> str:
@@ -391,6 +544,11 @@ def enrich(people: list, *, skip_contacted: bool = True) -> list:
 
     batch_keys: set = set()
     for person in people:
+        # A reason already set upstream wins. The sheet's own status column is
+        # what Alli looks at, so "status is sent" is a more useful answer than
+        # the ledger's version of the same fact.
+        if person.skip:
+            continue
         # A duplicate inside one paste is a different problem from somebody
         # written to last week, and saying "already contacted" for the first
         # would be a plain lie about what happened.

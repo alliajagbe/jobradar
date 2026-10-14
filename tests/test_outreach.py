@@ -380,3 +380,121 @@ def test_a_name_is_never_the_whole_line():
     for text in [HER_LINE, "Jane Okafor jane@example.com Analyst at Acme"]:
         assert "@" not in O.parse_paste(text)[0].name
         assert " at " not in O.parse_paste(text)[0].name
+
+
+# ---- the spreadsheet contract ----
+
+SHEET = [
+    ["First Name", "Last Name", "Job Title", "Company", "Email", "Class of", "status"],
+    ["Steve", "Whitfield Blankenship", "HR Data Analyst", "ABB Americas",
+     "deaconfan90@gmail.com", "2012", "sent"],
+    ["Jane", "Okafor", "Senior Data Analyst", "Capital One", "jane@example.com", "2021", ""],
+]
+
+
+def _write_sheet(tmp_path, rows=None):
+    path = tmp_path / "alumni.csv"
+    with path.open("w", newline="") as handle:
+        csv.writer(handle).writerows(rows or SHEET)
+    return path
+
+
+@pytest.mark.parametrize("heading,column", [
+    ("First Name", "first_name"), ("first_name", "first_name"),
+    ("FIRST_NAME", "first_name"), ("Firstname", "first_name"),
+    ("Email Address", "email"), ("E-Mail", "email"),
+    ("Job Title", "job_title"), ("Role", "job_title"),
+    ("Employer", "company"), ("Organisation", "company"),
+    ("Class of", "grad_year"), ("Graduation Year", "grad_year"),
+    ("Follow-up due", "followup"), ("Date Sent", "sent"),
+])
+def test_headings_map_to_the_contract(heading, column):
+    """A header reading "Email Address" where the code wants "email" leaves the
+    row silently without an address, and a draft with no recipient looks like
+    the tool working."""
+    assert O.column_for(heading) == column
+
+
+def test_an_unknown_heading_is_ignored_not_guessed():
+    assert O.column_for("Random Notes Column 7") == ""
+
+
+def test_the_first_name_is_kept_separate():
+    """The greeting needs it alone: "Hi Steve", not the full three names."""
+    people = O.rows_to_people(SHEET)
+    assert people[0].first_name == "Steve"
+    assert people[0].last_name == "Whitfield Blankenship"
+    assert people[0].name == "Steve Whitfield Blankenship"
+
+
+def test_a_sheet_records_the_row_for_writing_back():
+    """1-based and counting the header, matching what a spreadsheet shows."""
+    people = O.rows_to_people(SHEET)
+    assert [p.row for p in people] == [2, 3]
+
+
+def test_a_row_already_sent_is_not_drafted_again():
+    people = O.rows_to_people(SHEET)
+    assert people[0].skip == "status is sent"
+    assert people[1].skip == ""
+
+
+@pytest.mark.parametrize("status", ["sent", "Sent", "REPLIED", "dead", "drafted"])
+def test_every_handled_status_is_respected(status):
+    rows = [SHEET[0], SHEET[1][:6] + [status]]
+    assert O.rows_to_people(rows)[0].skip == f"status is {status.lower()}"
+
+
+def test_the_sheet_status_wins_over_the_ledger(tmp_path):
+    """Both are true; the sheet's own column is what she looks at."""
+    O.append_ledger([O.Person(name="Steve Whitfield Blankenship",
+                              email="deaconfan90@gmail.com", company="ABB Americas")],
+                    batch="earlier")
+    people = O.enrich(O.rows_to_people(SHEET))
+    assert people[0].skip == "status is sent"
+
+
+def test_a_csv_round_trips(tmp_path):
+    people = O.read_sheet(_write_sheet(tmp_path))
+    assert [p.first_name for p in people] == ["Steve", "Jane"]
+    assert people[1].company == "Capital One"
+
+
+def test_an_xlsx_reads_the_same_as_a_csv(tmp_path):
+    """Whether the list arrives as a download or a file is not a code change."""
+    from openpyxl import Workbook
+
+    book = Workbook()
+    for row in SHEET:
+        book.active.append(row)
+    path = tmp_path / "alumni.xlsx"
+    book.save(path)
+    from_xlsx = O.read_sheet(path)
+    from_csv = O.read_sheet(_write_sheet(tmp_path))
+    assert [p.as_dict() for p in from_xlsx] == [p.as_dict() for p in from_csv]
+
+
+def test_a_sheet_with_no_recognisable_header_is_refused(tmp_path):
+    """Better than reading the first person as column names."""
+    rows = [["Steve", "deaconfan90@gmail.com"], ["Jane", "jane@example.com"]]
+    with pytest.raises(ValueError, match="no recognisable header"):
+        O.rows_to_people(rows)
+
+
+def test_blank_rows_are_skipped():
+    rows = [SHEET[0], [""] * 7, SHEET[1], ["", "", "", "", "", "", ""]]
+    assert len(O.rows_to_people(rows)) == 1
+
+
+def test_a_row_with_only_an_email_still_counts():
+    """Somebody worth writing to with no name yet is still a row."""
+    rows = [SHEET[0], ["", "", "", "Acme", "someone@example.com", "", ""]]
+    people = O.rows_to_people(rows)
+    assert len(people) == 1
+    assert people[0].name == "someone@example.com"
+
+
+def test_the_template_names_every_column_in_order():
+    head = O.sheet_template().strip().split(",")
+    assert head == list(O.SHEET_COLUMNS)
+    assert head[:5] == ["first_name", "last_name", "job_title", "company", "email"]

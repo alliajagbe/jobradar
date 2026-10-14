@@ -158,13 +158,29 @@ def cmd_outreach(args: argparse.Namespace) -> int:
     """Prepare a batch of alumni to write to, or log one that has been drafted."""
     from . import outreach as O
 
+    if args.action == "template":
+        _log(O.sheet_template().strip())
+        _log("")
+        _log("Those exact names, in that order. A heading reading \"Email Address\" "
+             "is understood too, but a name the contract does not know is ignored "
+             "rather than guessed at.")
+        return 0
+
     if args.action == "batch":
-        if args.paste:
+        if args.sheet:
+            try:
+                people = O.read_sheet(args.sheet)
+            except (OSError, ValueError) as exc:
+                _log(f"could not read {args.sheet}: {exc}")
+                return 1
+            text = None
+        elif args.paste:
             text = pathlib.Path(args.paste).read_text(encoding="utf-8")
         else:
             _log("Paste the alumni rows, then press Ctrl-D:")
             text = sys.stdin.read()
-        people = O.parse_paste(text)
+        if text is not None:
+            people = O.parse_paste(text)
         if not people:
             _log("Nothing parsed. Paste name/title/company rows, tab- or "
                  "comma-separated, or one field per line.")
@@ -487,9 +503,12 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("outreach", help="prepare and log batches of alumni outreach")
-    p.add_argument("action", choices=["batch", "log", "ledger"],
-                   help="batch: parse and enrich a pasted list; log: record a drafted "
-                        "batch; ledger: who has been written to")
+    p.add_argument("action", choices=["batch", "log", "ledger", "template"],
+                   help="batch: enrich a sheet or a pasted list; log: record a drafted "
+                        "batch; ledger: who has been written to; template: the sheet's "
+                        "column names")
+    p.add_argument("--sheet", help="a CSV or .xlsx in the column contract "
+                                   "(see `outreach template`)")
     p.add_argument("--paste", help="file holding the pasted rows (default: stdin)")
     p.add_argument("--batch", help="the batch file to log (default: today's)")
     p.add_argument("--csv", help="where to write the CSV for the Outreach tab")
