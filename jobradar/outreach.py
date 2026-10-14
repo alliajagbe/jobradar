@@ -402,20 +402,35 @@ def _rows_from_xlsx(path) -> list:
 
 def rows_to_people(rows: list) -> list:
     """Rows (first one the header) into People, mapped by the column contract."""
-    rows = [r for r in rows if any(str(c).strip() for c in r)]
-    if not rows:
+    # Blank rows are NOT dropped before numbering. Collapsing them first
+    # renumbered everybody below a gap, so a status written back landed one
+    # line off — on the wrong person, silently.
+    if not any(any(str(c).strip() for c in r) for r in rows):
         return []
-    header = [column_for(c) for c in rows[0]]
-    if not any(h in ("first_name", "email", "company") for h in header):
-        # No recognisable header, so this is not a sheet in the contract's
-        # shape. Saying so beats reading the first person as column names.
+
+    # Find the header rather than assuming row 1. People put a title or a note
+    # above their headings, and the Sheets design rules positively encourage a
+    # legend on a sheet meant to be filled in — either of which would otherwise
+    # make the real header invisible and the first alum into column names.
+    header, header_at = None, 0
+    for offset, row in enumerate(rows[:8]):
+        mapped = [column_for(c) for c in row]
+        if sum(1 for h in mapped if h) >= 2 and any(
+                h in ("first_name", "last_name", "email", "company") for h in mapped):
+            header, header_at = mapped, offset
+            break
+    if header is None:
         raise ValueError(
-            "no recognisable header row. Expected columns named like "
-            + ", ".join(HER_COLUMNS[:5])
+            "no recognisable header row in the first eight rows. Expected columns "
+            "named like " + ", ".join(HER_COLUMNS[:5])
         )
 
     people = []
-    for index, raw in enumerate(rows[1:], start=2):
+    # `index` counts the spreadsheet's own rows, blanks included, so a
+    # write-back lands on the line the reader sees.
+    for index, raw in enumerate(rows[header_at + 1:], start=header_at + 2):
+        if not any(str(c).strip() for c in raw):
+            continue
         values = {}
         for column, cell in zip(header, raw):
             if column and str(cell).strip():

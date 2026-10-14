@@ -498,3 +498,30 @@ def test_the_template_names_every_column_in_order():
     head = O.sheet_template().strip().split(",")
     assert head == list(O.SHEET_COLUMNS)
     assert head[:5] == ["first_name", "last_name", "job_title", "company", "email"]
+
+
+def test_the_header_need_not_be_row_one():
+    """People put a title or a note above their headings, and the Sheets design
+    rules positively encourage a legend on a sheet meant to be filled in."""
+    rows = [["Alumni outreach — add rows below."], [],
+            ["First Name", "Last Name", "Company", "Email"],
+            ["Jane", "Okafor", "Capital One", "jane@example.com"]]
+    people = O.rows_to_people(rows)
+    assert [p.first_name for p in people] == ["Jane"]
+
+
+def test_a_blank_row_does_not_renumber_the_people_below_it():
+    """Dropping blanks before numbering shifted everybody below a gap, so a
+    status written back landed one line off, on the wrong person, silently."""
+    rows = [["First Name", "Company", "Email"],
+            ["Jane", "Capital One", "jane@example.com"],
+            [],
+            ["Omar", "Applied Materials", "omar@example.com"]]
+    people = O.rows_to_people(rows)
+    # Spreadsheet rows: 1 header, 2 Jane, 3 blank, 4 Omar.
+    assert [(p.first_name, p.row) for p in people] == [("Jane", 2), ("Omar", 4)]
+
+
+def test_rows_are_numbered_as_the_spreadsheet_shows_them():
+    rows = [["note"], [], ["First Name", "Email"], ["Jane", "jane@example.com"]]
+    assert O.rows_to_people(rows)[0].row == 4
