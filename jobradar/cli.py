@@ -234,6 +234,30 @@ def cmd_outreach(args: argparse.Namespace) -> int:
         _log("next: load that CSV in the Outreach tab with Choose CSV")
         return 0
 
+    if args.action == "targets":
+        rows = O.target_companies(limit=args.limit, min_score=args.min_score)
+        if not rows:
+            _log("No targets. Refresh the job feed first.")
+            return 1
+        strong = sum(1 for r in rows if r["sponsors_analysts"])
+        _log(f"{len(rows)} employers with an open role you would apply for AND a "
+             f"filing record; {strong} of them clearly sponsor analysts.\n")
+        for r in rows:
+            mark = "*" if r["sponsors_analysts"] else " "
+            _log(f"{mark} {r['company'][:24]:26s} {r['open_roles']:2d} roles  "
+                 f"{r['certified']:5d} cert {r['analyst_certified']:4d} analyst")
+            _log(f"    {r['alumni_search']}")
+        out = pathlib.Path(args.csv) if args.csv else (
+            config.CONTACTS_DIR / f"alumni-targets-{_dt.date.today().isoformat()}.csv")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open("w", newline="") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(O.TARGET_COLUMNS)
+            for r in rows:
+                writer.writerow([r.get(c, "") for c in O.TARGET_COLUMNS])
+        _log(f"\nwrote {out}")
+        return 0
+
     if args.action == "ledger":
         seen = O.load_ledger()
         _log(f"{len(seen)} people written to")
@@ -503,7 +527,7 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("outreach", help="prepare and log batches of alumni outreach")
-    p.add_argument("action", choices=["batch", "log", "ledger", "template"],
+    p.add_argument("action", choices=["batch", "log", "ledger", "template", "targets"],
                    help="batch: enrich a sheet or a pasted list; log: record a drafted "
                         "batch; ledger: who has been written to; template: the sheet's "
                         "column names")
@@ -515,6 +539,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=20,
                    help="people per batch (default 20; see the module docstring "
                         "on why this is capped)")
+    p.add_argument("--min-score", type=int, default=55,
+                   help="lowest job score that counts as a role worth applying for "
+                        "(default 55, matching the page)")
     p.add_argument("--include-contacted", action="store_true",
                    help="keep people already in the ledger, normally skipped")
     p.set_defaults(func=cmd_outreach)

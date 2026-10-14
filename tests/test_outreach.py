@@ -525,3 +525,72 @@ def test_a_blank_row_does_not_renumber_the_people_below_it():
 def test_rows_are_numbered_as_the_spreadsheet_shows_them():
     rows = [["note"], [], ["First Name", "Email"], ["Jane", "jane@example.com"]]
     assert O.rows_to_people(rows)[0].row == 4
+
+
+# ---- where to go looking for alumni ----
+#
+# The bottleneck was never writing notes, it was generating names. WakeNetwork
+# answers "what is this person's address" but not "who should I write to", so
+# this ranks the employers worth filtering LinkedIn's alumni tool on.
+
+def test_the_alumni_search_is_a_link_not_a_scrape():
+    """LinkedIn has no public search API, and automating it would risk the
+    account doing it. This is their own tool, used as intended."""
+    url = O.alumni_search("Capital One")
+    assert url.startswith("https://www.linkedin.com/school/wake-forest-university/people/")
+    assert "keywords=Capital+One" in url
+
+
+def test_the_country_suffix_is_dropped_from_the_search():
+    assert "United" not in O.alumni_search("Amazon (United States)")
+
+
+def test_targets_are_ranked_by_whether_they_sponsor_analysts(monkeypatch, tmp_path):
+    """An alum at a company with 229 certified analyst petitions and three open
+    reqs is worth an hour. An alum at a company with neither is a pleasant
+    conversation. The ranking is that opinion."""
+    import json as _json
+    from jobradar import config
+
+    jobs = tmp_path / "jobs.json"
+    jobs.write_text(_json.dumps([
+        {"company": "Strong Co", "title": "Data Analyst", "score": 80},
+        {"company": "Strong Co", "title": "Data Scientist", "score": 70},
+        {"company": "Weak Co", "title": "Data Analyst", "score": 90},
+        {"company": "No Record Co", "title": "Data Analyst", "score": 95},
+        {"company": "Low Score Co", "title": "Janitor", "score": 20},
+    ]))
+    monkeypatch.setattr(config, "PUBLISH_JOBS_JSON", jobs)
+    monkeypatch.setattr(O, "_sponsor_index", lambda: {
+        "STRONG CO": [500, 60], "WEAK CO": [8, 0], "LOW SCORE CO": [900, 90],
+    })
+
+    rows = O.target_companies()
+    names = [r["company"] for r in rows]
+    assert names[0] == "Strong Co"               # sponsors analysts, two reqs
+    assert "Weak Co" in names                    # has a record, ranked below
+    assert "No Record Co" not in names           # nothing to say about sponsorship
+    assert "Low Score Co" not in names           # no role she would apply for
+    assert rows[0]["open_roles"] == 2
+    assert rows[0]["sponsors_analysts"] is True
+    assert "linkedin.com/school" in rows[0]["alumni_search"]
+
+
+def test_a_target_row_carries_what_the_search_needs(monkeypatch, tmp_path):
+    import json as _json
+    from jobradar import config
+
+    jobs = tmp_path / "jobs.json"
+    jobs.write_text(_json.dumps([
+        {"company": "Strong Co", "title": "Senior Data Analyst", "score": 80}]))
+    monkeypatch.setattr(config, "PUBLISH_JOBS_JSON", jobs)
+    monkeypatch.setattr(O, "_sponsor_index", lambda: {"STRONG CO": [500, 60]})
+    row = O.target_companies()[0]
+    assert set(O.TARGET_COLUMNS) >= set(row) - {"sponsors_analysts"}
+    assert row["example_titles"].startswith("Senior Data Analyst")
+
+
+def test_no_feed_means_no_targets_rather_than_a_crash(monkeypatch, tmp_path):
+    from jobradar import config
+    monkeypatch.setattr(config, "PUBLISH_JOBS_JSON", tmp_path / "missing.json")
+    assert O.target_companies() == []

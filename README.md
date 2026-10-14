@@ -392,6 +392,31 @@ merges every file newest-first and dedupes on the author id. An unreadable or
 half-written CSV is skipped rather than failing the request. Use the CLI when
 you want the fuzzy matching the browser cannot do.
 
+### Finding alumni to write to
+
+The bottleneck is not writing notes, it is generating names. WakeNetwork
+answers "what is this person's email address" but not "who should I be writing
+to", and LinkedIn's alumni tool answers the second only one filter at a time.
+
+```
+python -m jobradar outreach targets
+```
+
+So this ranks the employers worth filtering on: ones with an **open role worth
+applying for** (score 55 or better, the page's own threshold, so the two agree)
+**and a filing record showing they sponsor**. On the current feed that is 199
+companies, 86 of which have three or more certified analyst petitions.
+
+The ranking is the opinion. An alum at a company with 229 certified analyst
+petitions and three open reqs is worth an hour; an alum at a company with
+neither is a pleasant conversation. A company with no filing record at all is
+left out, because there is nothing to say about whether it can sponsor.
+
+Each row carries a prefilled link to **LinkedIn's own alumni tool** filtered to
+that employer. Nothing is scraped: LinkedIn has no public search API and
+automating it would risk the account doing it. The loop is theirs to click —
+read the names, look each one up in WakeNetwork for an address, add the row.
+
 ### The alumni outreach loop
 
 The **Paste alumni** mode in the Outreach tab is the normal way in: search

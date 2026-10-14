@@ -590,6 +590,93 @@ def enrich(people: list, *, skip_contacted: bool = True) -> list:
     return people
 
 
+# ---- where to go looking for alumni ----
+#
+# The bottleneck is not writing notes, it is generating names. WakeNetwork
+# answers "what is this person's email" but not "who should I be writing to",
+# and LinkedIn's alumni page answers the second only one filter at a time.
+#
+# So this ranks the employers worth filtering on: ones with an open role Alli
+# would actually apply for AND a filing record showing they sponsor. That turns
+# an unbounded search into a worklist, and the ranking is the opinion — an alum
+# at a company with 229 certified analyst petitions and three open reqs is
+# worth an hour; an alum at a company with neither is a pleasant conversation.
+
+ALUMNI_SCHOOL_SLUG = "wake-forest-university"
+
+
+def alumni_search(company: str) -> str:
+    """LinkedIn's alumni tool, filtered to one employer.
+
+    Their own tool, used the way it is meant to be used: she clicks it, reads
+    the names, and looks each one up in WakeNetwork for an address. Nothing is
+    scraped, because LinkedIn has no public search API and automating it would
+    risk the account doing it.
+    """
+    from urllib.parse import quote_plus
+
+    plain = _PARENS_CO.sub("", company or "").strip()
+    return (f"https://www.linkedin.com/school/{ALUMNI_SCHOOL_SLUG}/people/"
+            f"?keywords={quote_plus(plain)}")
+
+
+_PARENS_CO = re.compile(r"\s*\([^)]*\)")
+
+
+def target_companies(*, min_score: int = 55, min_certified: int = 1,
+                     limit: int = 60) -> list:
+    """Employers to search for alumni at, best first.
+
+    Ranked by whether they clearly sponsor analysts, then by how many open
+    roles they have. `min_score` is the page's own default threshold, so this
+    agrees with what the Jobs tab shows rather than inventing a second
+    standard.
+    """
+    try:
+        jobs = json.loads(config.PUBLISH_JOBS_JSON.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    sponsors = _sponsor_index()
+
+    by_company: dict = {}
+    for job in jobs:
+        if (job.get("score") or 0) < min_score:
+            continue
+        by_company.setdefault(job.get("company") or "", []).append(job)
+
+    out = []
+    for company, roles in by_company.items():
+        if not company:
+            continue
+        stats = None
+        for variant in contacts.institution_variants(company):
+            stats = sponsors.get(contacts.simple_key(variant))
+            if stats:
+                break
+        if not stats or stats[0] < min_certified:
+            continue
+        best = sorted(roles, key=lambda j: -(j.get("score") or 0))
+        out.append({
+            "company": company,
+            "open_roles": len(roles),
+            "best_score": best[0].get("score"),
+            "certified": stats[0],
+            "analyst_certified": stats[1],
+            "sponsors_analysts": stats[1] >= config.SPONSOR_STRONG_ANALYST_SOC,
+            "example_titles": "; ".join(j.get("title", "")[:48] for j in best[:2]),
+            "alumni_search": alumni_search(company),
+        })
+
+    out.sort(key=lambda r: (not r["sponsors_analysts"], -r["analyst_certified"],
+                            -r["open_roles"], -(r["best_score"] or 0)))
+    return out[:limit]
+
+
+TARGET_COLUMNS = ["company", "open_roles", "best_score", "certified",
+                  "analyst_certified", "example_titles", "alumni_search",
+                  "searched", "found"]
+
+
 # ---- the batch file a session drafts into ----
 
 _BATCH_HELP = """<!-- A batch to draft. One block per person.
