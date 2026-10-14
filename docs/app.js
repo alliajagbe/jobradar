@@ -2237,6 +2237,9 @@ function batchMarkdown(people) {
 // because LinkedIn refuses automated requests, so if the alumni link lands on
 // the wrong school, this constant is the one thing to correct.
 const ALUMNI_SLUG = "wake-forest-university";
+const ALUMNI_SCHOOL = "Wake Forest";
+const ALUMNI_TOOL_URL =
+  `https://www.linkedin.com/school/${ALUMNI_SLUG}/people/`;
 // What she is actually applying for, used to find peers already doing the job.
 const PEER_TITLES = "data analyst OR business analyst OR data scientist";
 
@@ -2271,16 +2274,48 @@ function companyFacts(company) {
   return { cards, certified, analyst, signal, manager, email };
 }
 
+/* The name a profile would actually say. Feed companies carry region and legal
+   suffixes — "DoorDash USA", "AbbVie Inc." — and an exact-phrase search for
+   those matches nobody, so take the shortest variant and drop the punctuation
+   the peel leaves behind ("Gusto,"). */
+function searchName(company) {
+  const bare = String(company || "").replace(/\s*\([^)]*\)/g, "").trim();
+  const variants = institutionVariants(bare);
+  return ((variants[variants.length - 1] || bare) + "").replace(/[\s,.;]+$/, "");
+}
+
 function companyPaths(company) {
   const org = String(company || "").replace(/\s*\([^)]*\)/g, "").trim();
+  const phrase = searchName(company);
   const f = companyFacts(company);
   const paths = [
     {
       title: `Wake Forest alumni at ${org}`,
       why: "The warmest path. An alum has a reason to reply, and you have the "
          + "strongest version of this: highest GPA in your cohort.",
-      url: `https://www.linkedin.com/school/${ALUMNI_SLUG}/people/?keywords=`
-           + encodeURIComponent(org).replace(/%20/g, "+"),
+      // Not the alumni tool: /school/<slug>/people/ drops a keywords param it
+      // does not recognise and shows the unfiltered page, so a deep link into
+      // it goes nowhere. People search honours the query, and the quoted
+      // school name keeps it to profiles that name Wake Forest.
+      url: liPeople(`"${ALUMNI_SCHOOL}" "${phrase}"`),
+      pool: "alumni",
+    },
+    {
+      title: "LinkedIn's alumni tool, filtered by hand",
+      why: `The precise version of the search above, and the only way to get `
+         + `it: the tool cannot be deep-linked. Open it, type ${phrase} into `
+         + `"Where they work", and it lists alumni there with their titles.`,
+      url: ALUMNI_TOOL_URL,
+      pool: "alumni",
+    },
+    {
+      title: `${org} alumni profiles on Google`,
+      why: "Profile pages are public, so this returns names and titles without "
+         + "a login. Worth a click because it fails differently from LinkedIn's "
+         + "own search, which thins out or throttles.",
+      url: "https://www.google.com/search?q="
+           + encodeURIComponent(`site:linkedin.com/in "${ALUMNI_SCHOOL}" `
+             + `"${phrase}" (analyst OR analytics OR data)`).replace(/%20/g, "+"),
       pool: "alumni",
     },
     f.manager ? {

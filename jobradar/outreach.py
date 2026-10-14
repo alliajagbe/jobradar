@@ -603,21 +603,58 @@ def enrich(people: list, *, skip_contacted: bool = True) -> list:
 # worth an hour; an alum at a company with neither is a pleasant conversation.
 
 ALUMNI_SCHOOL_SLUG = "wake-forest-university"
+ALUMNI_TOOL_URL = f"https://www.linkedin.com/school/{ALUMNI_SCHOOL_SLUG}/people/"
+ALUMNI_SCHOOL_PHRASE = "Wake Forest"
+
+
+def _plain_company(company: str) -> str:
+    """The name a profile would actually say, for an exact-phrase search.
+
+    Feed companies carry region and legal suffixes — "DoorDash USA",
+    "AbbVie Inc.", "Amazon (United States)" — and quoting those as a phrase
+    matches nobody, because a profile says "DoorDash". `institution_variants`
+    already peels them for sponsorship matching, so reuse it and take the
+    shortest, then drop the punctuation it leaves behind ("Gusto,").
+    """
+    bare = _PARENS_CO.sub("", company or "").strip()
+    variants = contacts.institution_variants(bare) or [bare]
+    return (variants[-1] or bare).strip(" ,.;")
 
 
 def alumni_search(company: str) -> str:
-    """LinkedIn's alumni tool, filtered to one employer.
+    """LinkedIn people search for alumni at one employer.
 
-    Their own tool, used the way it is meant to be used: she clicks it, reads
-    the names, and looks each one up in WakeNetwork for an address. Nothing is
-    scraped, because LinkedIn has no public search API and automating it would
-    risk the account doing it.
+    Not the alumni tool. `/school/<slug>/people/` cannot be deep-linked: it
+    drops a `keywords` param it does not recognise and renders the unfiltered
+    page, so a link into it is a link to nowhere. People search does honour a
+    query string, and an exact-phrase school name keeps it to profiles that
+    name Wake Forest. Noisier than the alumni tool's own employer filter, but
+    it lands on names in one click, which is the whole point.
+
+    Still a link, not a scrape: LinkedIn has no public search API and
+    automating it would risk the account doing it. She clicks, reads the
+    names, and looks each one up in WakeNetwork for an address.
     """
     from urllib.parse import quote_plus
 
-    plain = _PARENS_CO.sub("", company or "").strip()
-    return (f"https://www.linkedin.com/school/{ALUMNI_SCHOOL_SLUG}/people/"
-            f"?keywords={quote_plus(plain)}")
+    query = f'"{ALUMNI_SCHOOL_PHRASE}" "{_plain_company(company)}"'
+    return (f"https://www.linkedin.com/search/results/people/"
+            f"?keywords={quote_plus(query)}")
+
+
+def alumni_search_google(company: str) -> str:
+    """The same question asked of Google, as a second route.
+
+    Profile pages are public, so `site:linkedin.com/in` returns name and title
+    in the snippet without a login and without LinkedIn's search limits. Worth
+    having because it fails differently: when LinkedIn throttles the search or
+    the phrase match comes back thin, this one still answers.
+    """
+    from urllib.parse import quote_plus
+
+    query = (f'site:linkedin.com/in "{ALUMNI_SCHOOL_PHRASE}" '
+             f'"{_plain_company(company)}" (analyst OR analytics OR data)')
+    return f"https://www.google.com/search?q={quote_plus(query)}"
 
 
 _PARENS_CO = re.compile(r"\s*\([^)]*\)")
@@ -664,7 +701,8 @@ def target_companies(*, min_score: int = 55, min_certified: int = 1,
             "analyst_certified": stats[1],
             "sponsors_analysts": stats[1] >= config.SPONSOR_STRONG_ANALYST_SOC,
             "example_titles": "; ".join(j.get("title", "")[:48] for j in best[:2]),
-            "alumni_search": alumni_search(company),
+            "linkedin_search": alumni_search(company),
+            "google_search": alumni_search_google(company),
         })
 
     out.sort(key=lambda r: (not r["sponsors_analysts"], -r["analyst_certified"],
@@ -673,8 +711,8 @@ def target_companies(*, min_score: int = 55, min_certified: int = 1,
 
 
 TARGET_COLUMNS = ["company", "open_roles", "best_score", "certified",
-                  "analyst_certified", "example_titles", "alumni_search",
-                  "searched", "found"]
+                  "analyst_certified", "example_titles", "linkedin_search",
+                  "google_search", "searched", "found"]
 
 
 # ---- the batch file a session drafts into ----

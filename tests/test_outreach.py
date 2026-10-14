@@ -535,14 +535,53 @@ def test_rows_are_numbered_as_the_spreadsheet_shows_them():
 
 def test_the_alumni_search_is_a_link_not_a_scrape():
     """LinkedIn has no public search API, and automating it would risk the
-    account doing it. This is their own tool, used as intended."""
+    account doing it. These are links she clicks, not requests we make."""
     url = O.alumni_search("Capital One")
-    assert url.startswith("https://www.linkedin.com/school/wake-forest-university/people/")
-    assert "keywords=Capital+One" in url
+    assert url.startswith("https://www.linkedin.com/search/results/people/")
+    assert "Wake+Forest" in url and "Capital+One" in url
+
+
+def test_the_search_does_not_deep_link_the_alumni_tool():
+    """/school/<slug>/people/ drops a keywords param it does not recognise and
+    renders the unfiltered page, so a link into it is a link to nowhere. This
+    was a real bug: every row in the sheet bounced back to the same page."""
+    url = O.alumni_search("PayPal")
+    assert "/school/" not in url
+    # The tool is still worth naming, as the thing to filter by hand.
+    assert O.ALUMNI_TOOL_URL.endswith("/school/wake-forest-university/people/")
+    assert "?" not in O.ALUMNI_TOOL_URL
+
+
+def test_the_school_name_is_an_exact_phrase():
+    """Unquoted, LinkedIn matches the words anywhere and "Forest" drags in
+    noise. Quoted, it keeps the result to profiles that name the school."""
+    from urllib.parse import unquote_plus
+    assert '"Wake Forest"' in unquote_plus(O.alumni_search("Intel"))
+
+
+def test_google_is_the_second_route_and_fails_differently():
+    """Profile pages are public, so this needs no login and does not throttle
+    the way LinkedIn's own search does."""
+    url = O.alumni_search_google("Applied Materials")
+    assert url.startswith("https://www.google.com/search?q=")
+    assert "site%3Alinkedin.com%2Fin" in url
+    assert "Applied+Materials" in url
 
 
 def test_the_country_suffix_is_dropped_from_the_search():
     assert "United" not in O.alumni_search("Amazon (United States)")
+    assert "United" not in O.alumni_search_google("Amazon (United States)")
+
+
+def test_the_legal_and_region_suffixes_are_peeled_for_the_phrase():
+    """A profile says "DoorDash", not "DoorDash USA", and an exact-phrase
+    search for the feed's own string matches nobody. This was the other half
+    of the dead-link bug: the URL loaded and the results were empty."""
+    from urllib.parse import unquote_plus
+    assert '"DoorDash"' in unquote_plus(O.alumni_search("DoorDash USA"))
+    assert '"AbbVie"' in unquote_plus(O.alumni_search("AbbVie Inc."))
+    # And no trailing punctuation left behind by the peel.
+    assert '"Gusto"' in unquote_plus(O.alumni_search("Gusto, Inc."))
 
 
 def test_targets_are_ranked_by_whether_they_sponsor_analysts(monkeypatch, tmp_path):
@@ -573,7 +612,8 @@ def test_targets_are_ranked_by_whether_they_sponsor_analysts(monkeypatch, tmp_pa
     assert "Low Score Co" not in names           # no role she would apply for
     assert rows[0]["open_roles"] == 2
     assert rows[0]["sponsors_analysts"] is True
-    assert "linkedin.com/school" in rows[0]["alumni_search"]
+    assert "linkedin.com/search" in rows[0]["linkedin_search"]
+    assert "google.com/search" in rows[0]["google_search"]
 
 
 def test_a_target_row_carries_what_the_search_needs(monkeypatch, tmp_path):

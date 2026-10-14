@@ -836,14 +836,33 @@ setTimeout(() => {
       for (let n = 0; n < 6; n++) await new Promise((r) => setTimeout(r, 0));
 
       const paths = q("#comppaths .path");
-      check("every way in is listed", paths.length === 5, paths.length + " paths");
+      check("every way in is listed", paths.length === 7, paths.length + " paths");
       const pathText = paths.map((p) => p.textContent);
       check("alumni is ranked first, as the warmest path",
             /Wake Forest alumni/.test(pathText[0] || ""), (pathText[0] || "").slice(0, 60));
-      check("the alumni link uses the school's own alumni tool",
-            (paths[0].querySelector("a.go") || {}).href?.includes("/school/")
-            && (paths[0].querySelector("a.go") || {}).href?.includes("keywords=Acme"),
-            (paths[0].querySelector("a.go") || {}).href || "no link");
+      // The alumni tool cannot be deep-linked: /school/<slug>/people/ drops a
+      // keywords param it does not recognise and renders the unfiltered page.
+      // So the first row is a people search, and the tool gets a row of its
+      // own with a bare URL to filter by hand.
+      const alumniHref = (paths[0].querySelector("a.go") || {}).href || "";
+      check("the alumni link is a people search, not a dead deep link",
+            alumniHref.includes("/search/results/people/")
+            && !alumniHref.includes("/school/")
+            && /%22Wake\+Forest%22/.test(alumniHref)
+            && alumniHref.includes("%22Acme%22"),
+            alumniHref || "no link");
+      check("the alumni tool is offered bare, to filter by hand",
+            pathText.some((t) => /alumni tool, filtered by hand/.test(t))
+            && paths.some((p) => {
+              const a = p.querySelector("a.go");
+              return a && a.href.endsWith("/school/wake-forest-university/people/");
+            }));
+      check("Google is offered as a route that fails differently",
+            paths.some((p) => {
+              const a = p.querySelector("a.go");
+              return a && a.href.includes("google.com/search")
+                  && a.href.includes("site%3Alinkedin.com%2Fin");
+            }));
       check("recruiters are offered but ranked below a referral",
             pathText.findIndex((t) => /Recruiters at/.test(t)) > 0);
       check("peers already doing the job are offered",
@@ -851,7 +870,7 @@ setTimeout(() => {
       check("every generated link is a search or a mailto, never a scrape",
             paths.every((p) => {
               const a = p.querySelector("a.go");
-              return !a || /linkedin\.com\/(search|school)|^mailto:/.test(a.href);
+              return !a || /linkedin\.com\/(search|school)|google\.com\/search|^mailto:/.test(a.href);
             }),
             paths.map((p) => (p.querySelector("a.go") || {}).href || "-").join(" ").slice(0, 110));
 
@@ -880,6 +899,17 @@ setTimeout(() => {
       check("hiring manager is a pool of its own",
             [...q("#o_pool option")].some((o) => o.value === "hiring"),
             [...q("#o_pool option")].map((o) => o.value).join(","));
+
+      // The feed's company strings carry region and legal suffixes, and an
+      // exact-phrase search for "DoorDash USA" matches nobody. The sponsorship
+      // peeler already knows the shortest name, so the search reuses it.
+      $("#q_company").value = "DoorDash USA";
+      $("#compsearch").dispatchEvent(new w.Event("submit", {bubbles:true, cancelable:true}));
+      for (let n = 0; n < 6; n++) await new Promise((r) => setTimeout(r, 0));
+      const suffixed = (q("#comppaths .path")[0].querySelector("a.go") || {}).href || "";
+      check("the legal and region suffix is peeled off the search phrase",
+            suffixed.includes("%22DoorDash%22") && !/USA/.test(suffixed),
+            suffixed || "no link");
 
       $("#mode_topic").click();
       check("switching back restores the topic form",

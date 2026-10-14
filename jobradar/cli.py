@@ -246,7 +246,7 @@ def cmd_outreach(args: argparse.Namespace) -> int:
             mark = "*" if r["sponsors_analysts"] else " "
             _log(f"{mark} {r['company'][:24]:26s} {r['open_roles']:2d} roles  "
                  f"{r['certified']:5d} cert {r['analyst_certified']:4d} analyst")
-            _log(f"    {r['alumni_search']}")
+            _log(f"    {r['linkedin_search']}")
         out = pathlib.Path(args.csv) if args.csv else (
             config.CONTACTS_DIR / f"alumni-targets-{_dt.date.today().isoformat()}.csv")
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -256,6 +256,10 @@ def cmd_outreach(args: argparse.Namespace) -> int:
             for r in rows:
                 writer.writerow([r.get(c, "") for c in O.TARGET_COLUMNS])
         _log(f"\nwrote {out}")
+        _log(f"\nThe alumni tool itself is not deep-linkable, so those are "
+             f"people searches.\nFor the precise version, open "
+             f"{O.ALUMNI_TOOL_URL}\nand type the employer into its own "
+             f'"Where they work" box.')
         return 0
 
     if args.action == "ledger":

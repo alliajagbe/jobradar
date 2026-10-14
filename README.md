@@ -412,10 +412,35 @@ petitions and three open reqs is worth an hour; an alum at a company with
 neither is a pleasant conversation. A company with no filing record at all is
 left out, because there is nothing to say about whether it can sponsor.
 
-Each row carries a prefilled link to **LinkedIn's own alumni tool** filtered to
-that employer. Nothing is scraped: LinkedIn has no public search API and
-automating it would risk the account doing it. The loop is theirs to click —
-read the names, look each one up in WakeNetwork for an address, add the row.
+Each row carries two prefilled searches for alumni at that employer: a
+**LinkedIn people search** and the same question asked of **Google**, over
+public `linkedin.com/in` profiles. Nothing is scraped: LinkedIn has no public
+search API and automating it would risk the account doing it. The loop is
+theirs to click — read the names, look each one up in WakeNetwork for an
+address, add the row.
+
+**The alumni tool itself cannot be deep-linked**, and this was a real bug worth
+recording. `linkedin.com/school/<slug>/people/?keywords=PayPal` looks like it
+should work and does not: LinkedIn drops a `keywords` param it does not
+recognise and renders the unfiltered page, so every row in the sheet bounced
+back to the same place. People search does honour a query string, so that is
+what the links use, with the school name as an exact phrase to keep the results
+to profiles that name Wake Forest.
+
+Two details make the difference between a link that loads and a link that finds
+anybody. The school is quoted, because unquoted "Forest" drags in noise. And the
+employer is run through `institution_variants` first, the same peeler
+sponsorship matching uses: the feed says "DoorDash USA", "AbbVie Inc.",
+"Gusto, Inc.", and an exact-phrase search for any of those matches nobody,
+because a profile says "DoorDash".
+
+Google earns its column by **failing differently**. Profile pages are public, so
+it needs no login and does not thin out when LinkedIn throttles a search. When
+one route comes back empty the other usually does not.
+
+For the precise version, open the alumni tool unfiltered and use its own
+*Where they work* box — that is a real filter over alumni rather than a keyword
+match, and it is the only way to get at it.
 
 ### The alumni outreach loop
 
@@ -529,17 +554,22 @@ precisely targeted search you complete by clicking, ranked by how well it
 actually converts:
 
 1. **Wake Forest alumni at the company.** The warmest path, and you have the
-   strongest version of it. Uses LinkedIn's own alumni tool.
-2. **The hiring manager**, when a posting named their title. Nine of 101 cached
+   strongest version of it. A people search, because the alumni tool cannot be
+   deep-linked (above).
+2. **The alumni tool, unfiltered**, to filter by hand. The precise version of
+   the search above, and the only way to get it.
+3. **The same search on Google**, over public profiles. No login, and it does
+   not throttle the way LinkedIn's own search does.
+4. **The hiring manager**, when a posting named their title. Nine of 101 cached
    descriptions do: "Reporting to the Director of Data Science", "VP, Data
    Analytics". Not a name, but it turns a search returning a hundred people into
    one returning two.
-3. **Recruiters at the company.** Lower conversion than a referral, but replying
+5. **Recruiters at the company.** Lower conversion than a referral, but replying
    is their job.
-4. **People already doing the job.** A peer referral carries more weight
+6. **People already doing the job.** A peer referral carries more weight
    internally than a cold recruiter note, and they know what is open before it
    posts.
-5. **A published `careers@` address**, where the posting has one. Three of 101.
+7. **A published `careers@` address**, where the posting has one. Three of 101.
 
 The panel also lists the roles you are tracking there, so the note can name a
 specific req. **Log** prefills the outreach form with the company, pool and hook
@@ -564,9 +594,12 @@ because that is the only point at which the full description exists: the store
 keeps a 400-character snippet, which yields a manager title for 4 of 1,757 jobs.
 Reading them back needs the helper running; the other four paths do not.
 
-The LinkedIn school slug is one constant in `docs/app.js` (`ALUMNI_SLUG`). It
-cannot be verified from here because LinkedIn refuses automated requests, so if
-the alumni link lands on the wrong school, that is the thing to correct.
+The LinkedIn school slug and the phrase searched for are two constants in
+`docs/app.js` (`ALUMNI_SLUG`, `ALUMNI_SCHOOL`) and in `jobradar/outreach.py`
+(`ALUMNI_SCHOOL_SLUG`, `ALUMNI_SCHOOL_PHRASE`). Neither can be verified from
+here, because LinkedIn refuses automated requests — which is exactly how the
+dead `keywords` link survived as long as it did. If a link lands on the wrong
+school or comes back empty, those are the things to correct.
 
 ### Reaching the person, and why there is no email column
 
